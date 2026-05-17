@@ -25,6 +25,7 @@ model User {
   categories       Category[]
   sentMessages     Message[]     @relation("SentMessages")
   receivedMessages Message[]     @relation("ReceivedMessages")
+  gameProfile      GameProfile?
 }
 
 model Category {
@@ -63,4 +64,44 @@ model Message {
   toId      String
   from      User     @relation("SentMessages", fields: [fromId], references: [id])
   to        User     @relation("ReceivedMessages", fields: [toId], references: [id])
+}
+
+model GameProfile {
+  id            String        @id @default(uuid())
+  userId        String        @unique
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  xp            Int           @default(0)
+  level         Int           @default(1)
+  streak        Int           @default(0)
+  lastActiveDate DateTime?
+  totalSaved    Float         @default(0)
+  archetype     String?
+  achievements  Achievement[]
+  challenges    WeeklyChallenge[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Achievement {
+  id            String      @id @default(uuid())
+  gameProfileId String
+  gameProfile   GameProfile @relation(fields: [gameProfileId], references: [id], onDelete: Cascade)
+  code          String      // унікальний код ачівки
+  unlockedAt    DateTime    @default(now())
+
+  @@unique([gameProfileId, code])
+}
+
+model WeeklyChallenge {
+  id            String      @id @default(uuid())
+  gameProfileId String
+  gameProfile   GameProfile @relation(fields: [gameProfileId], references: [id], onDelete: Cascade)
+  weekStart     DateTime
+  type          String      // напр. "spend_less_food"
+  targetAmount  Float?
+  currentAmount Float       @default(0)
+  completed     Boolean     @default(false)
+  xpReward      Int         @default(100)
+
+  @@unique([gameProfileId, weekStart])
 }

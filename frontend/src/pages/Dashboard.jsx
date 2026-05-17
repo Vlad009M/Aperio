@@ -10,6 +10,8 @@ import AdminPanel from './AdminPanel.jsx'
 import ProfileModal from '../components/ProfileModal.jsx'
 import Import from './Import.jsx'
 import BulkDeleteModal from '../components/BulkDeleteModal.jsx'
+import GamePage from './GamePage.jsx'
+import GameWidget from '../components/GameWidget.jsx'
 
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 
@@ -121,6 +123,7 @@ export default function Dashboard() {
       setForm({ amount: '', type: 'expense', description: '', categoryId: '', date: now.toISOString().split('T')[0] })
       setShowForm(false)
       toast.success('Транзакцію додано!')
+      api.post('/game/sync').catch(() => {})
       loadData()
     } catch { toast.error('Помилка') }
     setLoading(false)
@@ -183,6 +186,7 @@ export default function Dashboard() {
     { id: 'messages', icon: 'ti-bell', label: 'Повідомлення', badge: unreadCount },
     ...(user.role === 'ROOT' ? [{ id: 'admin', icon: 'ti-shield-check', label: 'Адмін' }] : []),
     { id: 'import', icon: 'ti-download', label: 'Імпорт' },
+    { id: 'game', icon: 'ti-sword', label: 'Герой' }
   ]
 
   const filteredCategories = categories.filter(c => c.type === form.type)
@@ -212,6 +216,7 @@ export default function Dashboard() {
           <i className="ti ti-logout" style={{ fontSize: 18 }} />
           Вийти
         </button>
+        <GameWidget onNavigate={setActiveTab} />
         <button onClick={() => setShowProfile(true)} style={s.userRowBtn}>
   <div style={s.avatar}>
     {currentUser.avatarUrl
@@ -524,6 +529,7 @@ export default function Dashboard() {
         {activeTab === 'ai' && <AIAnalysis />}
         {activeTab === 'admin' && <AdminPanel />}
         {activeTab === 'import' && (<Import categories={categories} onSuccess={loadData} /> )}
+        {activeTab === 'game' && <GamePage />}
       </div>
 
       {editTx && (
