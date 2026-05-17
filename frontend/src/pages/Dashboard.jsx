@@ -12,6 +12,8 @@ import Import from './Import.jsx'
 import BulkDeleteModal from '../components/BulkDeleteModal.jsx'
 import GamePage from './GamePage.jsx'
 import GameWidget from '../components/GameWidget.jsx'
+import BudgetSection from '../components/BudgetSection.jsx'
+import ThemeToggle from '../components/ThemeToggle.jsx'
 
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 
@@ -26,6 +28,73 @@ const CATEGORIES = [
   { name: 'Фріланс', icon: '💻', color: '#EAF3DE', iconColor: '#3B6D11', type: 'income' },
   { name: 'Інше', icon: '📦', color: '#EEEDFE', iconColor: '#534AB7', type: 'expense' },
 ]
+function SparkLine({ transactions }) {
+  const daysInMonth = new Date(
+    new Date().getFullYear(), new Date().getMonth() + 1, 0
+  ).getDate()
+
+  // Накопичений баланс по днях
+  const days = Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1
+    const dayTx = transactions.filter(t => new Date(t.date).getDate() === day)
+    const income = dayTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+    const expense = dayTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+    return income - expense
+  })
+
+  // Кумулятивний баланс
+  const cumulative = days.reduce((acc, val) => {
+    acc.push((acc[acc.length - 1] || 0) + val)
+    return acc
+  }, [])
+
+  if (cumulative.every(v => v === 0)) return null
+
+  const W = 140, H = 56
+  const max = Math.max(...cumulative)
+  const min = Math.min(...cumulative)
+  const range = max - min || 1
+  const today = new Date().getDate()
+  const points = cumulative.slice(0, today)
+
+  const px = (i) => (i / (points.length - 1 || 1)) * W
+  const py = (v) => H - ((v - min) / range) * H
+
+  const pathD = points.map((v, i) => `${i === 0 ? 'M' : 'L'}${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ')
+  const areaD = pathD + ` L${px(points.length - 1).toFixed(1)},${H} L0,${H} Z`
+
+  const lastVal = points[points.length - 1]
+  const isUp = lastVal >= 0
+
+  return (
+    <div style={{ flexShrink: 0, opacity: 0.85 }}>
+      <svg width={W} height={H} style={{ overflow: 'visible' }}>
+        <defs>
+          <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+        {/* Area */}
+        <path d={areaD} fill="url(#sparkGrad)" />
+        {/* Line */}
+        <path d={pathD} fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Last dot */}
+        <circle
+          cx={px(points.length - 1)}
+          cy={py(lastVal)}
+          r="3.5"
+          fill="#fff"
+          stroke={isUp ? '#43e97b' : '#fa709a'}
+          strokeWidth="2"
+        />
+      </svg>
+      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', textAlign: 'right', marginTop: 2 }}>
+        динаміка місяця
+      </div>
+    </div>
+  )
+}
 
 export default function Dashboard() {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -168,6 +237,11 @@ export default function Dashboard() {
   const incomeChange = prevStats.income > 0 ? Math.round(((stats.income - prevStats.income) / prevStats.income) * 100) : null
   const expenseChange = prevStats.expense > 0 ? Math.round(((stats.expense - prevStats.expense) / prevStats.expense) * 100) : null
   const savings = stats.income > 0 ? Math.round(((stats.income - stats.expense) / stats.income) * 100) : 0
+  const [challengeData, setChallengeData] = useState(null)
+
+  useEffect(() => {
+    api.get('/game').then(res => setChallengeData(res.data.challenge)).catch(() => {})
+  }, [])
 
   const pieData = categories
     .filter(c => c.type === 'expense')
@@ -213,6 +287,7 @@ export default function Dashboard() {
         <div style={s.logoRow}>
           <img src="/Aperio.png" alt="Aperio" style={{ width: 34, height: 34, borderRadius: 8, objectFit: 'cover' }} />
           <span style={s.logoText}>Aperio</span>
+          <ThemeToggle />
         </div>
         <div style={s.navLabel}>Меню</div>
         {navItems.map(item => (
@@ -302,21 +377,26 @@ export default function Dashboard() {
               {/* LEFT */}
               <div>
                 <div style={s.balanceCard}>
-                  <div style={s.balanceLabel}>Загальний баланс</div>
-                  <div style={s.balanceAmount}>₴{stats.balance.toLocaleString()}</div>
-                  <div style={s.balanceRow}>
-                    <div style={s.balanceSub}>
-                      <span style={s.balanceSubLabel}>Доходи</span>
-                      <span style={s.balanceSubVal}>₴{stats.income.toLocaleString()}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={s.balanceLabel}>Загальний баланс</div>
+                      <div style={s.balanceAmount}>₴{stats.balance.toLocaleString()}</div>
+                      <div style={s.balanceRow}>
+                        <div style={s.balanceSub}>
+                          <span style={s.balanceSubLabel}>Доходи</span>
+                          <span style={s.balanceSubVal}>₴{stats.income.toLocaleString()}</span>
+                        </div>
+                        <div style={s.balanceSub}>
+                          <span style={s.balanceSubLabel}>Витрати</span>
+                          <span style={s.balanceSubVal}>₴{stats.expense.toLocaleString()}</span>
+                        </div>
+                        <div style={s.balanceSub}>
+                          <span style={s.balanceSubLabel}>Місяць</span>
+                          <span style={s.balanceSubVal}>{MONTHS[filterMonth].slice(0, 3)}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div style={s.balanceSub}>
-                      <span style={s.balanceSubLabel}>Витрати</span>
-                      <span style={s.balanceSubVal}>₴{stats.expense.toLocaleString()}</span>
-                    </div>
-                    <div style={s.balanceSub}>
-                      <span style={s.balanceSubLabel}>Місяць</span>
-                      <span style={s.balanceSubVal}>{MONTHS[filterMonth].slice(0, 3)}</span>
-                    </div>
+                    <SparkLine transactions={transactions} />
                   </div>
                 </div>
 
@@ -361,31 +441,80 @@ export default function Dashboard() {
                   <span style={s.sectionTitle}>Останні транзакції</span>
                   <span style={s.seeAll} onClick={() => setActiveTab('transactions')}>Всі →</span>
                 </div>
-                <div style={s.txCard}>
-                  {transactions.slice(0, 6).map(t => {
-                    const catDef = CATEGORIES.find(c => c.name === t.category?.name)
-                    return (
-                      <div key={t.id} style={s.txRow}>
-                        <div style={{ ...s.txIcon, background: catDef?.color || '#EEEDFE' }}>
-                          <span style={{ fontSize: 18 }}>{t.category?.icon || '📦'}</span>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, alignItems: 'start' }}>
+                  <div style={s.txCard}>
+                    {transactions.slice(0, 6).map(t => {
+                      const catDef = CATEGORIES.find(c => c.name === t.category?.name)
+                      return (
+                        <div key={t.id} style={s.txRow}>
+                          <div style={{ ...s.txIcon, background: catDef?.color || '#EEEDFE' }}>
+                            <span style={{ fontSize: 18 }}>{t.category?.icon || '📦'}</span>
+                          </div>
+                          <div style={s.txInfo}>
+                            <div style={s.txName}>{t.category?.name || 'Інше'}</div>
+                            <div style={s.txDate}>{t.description || '—'} · {new Date(t.date).toLocaleDateString('uk', { day: 'numeric', month: 'short' })}</div>
+                          </div>
+                          <div style={{ ...s.txAmount, color: t.type === 'income' ? '#3B6D11' : '#993C1D' }}>
+                            {t.type === 'income' ? '+' : '-'}₴{t.amount.toLocaleString()}
+                          </div>
+                          <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                            <button onClick={() => setEditTx(t)} style={s.actionBtn} title="Редагувати">✏️</button>
+                            <button onClick={() => deleteTransaction(t.id)} style={{ ...s.actionBtn, color: '#993C1D' }} title="Видалити">🗑️</button>
+                          </div>
                         </div>
-                        <div style={s.txInfo}>
-                          <div style={s.txName}>{t.category?.name || 'Інше'}</div>
-                          <div style={s.txDate}>{t.description || '—'} · {new Date(t.date).toLocaleDateString('uk', { day: 'numeric', month: 'short' })}</div>
-                        </div>
-                        <div style={{ ...s.txAmount, color: t.type === 'income' ? '#3B6D11' : '#993C1D' }}>
-                          {t.type === 'income' ? '+' : '-'}₴{t.amount.toLocaleString()}
-                        </div>
-                        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                          <button onClick={() => setEditTx(t)} style={s.actionBtn} title="Редагувати">✏️</button>
-                          <button onClick={() => deleteTransaction(t.id)} style={{ ...s.actionBtn, color: '#993C1D' }} title="Видалити">🗑️</button>
+                      )
+                    })}
+                    {transactions.length === 0 && (
+                      <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-text-tertiary)', fontSize: 13 }}>
+                        Немає транзакцій за {MONTHS[filterMonth]}. Додай першу!
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Челендж */}
+                  {challengeData ? (
+                    <div style={s.challengeWidget}>
+                      <div style={s.challengeHeader}>
+                        <span style={{ fontSize: 18 }}>⚡</span>
+                        <div>
+                          <div style={s.challengeTitle}>Тижневий челендж</div>
+                          <div style={s.challengeSub}>оновлюється щопонеділка</div>
                         </div>
                       </div>
-                    )
-                  })}
-                  {transactions.length === 0 && (
-                    <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-text-tertiary)', fontSize: 13 }}>
-                      Немає транзакцій за {MONTHS[filterMonth]}. Додай першу!
+                      <div style={s.challengeDesc}>
+                        {challengeData.type === 'spend_less_food' && `Витрать на їжу менше ніж ₴${Math.round(challengeData.targetAmount)}`}
+                        {challengeData.type === 'spend_less_fun' && `Витрать на розваги менше ніж ₴${Math.round(challengeData.targetAmount)}`}
+                        {challengeData.type === 'add_transactions' && `Додавай транзакцію кожен день (ціль: ${Math.round(challengeData.targetAmount)})`}
+                      </div>
+                      <div style={{ margin: '12px 0 6px', display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>
+                        <span>Прогрес</span>
+                        <span>{Math.round(challengeData.currentAmount)} / {Math.round(challengeData.targetAmount)}</span>
+                      </div>
+                      <div style={s.challengeBar}>
+                        <div style={{
+                          ...s.challengeBarFill,
+                          width: `${Math.min(challengeData.type === 'add_transactions'
+                            ? (challengeData.currentAmount / challengeData.targetAmount) * 100
+                            : (1 - challengeData.currentAmount / challengeData.targetAmount) * 100, 100)}%`
+                        }} />
+                      </div>
+                      <div style={{ marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>
+                        🎁 Нагорода: +{challengeData.xpReward} XP
+                      </div>
+                      {challengeData.completed && (
+                        <div style={{ marginTop: 8, fontSize: 13, color: '#43e97b', fontWeight: 600 }}>✅ Виконано!</div>
+                      )}
+                      <button onClick={() => setActiveTab('game')} style={s.challengeBtn}>
+                        Всі деталі →
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ ...s.challengeWidget, opacity: 0.6 }}>
+                      <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <div style={{ fontSize: 32, marginBottom: 8 }}>⚡</div>
+                        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>Додай транзакції щоб отримати челендж</div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -433,6 +562,12 @@ export default function Dashboard() {
                   </div>
                   <button onClick={() => setActiveTab('ai')} style={s.aiBtn}>Детальний аналіз →</button>
                 </div>
+
+                <BudgetSection
+                  categories={categories}
+                  filterMonth={filterMonth}
+                  filterYear={filterYear}
+                />
               </div>
             </div>
           </div>
@@ -598,7 +733,7 @@ const s = {
   select: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
   input: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
   twoCol: { display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, alignItems: 'start' },
-  balanceCard: { borderRadius: 14, padding: '22px 24px', background: 'linear-gradient(135deg, #7F77DD 0%, #534AB7 100%)', color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden' },
+  balanceCard: { borderRadius: 14, padding: '16px 20px', background: 'linear-gradient(135deg, #7F77DD 0%, #534AB7 100%)', color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden' },
   balanceLabel: { fontSize: 12, opacity: 0.75, marginBottom: 6 },
   balanceAmount: { fontSize: 32, fontWeight: 500, marginBottom: 18 },
   balanceRow: { display: 'flex', gap: 24 },
@@ -619,7 +754,7 @@ const s = {
   txIcon: { width: 38, height: 38, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   txInfo: { flex: 1, minWidth: 0 },
   txName: { fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' },
-  txDate: { fontSize: 11, color: 'var(--color-text-tertiary)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  txDate: { fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   txAmount: { fontSize: 14, fontWeight: 500, flexShrink: 0 },
   actionBtn: { background: '#EEEDFE', border: 'none', color: '#534AB7', cursor: 'pointer', padding: '5px 7px', borderRadius: 6, display: 'flex', alignItems: 'center', fontSize: 16 },
   rightCol: { display: 'flex', flexDirection: 'column', gap: 14 },
@@ -642,4 +777,12 @@ const s = {
   unreadPill: { background: '#7F77DD', color: '#fff', borderRadius: 20, padding: '2px 10px', fontSize: 11, fontWeight: 600, flexShrink: 0, height: 'fit-content' },
   userRowBtn: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 8px 4px', marginTop: 'auto', borderTop: '0.5px solid var(--color-border-tertiary)', background: 'none', border: 'none', cursor: 'pointer', width: '100%', borderRadius: 8,},
   avatarImg: {width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'},
+  challengeWidget: { background: 'linear-gradient(135deg, #534AB7, #7F77DD)', borderRadius: 12, padding: 16, color: '#fff' },
+  challengeHeader: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 },
+  challengeTitle: { fontSize: 13, fontWeight: 600 },
+  challengeSub: { fontSize: 10, opacity: 0.65, marginTop: 2 },
+  challengeDesc: { fontSize: 13, lineHeight: 1.5, opacity: 0.9, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 12px' },
+  challengeBar: { height: 6, background: 'rgba(255,255,255,0.2)', borderRadius: 3, overflow: 'hidden' },
+  challengeBarFill: { height: '100%', background: '#fff', borderRadius: 3, transition: 'width 0.4s ease' },
+  challengeBtn: { marginTop: 12, fontSize: 12, color: '#fff', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontWeight: 500, width: '100%' },
 }

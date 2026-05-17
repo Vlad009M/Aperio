@@ -26,6 +26,7 @@ model User {
   sentMessages     Message[]     @relation("SentMessages")
   receivedMessages Message[]     @relation("ReceivedMessages")
   gameProfile      GameProfile?
+  budgets Budget[]
 }
 
 model Category {
@@ -37,6 +38,7 @@ model Category {
   userId       String
   user         User          @relation(fields: [userId], references: [id])
   transactions Transaction[]
+  budgets Budget[]
 }
 
 model Transaction {
@@ -104,4 +106,18 @@ model WeeklyChallenge {
   xpReward      Int         @default(100)
 
   @@unique([gameProfileId, weekStart])
+}
+
+model Budget {
+  id         String   @id @default(uuid())
+  userId     String
+  categoryId String
+  amount     Float
+  month      Int
+  year       Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId, month, year])
+  @@index([userId, month, year])
 }
