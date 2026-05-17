@@ -60,7 +60,6 @@ router.post('/', auth, async (req, res) => {
   try {
     const { amount, type, description, categoryId, date } = parsed.data
 
-    // Перевірка що категорія належить цьому юзеру
     const category = await prisma.category.findUnique({ where: { id: categoryId } })
     if (!category || category.userId !== req.userId) {
       return res.status(403).json({ error: 'Категорія не знайдена' })
@@ -97,7 +96,6 @@ router.put('/:id', auth, async (req, res) => {
 
     const { amount, type, description, categoryId, date } = parsed.data
 
-    // Перевірка що категорія належить цьому юзеру
     const category = await prisma.category.findUnique({ where: { id: categoryId } })
     if (!category || category.userId !== req.userId) {
       return res.status(403).json({ error: 'Категорія не знайдена' })
@@ -120,7 +118,49 @@ router.put('/:id', auth, async (req, res) => {
   }
 })
 
-// DELETE /:id — видалити транзакцію
+// DELETE /bulk — масове видалення по періоду
+// Body: { period: 'day' | 'week' | 'month' | 'year' | 'all', date?: 'YYYY-MM-DD' }
+router.delete('/bulk', auth, async (req, res) => {
+  try {
+    const { period, date } = req.body
+
+    if (!['day', 'week', 'month', 'year', 'all'].includes(period)) {
+      return res.status(400).json({ error: 'Невірний період' })
+    }
+
+    const where = { userId: req.userId }
+
+    if (period !== 'all') {
+      const anchor = date ? new Date(date) : new Date()
+      let gte, lt
+
+      if (period === 'day') {
+        gte = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate())
+        lt  = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + 1)
+      } else if (period === 'week') {
+        const day = anchor.getDay() === 0 ? 6 : anchor.getDay() - 1 // пн=0
+        gte = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() - day)
+        lt  = new Date(gte.getFullYear(), gte.getMonth(), gte.getDate() + 7)
+      } else if (period === 'month') {
+        gte = new Date(anchor.getFullYear(), anchor.getMonth(), 1)
+        lt  = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 1)
+      } else if (period === 'year') {
+        gte = new Date(anchor.getFullYear(), 0, 1)
+        lt  = new Date(anchor.getFullYear() + 1, 0, 1)
+      }
+
+      where.date = { gte, lt }
+    }
+
+    const { count } = await prisma.transaction.deleteMany({ where })
+    res.json({ deleted: count })
+  } catch (e) {
+    console.error('Bulk delete error:', e)
+    res.status(500).json({ error: 'Помилка сервера' })
+  }
+})
+
+// DELETE /:id — видалити одну транзакцію
 router.delete('/:id', auth, async (req, res) => {
   try {
     const existing = await prisma.transaction.findUnique({ where: { id: req.params.id } })

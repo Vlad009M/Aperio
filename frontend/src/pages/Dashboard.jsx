@@ -9,6 +9,7 @@ import { sanitize } from '../utils/sanitize.js'
 import AdminPanel from './AdminPanel.jsx'
 import ProfileModal from '../components/ProfileModal.jsx'
 import Import from './Import.jsx'
+import BulkDeleteModal from '../components/BulkDeleteModal.jsx'
 
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const [categories, setCategories] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editTx, setEditTx] = useState(null)
+  const [showBulkDelete, setShowBulkDelete] = useState(false)
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [filterMonth, setFilterMonth] = useState(now.getMonth())
@@ -429,9 +431,14 @@ export default function Dashboard() {
                   <button onClick={() => { const d = new Date(filterYear, filterMonth + 1); setFilterMonth(d.getMonth()); setFilterYear(d.getFullYear()) }} style={s.monthBtn}>›</button>
                 </div>
               </div>
-              <button onClick={() => { setActiveTab('dashboard'); setShowForm(true) }} style={s.addBtn}>
-                <i className="ti ti-plus" /> Додати
+               <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setShowBulkDelete(true)} style={{ ...s.addBtn, background: '#FEF2EE', color: '#993C1D', border: '0.5px solid #F5B8A8' }}>
+                  <i className="ti ti-trash" /> Видалити
+                </button>
+                <button onClick={() => { setActiveTab('dashboard'); setShowForm(true) }} style={s.addBtn}>
+                  <i className="ti ti-plus" /> Додати
               </button>
+            </div>
             </div>
             <div style={s.txCard}>
               <div style={{ padding: '12px 16px', borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
@@ -524,6 +531,12 @@ export default function Dashboard() {
           transaction={editTx}
           categories={categories}
           onClose={() => setEditTx(null)}
+          onSuccess={loadData}
+        />
+      )}
+      {showBulkDelete && (
+        <BulkDeleteModal
+          onClose={() => setShowBulkDelete(false)}
           onSuccess={loadData}
         />
       )}

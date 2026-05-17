@@ -23,9 +23,9 @@ export default function Import({ categories, onSuccess }) {
   const fileRef = useRef()
 
   const processFile = (file) => {
-    if (!file || !file.name.endsWith('.csv')) {
-      toast.error('Потрібен CSV файл')
-      return
+    if (!file || !file.name.toLowerCase().endsWith('.csv')) {
+        toast.error('Потрібен CSV файл')
+        return
     }
     setFileName(file.name)
 
@@ -35,6 +35,7 @@ export default function Import({ categories, onSuccess }) {
       skipEmptyLines: true,
       complete: async (results) => {
         const headers = results.meta.fields || []
+        console.log('📋 Заголовки CSV:', headers)
 
         const dateCol = findColumn(headers, MONOBANK_COLUMNS.date)
         const descCol = findColumn(headers, MONOBANK_COLUMNS.description)
@@ -52,7 +53,9 @@ export default function Import({ categories, onSuccess }) {
             const amount = Math.abs(rawAmount)
             const type = rawAmount < 0 ? 'expense' : 'income'
             const dateStr = row[dateCol]
-            const date = new Date(dateStr.replace(' ', 'T'))
+            const [datePart, timePart] = dateStr.split(' ')
+            const [day, month, year] = datePart.split('.')
+            const date = new Date(`${year}-${month}-${day}T${timePart}`)
 
             return {
               date: date.toISOString(),

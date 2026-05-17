@@ -264,7 +264,7 @@ export default function Charts({ transactions, categories }) {
   const exportCSV = () => {
     const headers = ['Дата', 'Тип', 'Категорія', 'Опис', 'Сума']
     const rows = transactions.map(t => [new Date(t.date).toLocaleDateString('uk'), t.type === 'income' ? 'Дохід' : 'Витрата', t.category?.name || '', t.description || '', t.amount])
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
+    const csv = [headers, ...rows].map(r => r.join(';')).join('\n')
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a'); a.href = url; a.download = `aperio_${year}.csv`; a.click()

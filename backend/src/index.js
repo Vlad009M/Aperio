@@ -16,7 +16,7 @@ app.use(cors({
   credentials: true
 }))
 
-app.use(express.json({ limit: '10kb' })) // захист від великих payload
+app.use(express.json({ limit: '10mb' }))
 app.use(cookieParser())
 
 // --- Rate limiters ---
