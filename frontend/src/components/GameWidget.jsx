@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
 import api from '../api/index.js'
 
-export default function GameWidget({ onNavigate }) {
-  const [data, setData] = useState(null)
-
+export default function GameWidget({ onNavigate, refreshKey }) {
+  const [data, setData] = useState(null)  // ← додай цей рядок
   useEffect(() => {
     api.get('/game').then(res => setData(res.data)).catch(() => {})
-  }, [])
+  }, [refreshKey])
 
   if (!data) return null
 

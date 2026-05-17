@@ -51,6 +51,7 @@ export default function Dashboard() {
   const [messages, setMessages] = useState([])
   const [showProfile, setShowProfile] = useState(false)
   const [currentUser, setCurrentUser] = useState(user)
+  const [gameKey, setGameKey] = useState(0)
 
   const loadMessages = async () => {
     try {
@@ -58,6 +59,18 @@ export default function Dashboard() {
       setMessages(res.data)
     } catch {}
   }
+
+  const syncGame = async () => {
+  try {
+    const res = await api.post('/game/sync')
+    if (res.data.newAchievements?.length > 0) {
+      res.data.newAchievements.forEach(a => {
+        toast.success(`${a.icon} Нова ачівка: ${a.title} +${a.xp} XP`, { duration: 4000 })
+      })
+    }
+    setGameKey(k => k + 1)
+  } catch {}
+}
 
   useEffect(() => {
     loadData()
@@ -123,8 +136,8 @@ export default function Dashboard() {
       setForm({ amount: '', type: 'expense', description: '', categoryId: '', date: now.toISOString().split('T')[0] })
       setShowForm(false)
       toast.success('Транзакцію додано!')
-      api.post('/game/sync').catch(() => {})
       loadData()
+      syncGame()
     } catch { toast.error('Помилка') }
     setLoading(false)
   }
@@ -134,6 +147,7 @@ export default function Dashboard() {
       await api.delete(`/transactions/${id}`)
       toast.success('Видалено')
       loadData()
+      syncGame()
     } catch { toast.error('Помилка') }
   }
 
@@ -216,7 +230,7 @@ export default function Dashboard() {
           <i className="ti ti-logout" style={{ fontSize: 18 }} />
           Вийти
         </button>
-        <GameWidget onNavigate={setActiveTab} />
+        <GameWidget onNavigate={setActiveTab} refreshKey={gameKey} />
         <button onClick={() => setShowProfile(true)} style={s.userRowBtn}>
   <div style={s.avatar}>
     {currentUser.avatarUrl

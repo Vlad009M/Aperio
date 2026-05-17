@@ -128,6 +128,7 @@ export default function Import({ categories, onSuccess }) {
       toast.success(`Імпортовано ${res.data.imported} транзакцій! Пропущено ${res.data.duplicates} дублікатів.`)
       setStep(3)
       onSuccess()
+      api.post('/game/sync').catch(() => {})
     } catch {
       toast.error('Помилка імпорту')
     }

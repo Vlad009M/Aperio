@@ -283,8 +283,6 @@ router.get('/', auth, async (req, res) => {
       prisma.category.findMany({ where: { userId: req.userId } }),
     ])
 
-    await recalcGame(req.userId)
-
     const profile = await prisma.gameProfile.findUnique({
       where: { userId: req.userId },
       include: { achievements: true, challenges: { orderBy: { weekStart: 'desc' }, take: 1 } },
