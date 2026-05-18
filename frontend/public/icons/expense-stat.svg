@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <rect width="40" height="40" rx="8" fill="#1a0a0a"/>
+  <!-- Arrow down -->
+  <path d="M20,32 L28,22 L23,22 L23,8 L17,8 L17,22 L12,22 Z" fill="#5C0000"/>
+  <path d="M20,32 L28,22 L23,22 L23,8 L17,8 L17,22 L12,22 Z" fill="#C0392B" opacity="0.9"/>
+  <!-- Shine -->
+  <path d="M17,22 L20,32 L23,22 L21,22 L21,10 L19,10 L19,22 Z" fill="#FF6B6B" opacity="0.4"/>
+  <!-- Fire -->
+  <path d="M30,28 Q28,22 30,18 Q32,22 34,20 Q34,28 30,28 Z" fill="#FF8F00"/>
+  <path d="M30,26 Q29,22 30,20 Q31,22 32,21 Q32,26 30,26 Z" fill="#FFCA28"/>
+  <!-- Glow -->
+  <ellipse cx="20" cy="20" rx="12" ry="12" fill="#C0392B" opacity="0.05"/>
+</svg>

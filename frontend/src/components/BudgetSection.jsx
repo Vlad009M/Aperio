@@ -56,7 +56,9 @@ export default function BudgetSection({ categories, filterMonth, filterYear }) {
   return (
     <div style={s.card}>
       <div style={s.header}>
-        <div style={s.title}>💰 Бюджети</div>
+        <div style={{ ...s.title, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <img src="/icons/budget.svg" width={20} height={20} alt="" /> Бюджети
+        </div>
         <button onClick={() => setShowForm(!showForm)} style={s.addBtn}>
           {showForm ? '✕' : '+ Додати'}
         </button>
@@ -73,7 +75,7 @@ export default function BudgetSection({ categories, filterMonth, filterYear }) {
           >
             <option value="">Оберіть категорію</option>
             {expenseCategories.map(c => (
-              <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+              <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -109,7 +111,13 @@ export default function BudgetSection({ categories, filterMonth, filterYear }) {
         return (
           <div key={b.id} style={s.budgetRow}>
             <div style={s.budgetTop}>
-              <span style={s.catName}>{b.categoryIcon} {b.categoryName}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <img 
+                  src={categoriesMeta.find(c => c.name === b.categoryName)?.icon || '/icons/other.svg'} 
+                  width={18} height={18} alt="" style={{ borderRadius: 3 }} 
+                />
+                {b.categoryName}
+              </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ ...s.amounts, color }}>
                   ₴{Math.round(b.spent).toLocaleString()} / ₴{b.amount.toLocaleString()}

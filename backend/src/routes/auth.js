@@ -1,6 +1,7 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 const prisma = require('../prisma')
 
 const router = express.Router()
@@ -119,6 +120,76 @@ router.get('/me', async (req, res) => {
     res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role } })
   } catch {
     res.status(401).json({ error: 'Невалідний токен' })
+  }
+})
+
+router.get('/google', (req, res) => {
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.GOOGLE_REDIRECT_URI}&response_type=code&scope=email profile&prompt=select_account`
+  res.redirect(authUrl)
+})
+
+// 2. Колбек (Google повертає сюди код)
+router.get('/google/callback', async (req, res) => {
+  const { code } = req.query
+  if (!code) return res.redirect('http://localhost:5173/login?error=no_code')
+
+  try {
+    // 2.1 Обмінюємо код на токен доступу Google
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      }),
+    })
+    const tokenData = await tokenResponse.json()
+    if (tokenData.error) throw new Error(tokenData.error_description)
+
+    // 2.2 Отримуємо дані профілю користувача
+    const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    })
+    const userData = await userResponse.json()
+
+    // 2.3 Шукаємо або створюємо користувача в БД
+    let user = await prisma.user.findUnique({ where: { email: userData.email } })
+
+    if (!user) {
+      // Генеруємо надійний випадковий пароль-заглушку для OAuth юзера
+      const randomPassword = crypto.randomBytes(32).toString('hex')
+      const hashed = await bcrypt.hash(randomPassword, 12)
+      
+      user = await prisma.user.create({
+        data: { 
+          email: userData.email, 
+          name: userData.name || 'Користувач Google', 
+          password: hashed 
+        }
+      })
+    }
+
+    if (user.blocked) {
+      return res.redirect('http://localhost:5173/login?error=blocked')
+    }
+
+    // 2.4 Генеруємо наш внутрішній JWT токен
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    // 2.5 Ставимо куку і перекидаємо на дашборд
+    res.cookie('token', token, COOKIE_OPTIONS)
+    res.redirect('http://localhost:5173/dashboard')
+
+  } catch (e) {
+    console.error('Помилка Google OAuth:', e)
+    res.redirect('http://localhost:5173/login?error=oauth_failed')
   }
 })
 

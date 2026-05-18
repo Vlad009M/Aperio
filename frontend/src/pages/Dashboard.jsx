@@ -18,15 +18,15 @@ import ThemeToggle from '../components/ThemeToggle.jsx'
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 
 const CATEGORIES = [
-  { name: 'Їжа', icon: '🍕', color: '#FAECE7', iconColor: '#993C1D', type: 'expense' },
-  { name: 'Транспорт', icon: '🚗', color: '#FAECE7', iconColor: '#993C1D', type: 'expense' },
-  { name: 'Розваги', icon: '🎮', color: '#FAECE7', iconColor: '#993C1D', type: 'expense' },
-  { name: 'Здоров\'я', icon: '💊', color: '#FAECE7', iconColor: '#993C1D', type: 'expense' },
-  { name: 'Одяг', icon: '👕', color: '#FAECE7', iconColor: '#993C1D', type: 'expense' },
-  { name: 'Комунальні', icon: '🏠', color: '#FAECE7', iconColor: '#993C1D', type: 'expense' },
-  { name: 'Зарплата', icon: '💰', color: '#EAF3DE', iconColor: '#3B6D11', type: 'income' },
-  { name: 'Фріланс', icon: '💻', color: '#EAF3DE', iconColor: '#3B6D11', type: 'income' },
-  { name: 'Інше', icon: '📦', color: '#EEEDFE', iconColor: '#534AB7', type: 'expense' },
+  { name: 'Їжа',        icon: '/icons/food.svg',          color: '#FAECE7', type: 'expense' },
+  { name: 'Транспорт',  icon: '/icons/transport.svg',     color: '#E3F2FD', type: 'expense' },
+  { name: 'Розваги',    icon: '/icons/entertainment.svg', color: '#F3E5F5', type: 'expense' },
+  { name: 'Здоров\'я',  icon: '/icons/health.svg',        color: '#FFEBEE', type: 'expense' },
+  { name: 'Одяг',       icon: '/icons/clothing.svg',      color: '#FFF8E1', type: 'expense' },
+  { name: 'Комунальні', icon: '/icons/utilities.svg',     color: '#FFF9C4', type: 'expense' },
+  { name: 'Зарплата',   icon: '/icons/salary.svg',        color: '#E8F5E9', type: 'income'  },
+  { name: 'Фріланс',    icon: '/icons/freelance.svg',     color: '#E0F7FA', type: 'income'  },
+  { name: 'Інше',       icon: '/icons/other.svg',         color: '#EDE7F6', type: 'expense' },
 ]
 function SparkLine({ transactions }) {
   const daysInMonth = new Date(
@@ -149,15 +149,27 @@ export default function Dashboard() {
 
   const loadData = async () => {
     try {
-      let cats = await api.get('/categories')
-      if (cats.data.length === 0) {
-        for (const cat of CATEGORIES) await api.post('/categories', cat)
-        cats = await api.get('/categories')
-      }
-      setCategories(cats.data)
+      // 1. Просто отримуємо категорії з бази (миттєво)
+      const catsRes = await api.get('/categories')
+      
+      // Залишаємо твій захист від дублікатів
+      const seen = new Set()
+      const unique = catsRes.data.filter(c => {
+        if (seen.has(c.name)) return false
+        seen.add(c.name)
+        return true
+      })
+      setCategories(unique)
+
+      // 2. Отримуємо транзакції (миттєво)
       const txRes = await api.get('/transactions')
+      
+      // Оновлюємо стейт
       setAllTransactions(txRes.data)
       calcPrevStats(txRes.data)
+      
+      // Всі підрахунки (income, expense) ми звідси ПРИБРАЛИ, 
+      // бо твій useEffect сам викличе applyFilters() і миттєво оновить екран!
     } catch {
       toast.error('Помилка завантаження')
     }
@@ -247,7 +259,7 @@ export default function Dashboard() {
     .filter(c => c.type === 'expense')
     .map(cat => ({
       ...cat,
-      value: transactions.filter(t => t.categoryId === cat.id && t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+      value: transactions.filter(t => t.category?.name === cat.name && t.type === 'expense').reduce((s, t) => s + t.amount, 0)
     }))
     .filter(d => d.value > 0)
     .sort((a, b) => b.value - a.value)
@@ -348,8 +360,8 @@ export default function Dashboard() {
                 <form onSubmit={addTransaction}>
                   <div style={s.formRow}>
                     <select style={s.select} value={form.type} onChange={e => setForm({ ...form, type: e.target.value, categoryId: '' })}>
-                      <option value="expense">💸 Витрата</option>
-                      <option value="income">💵 Дохід</option>
+                      <option value="expense">Витрата</option>
+                      <option value="income">Дохід</option>
                     </select>
                     <input style={s.input} type="number" placeholder="Сума ₴" min="0.01" step="0.01"
                       value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required />
@@ -360,7 +372,9 @@ export default function Dashboard() {
                     <select style={s.select} value={form.categoryId}
                       onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
                       <option value="">Оберіть категорію</option>
-                      {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+                      {filteredCategories.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
                     </select>
                     <input style={{ ...s.input, flex: 2 }} type="text" placeholder="Опис (необов'язково)"
                       value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
@@ -402,8 +416,8 @@ export default function Dashboard() {
 
                 <div style={s.statsGrid}>
                   <div style={s.statCard}>
-                    <div style={{ ...s.statIcon, background: '#EAF3DE' }}>
-                      <i className="ti ti-trending-up" style={{ color: '#3B6D11', fontSize: 18 }} />
+                    <div style={s.statIcon}>
+                      <img src="/icons/income-stat.svg" width={34} height={34} alt="" />
                     </div>
                     <div style={s.statLabel}>Доходи</div>
                     <div style={s.statVal}>₴{stats.income.toLocaleString()}</div>
@@ -414,8 +428,8 @@ export default function Dashboard() {
                     )}
                   </div>
                   <div style={s.statCard}>
-                    <div style={{ ...s.statIcon, background: '#FAECE7' }}>
-                      <i className="ti ti-trending-down" style={{ color: '#993C1D', fontSize: 18 }} />
+                    <div style={s.statIcon}>
+                      <img src="/icons/expense-stat.svg" width={34} height={34} alt="" />
                     </div>
                     <div style={s.statLabel}>Витрати</div>
                     <div style={s.statVal}>₴{stats.expense.toLocaleString()}</div>
@@ -426,8 +440,8 @@ export default function Dashboard() {
                     )}
                   </div>
                   <div style={s.statCard}>
-                    <div style={{ ...s.statIcon, background: '#EEEDFE' }}>
-                      <i className="ti ti-wallet" style={{ color: '#534AB7', fontSize: 18 }} />
+                    <div style={s.statIcon}>
+                      <img src="/icons/savings-stat.svg" width={34} height={34} alt="" />
                     </div>
                     <div style={s.statLabel}>Заощаджено</div>
                     <div style={s.statVal}>{savings}%</div>
@@ -448,8 +462,10 @@ export default function Dashboard() {
                       const catDef = CATEGORIES.find(c => c.name === t.category?.name)
                       return (
                         <div key={t.id} style={s.txRow}>
-                          <div style={{ ...s.txIcon, background: catDef?.color || '#EEEDFE' }}>
-                            <span style={{ fontSize: 18 }}>{t.category?.icon || '📦'}</span>
+                          <div style={s.txIcon}>
+                            <img 
+                              src={CATEGORIES.find(c => c.name === t.category?.name)?.icon || '/icons/other.svg'} 
+                              width={38} height={38} alt="" />
                           </div>
                           <div style={s.txInfo}>
                             <div style={s.txName}>{t.category?.name || 'Інше'}</div>
@@ -459,8 +475,12 @@ export default function Dashboard() {
                             {t.type === 'income' ? '+' : '-'}₴{t.amount.toLocaleString()}
                           </div>
                           <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                            <button onClick={() => setEditTx(t)} style={s.actionBtn} title="Редагувати">✏️</button>
-                            <button onClick={() => deleteTransaction(t.id)} style={{ ...s.actionBtn, color: '#993C1D' }} title="Видалити">🗑️</button>
+                            <button onClick={() => setEditTx(t)} style={s.actionBtn} title="Редагувати">
+                              <img src="/icons/edit.svg" width={28} height={28} alt="edit" />
+                            </button>
+                            <button onClick={() => deleteTransaction(t.id)} style={s.actionBtn} title="Видалити">
+                              <img src="/icons/delete.svg" width={28} height={28} alt="delete" />
+                            </button>
                           </div>
                         </div>
                       )
@@ -540,7 +560,13 @@ export default function Dashboard() {
                     {pieData.slice(0, 4).map((d, i) => (
                       <div key={i}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4 }}>
-                          <span>{d.icon} {d.name}</span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <img 
+                                  src={CATEGORIES.find(c => c.name === d.name)?.icon || '/icons/other.svg'} 
+                                  width={16} height={16} alt="" style={{ borderRadius: 3 }} 
+                                />
+                            {d.name}
+                          </span>
                           <span style={{ fontWeight: 500 }}>{totalExpense > 0 ? Math.round((d.value / totalExpense) * 100) : 0}%</span>
                         </div>
                         <div style={{ height: 6, background: 'var(--color-background-tertiary)', borderRadius: 3 }}>
@@ -563,11 +589,7 @@ export default function Dashboard() {
                   <button onClick={() => setActiveTab('ai')} style={s.aiBtn}>Детальний аналіз →</button>
                 </div>
 
-                <BudgetSection
-                  categories={categories}
-                  filterMonth={filterMonth}
-                  filterYear={filterYear}
-                />
+                <BudgetSection categories={categories} categoriesMeta={CATEGORIES} filterMonth={filterMonth} filterYear={filterYear} />
               </div>
             </div>
           </div>
@@ -604,8 +626,10 @@ export default function Dashboard() {
                 const catDef = CATEGORIES.find(c => c.name === t.category?.name)
                 return (
                   <div key={t.id} style={s.txRow}>
-                    <div style={{ ...s.txIcon, background: catDef?.color || '#EEEDFE' }}>
-                      <span style={{ fontSize: 18 }}>{t.category?.icon || '📦'}</span>
+                    <div style={s.txIcon}>
+                      <img 
+                        src={CATEGORIES.find(c => c.name === t.category?.name)?.icon || '/icons/other.svg'} 
+                        width={38} height={38} alt="" />
                     </div>
                     <div style={s.txInfo}>
                       <div style={s.txName}>{t.category?.name || 'Інше'}</div>
@@ -615,8 +639,12 @@ export default function Dashboard() {
                       {t.type === 'income' ? '+' : '-'}₴{t.amount.toLocaleString()}
                     </div>
                     <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                      <button onClick={() => setEditTx(t)} style={s.actionBtn} title="Редагувати">✏️</button>
-                      <button onClick={() => deleteTransaction(t.id)} style={{ ...s.actionBtn, color: '#993C1D' }} title="Видалити">🗑️</button>
+                      <button onClick={() => setEditTx(t)} style={s.actionBtn} title="Редагувати">
+                        <img src="/icons/edit.svg" width={28} height={28} alt="edit" />
+                      </button>
+                      <button onClick={() => deleteTransaction(t.id)} style={s.actionBtn} title="Видалити">
+                        <img src="/icons/delete.svg" width={28} height={28} alt="delete" />
+                      </button>
                     </div>
                   </div>
                 )
@@ -751,12 +779,12 @@ const s = {
   seeAll: { fontSize: 12, color: '#7F77DD', cursor: 'pointer' },
   txCard: { background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 12 },
   txRow: { display: 'flex', alignItems: 'center', gap: 12, padding: '11px 16px', borderBottom: '0.5px solid var(--color-border-tertiary)' },
-  txIcon: { width: 38, height: 38, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  txIcon: { width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   txInfo: { flex: 1, minWidth: 0 },
   txName: { fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' },
   txDate: { fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   txAmount: { fontSize: 14, fontWeight: 500, flexShrink: 0 },
-  actionBtn: { background: '#EEEDFE', border: 'none', color: '#534AB7', cursor: 'pointer', padding: '5px 7px', borderRadius: 6, display: 'flex', alignItems: 'center', fontSize: 16 },
+  actionBtn: { background: 'none', border: 'none', cursor: 'pointer', padding: '2px', borderRadius: 6, display: 'flex', alignItems: 'center' },
   rightCol: { display: 'flex', flexDirection: 'column', gap: 14 },
   rightCard: { background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 12, padding: 16 },
   bars: { display: 'flex', alignItems: 'flex-end', gap: 6, height: 70, marginTop: 14 },

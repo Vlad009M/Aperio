@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <rect width="40" height="40" rx="8" fill="#1a1000"/>
+  <!-- Scales of justice / budget -->
+  <!-- Center pole -->
+  <rect x="19" y="8" width="2" height="22" rx="1" fill="#B8960C"/>
+  <rect x="18" y="28" width="4" height="3" rx="1" fill="#8B7536"/>
+  <!-- Top bar -->
+  <rect x="10" y="11" width="20" height="2" rx="1" fill="#D4A017"/>
+  <!-- Left pan -->
+  <path d="M10,13 Q8,18 10,20 Q12,22 14,20 Q16,18 14,13 Z" fill="#4A3500" stroke="#D4A017" stroke-width="1"/>
+  <path d="M10.5,14 Q9,18 10.5,19.5 Q12,21 13.5,19.5 Q15,18 13.5,14 Z" fill="#8B6914" opacity="0.8"/>
+  <!-- Right pan -->
+  <path d="M26,13 Q24,18 26,20 Q28,22 30,20 Q32,18 30,13 Z" fill="#4A3500" stroke="#D4A017" stroke-width="1"/>
+  <path d="M26.5,14 Q25,18 26.5,19.5 Q28,21 29.5,19.5 Q31,18 29.5,14 Z" fill="#8B6914" opacity="0.8"/>
+  <!-- Coins in pans -->
+  <circle cx="12" cy="18" r="2" fill="#F1C40F"/>
+  <circle cx="28" cy="17" r="2" fill="#F1C40F"/>
+  <circle cx="29.5" cy="18.5" r="1.5" fill="#F39C12"/>
+</svg>

@@ -230,30 +230,40 @@ export default function Charts({ transactions, categories }) {
     .map(cat => ({
       name: cat.name,
       value: transactions
-        .filter(t => t.categoryId === cat.id && t.type === 'expense' && new Date(t.date).getMonth() === currentMonth)
+        .filter(t => t.category?.name === cat.name && t.type === 'expense' && new Date(t.date).getMonth() === currentMonth)
         .reduce((s, t) => s + t.amount, 0)
     }))
     .filter(d => d.value > 0)
 
   const barData = Array.from({ length: 6 }, (_, i) => {
-    const d = new Date(); d.setMonth(d.getMonth() - (5 - i))
-    const m = d.getMonth(), y = d.getFullYear()
-    const income = transactions.filter(t => t.type === 'income' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === y).reduce((s, t) => s + t.amount, 0)
-    const expense = transactions.filter(t => t.type === 'expense' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === y).reduce((s, t) => s + t.amount, 0)
-    return { month: d.toLocaleString('uk', { month: 'short' }), income, expense }
-  })
+  const d = new Date()
+  d.setMonth(d.getMonth() - (5 - i))
+  const m = d.getMonth()
+  const y = d.getFullYear()
+  const income = transactions
+    .filter(t => t.type === 'income' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === y)
+    .reduce((s, t) => s + t.amount, 0)
+  const expense = transactions
+    .filter(t => t.type === 'expense' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === y)
+    .reduce((s, t) => s + t.amount, 0)
+  return { month: d.toLocaleString('uk', { month: 'short' }), income, expense }
+})
 
   const lineData = Array.from({ length: 12 }, (_, i) => {
-    const income = transactions.filter(t => t.type === 'income' && new Date(t.date).getMonth() === i && new Date(t.date).getFullYear() === year).reduce((s, t) => s + t.amount, 0)
-    const expense = transactions.filter(t => t.type === 'expense' && new Date(t.date).getMonth() === i && new Date(t.date).getFullYear() === year).reduce((s, t) => s + t.amount, 0)
-    return { month: MONTHS[i].slice(0, 3), balance: income - expense, income, expense }
-  })
+  const income = transactions
+    .filter(t => t.type === 'income' && new Date(t.date).getMonth() === i && new Date(t.date).getFullYear() === year)
+    .reduce((s, t) => s + t.amount, 0)
+  const expense = transactions
+    .filter(t => t.type === 'expense' && new Date(t.date).getMonth() === i && new Date(t.date).getFullYear() === year)
+    .reduce((s, t) => s + t.amount, 0)
+  return { month: MONTHS[i].slice(0, 3), balance: income - expense, income, expense }
+})
 
   const getMonthData = (month) => {
     const m = month < 0 ? 11 : month
     const cats = categories.filter(c => c.type === 'expense').map(cat => ({
       name: cat.name, icon: cat.icon,
-      value: transactions.filter(t => t.categoryId === cat.id && t.type === 'expense' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === year).reduce((s, t) => s + t.amount, 0)
+      value: transactions.filter(t => t.category?.name === cat.name && t.type === 'expense' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === year).reduce((s, t) => s + t.amount, 0)
     })).filter(d => d.value > 0)
     return { cats, total: cats.reduce((s, c) => s + c.value, 0) }
   }
@@ -331,7 +341,7 @@ export default function Charts({ transactions, categories }) {
             <div style={s.compareTotal}>{fmt(m1.total)}</div>
             {m1.cats.map((c, i) => (
               <div key={i} style={s.compareItem}>
-                <span>{c.icon} {c.name}</span>
+                <span>{c.name}</span>
                 <span style={{ fontWeight: 500 }}>{fmt(c.value)}</span>
               </div>
             ))}
@@ -343,7 +353,7 @@ export default function Charts({ transactions, categories }) {
             <div style={s.compareTotal}>{fmt(m2.total)}</div>
             {m2.cats.map((c, i) => (
               <div key={i} style={s.compareItem}>
-                <span>{c.icon} {c.name}</span>
+                <span>{c.name}</span>
                 <span style={{ fontWeight: 500 }}>{fmt(c.value)}</span>
               </div>
             ))}

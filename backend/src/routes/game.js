@@ -288,7 +288,24 @@ router.get('/', auth, async (req, res) => {
       include: { achievements: true, challenges: { orderBy: { weekStart: 'desc' }, take: 1 } },
     })
 
-    const levelInfo = getLevelInfo(profile.xp)
+    if (!profile) {
+  // Створюємо профіль якщо не існує
+  await prisma.gameProfile.create({
+    data: { userId: req.userId, xp: 0, level: 1, streak: 0 }
+  })
+  return res.json({
+    xp: 0,
+    level: getLevelInfo(0),
+    streak: 0,
+    archetype: null,
+    savingsRate: 0,
+    achievements: { unlocked: [], locked: ACHIEVEMENTS },
+    challenge: null,
+    allAchievements: ACHIEVEMENTS,
+  })
+}
+
+const levelInfo = getLevelInfo(profile.xp)
     const archetype = ARCHETYPES.find(a => a.id === profile.archetype) || null
     const unlockedAchievements = profile.achievements.map(a => {
       const def = ACHIEVEMENTS.find(ac => ac.code === a.code)

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <rect width="40" height="40" rx="8" fill="#1a0505"/>
+  <!-- Coin with minus -->
+  <circle cx="20" cy="20" r="13" fill="#5C0000"/>
+  <circle cx="20" cy="20" r="11" fill="#C0392B"/>
+  <circle cx="20" cy="20" r="9" fill="#E74C3C"/>
+  <circle cx="20" cy="20" r="7" fill="#FF6B6B" opacity="0.5"/>
+  <!-- Minus sign -->
+  <rect x="13" y="18.5" width="14" height="3" rx="1.5" fill="#fff"/>
+  <!-- Shine -->
+  <ellipse cx="16" cy="15" rx="3" ry="2" fill="#fff" opacity="0.2" transform="rotate(-30 16 15)"/>
+</svg>

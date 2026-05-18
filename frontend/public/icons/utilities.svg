@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="16" fill="#1a1500"/>
+  <path d="M50,18 Q58,18 58,24 Q58,28 50,28" fill="none" stroke="#8B7536" stroke-width="3" stroke-linecap="round"/>
+  <path d="M34,28 L66,28 L62,36 L38,36 Z" fill="#8B7536"/>
+  <path d="M36,28 L64,28 L60,35 L40,35 Z" fill="#B8960C"/>
+  <path d="M38,36 L36,72 L64,72 L62,36 Z" fill="#2A2000" stroke="#B8960C" stroke-width="1.5"/>
+  <rect x="40" y="38" width="8" height="32" rx="1" fill="#FFF176" opacity="0.3"/>
+  <rect x="52" y="38" width="8" height="32" rx="1" fill="#FFF176" opacity="0.3"/>
+  <path d="M50,65 Q44,55 46,47 Q50,42 54,47 Q56,55 50,65 Z" fill="#FF8F00"/>
+  <path d="M50,62 Q46,54 48,49 Q50,45 52,49 Q54,54 50,62 Z" fill="#FFCA28"/>
+  <path d="M50,58 Q48,53 50,50 Q52,53 50,58 Z" fill="#FFF9C4"/>
+  <path d="M36,72 L38,78 L62,78 L64,72 Z" fill="#8B7536"/>
+  <path d="M38,72 L40,77 L60,77 L62,72 Z" fill="#B8960C"/>
+  <ellipse cx="50" cy="54" rx="18" ry="22" fill="#F39C12" opacity="0.08"/>
+</svg>

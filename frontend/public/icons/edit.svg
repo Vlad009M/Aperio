@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <rect width="40" height="40" rx="8" fill="#2a1f4a"/>
+  <!-- Quill pen -->
+  <path d="M28,8 Q34,8 34,14 Q34,20 24,26 L18,28 L20,22 Q26,12 28,8 Z" fill="#C9A84C"/>
+  <path d="M28,8 Q34,8 34,14 Q34,20 24,26 L20,22 Q26,12 28,8 Z" fill="#F0C040"/>
+  <path d="M18,28 L20,22 L22,24 Z" fill="#8B6914"/>
+  <!-- Ink trail -->
+  <path d="M20,22 Q16,26 14,30" stroke="#7F77DD" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <circle cx="13" cy="31" r="2" fill="#7F77DD" opacity="0.8"/>
+  <!-- Shine -->
+  <path d="M29,10 Q32,10 32,13" stroke="#FFF9C4" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+</svg>
