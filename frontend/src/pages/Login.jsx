@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import ReCAPTCHA from 'react-google-recaptcha'
 import api from '../api/index.js'
 
 export default function Login() {
@@ -8,13 +9,19 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const [captchaToken, setCaptchaToken] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!captchaToken) {
+      setError('Будь ласка, підтвердіть, що ви не робот')
+      return
+    }
     setLoading(true)
     setError('')
     try {
-      const res = await api.post('/auth/login', { email, password })
+      // ДОДАНО: captchaToken відправляєтся на сервер
+      const res = await api.post('/auth/login', { email, password, captchaToken })
       localStorage.setItem('user', JSON.stringify(res.data.user))
       navigate('/dashboard')
     } catch (e) {
@@ -80,6 +87,13 @@ const handleGoogleLogin = () => {
               <label style={s.label}>Пароль</label>
               <input style={s.input} type="password" placeholder="••••••••"
                 value={password} onChange={e => setPassword(e.target.value)} required />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+              <ReCAPTCHA
+                sitekey="6LfLV_AsAAAAAA3n3mEV7uXNYWm7krW3XCEkgI9m"
+                onChange={(token) => setCaptchaToken(token)}
+                onExpired={() => setCaptchaToken(null)}
+              />
             </div>
             <button style={{ ...s.button, opacity: loading ? 0.75 : 1 }} type="submit" disabled={loading}>
               {loading ? 'Вхід...' : 'Увійти'}

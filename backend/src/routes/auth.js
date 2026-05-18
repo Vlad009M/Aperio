@@ -33,6 +33,25 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Ім\'я мінімум 2 символи' })
     }
 
+    if (!captchaToken) {
+      return res.status(400).json({ error: 'Капча обов\'язкова' })
+    }
+
+    // --- ПЕРЕВІРКА КАПЧІ В GOOGLE ---
+    const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        secret: process.env.RECAPTCHA_SECRET,
+        response: captchaToken,
+      }),
+    })
+    const verifyData = await verifyResponse.json()
+
+    if (!verifyData.success) {
+      return res.status(400).json({ error: 'Перевірка на робота не пройдена' })
+    }
+
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } })
     if (existing) return res.status(400).json({ error: 'Email вже використовується' })
 
@@ -61,6 +80,25 @@ router.post('/login', async (req, res) => {
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Введи email і пароль' })
+    }
+
+if (!captchaToken) {
+      return res.status(400).json({ error: 'Капча обов\'язкова' })
+    }
+
+    // --- ПЕРЕВІРКА КАПЧІ В GOOGLE ---
+    const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        secret: process.env.RECAPTCHA_SECRET,
+        response: captchaToken,
+      }),
+    })
+    const verifyData = await verifyResponse.json()
+
+    if (!verifyData.success) {
+      return res.status(400).json({ error: 'Перевірка на робота не пройдена' })
     }
 
     const user = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } })
