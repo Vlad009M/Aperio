@@ -60,4 +60,18 @@ router.put('/password', auth, async (req, res) => {
   }
 })
 
+router.delete('/account', auth, async (req, res) => {
+  try {
+    await prisma.transaction.deleteMany({ where: { userId: req.userId } })
+    await prisma.category.deleteMany({ where: { userId: req.userId } })
+    await prisma.message.deleteMany({ where: { OR: [{ fromId: req.userId }, { toId: req.userId }] } })
+    await prisma.gameProfile.delete({ where: { userId: req.userId } }).catch(() => {})
+    await prisma.user.delete({ where: { id: req.userId } })
+    res.clearCookie('token')
+    res.json({ success: true })
+  } catch (e) {
+    res.status(500).json({ error: 'Помилка видалення' })
+  }
+})
+
 module.exports = router

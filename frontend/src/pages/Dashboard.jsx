@@ -735,6 +735,21 @@ export default function Dashboard() {
         {activeTab === 'admin' && <AdminPanel />}
         {activeTab === 'import' && (<Import categories={categories} onSuccess={loadData} /> )}
         {activeTab === 'game' && <GamePage />}
+
+       {/* FOOTER */}
+        {!isMobile && (
+          <div style={s.footer}>
+            <span style={s.footerText}>© 2026 Aperio</span>
+            <span style={s.footerDot}>·</span>
+            <a href="/about" style={s.footerLink}>Про сервіс</a>
+            <span style={s.footerDot}>·</span>
+            <a href="/privacy" style={s.footerLink}>Конфіденційність</a>
+            <span style={s.footerDot}>·</span>
+            <a href="/terms" style={s.footerLink}>Умови використання</a>
+            <span style={s.footerDot}>·</span>
+            <a href="mailto:matovkavlad@gmail.com" style={s.footerLink}>Контакт</a>
+          </div>
+        )}
       </div>
 
 {/* Mobile bottom nav */}
@@ -789,6 +804,14 @@ export default function Dashboard() {
         <i className="ti ti-logout" style={{ fontSize: 18 }} />
         <span>Вийти</span>
       </button>
+      <div style={{ height: 1, background: 'var(--color-border-tertiary)', margin: '8px 0' }} />
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 12, padding: '8px 0' }}>
+        <a href="/about" style={{ fontSize: 12, color: 'var(--color-text-tertiary)', textDecoration: 'none' }}>Про сервіс</a>
+        <span style={{ color: 'var(--color-border-tertiary)' }}>·</span>
+        <a href="/privacy" style={{ fontSize: 12, color: 'var(--color-text-tertiary)', textDecoration: 'none' }}>Конфіденційність</a>
+        <span style={{ color: 'var(--color-border-tertiary)' }}>·</span>
+        <a href="/terms" style={{ fontSize: 12, color: 'var(--color-text-tertiary)', textDecoration: 'none' }}>Умови</a>
+      </div>
     </div>
   </div>
 )}
@@ -906,4 +929,8 @@ const s = {
   mobileMoreContent: { background: 'var(--color-background-primary)', borderRadius: '16px 16px 0 0', padding: '20px 16px 36px' },
   moreDrawerItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', width: '100%', borderRadius: 10, fontSize: 15, color: 'var(--color-text-primary)', textAlign: 'left' },
   moreDrawerActive: { background: '#EEEDFE', color: '#534AB7' },
+  footer: { display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', padding: '24px 0 8px', marginTop: 20, borderTop: '0.5px solid var(--color-border-tertiary)', flexWrap: 'wrap' },
+  footerText: { fontSize: 12, color: 'var(--color-text-tertiary)' },
+  footerDot: { fontSize: 12, color: 'var(--color-border-tertiary)' },
+  footerLink: { fontSize: 12, color: 'var(--color-text-tertiary)', textDecoration: 'none' },
 }

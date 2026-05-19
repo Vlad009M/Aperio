@@ -23,6 +23,8 @@ export default function ProfileModal({ onClose, onUpdate }) {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [savingPassword, setSavingPassword] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose() }
@@ -81,6 +83,19 @@ export default function ProfileModal({ onClose, onUpdate }) {
     setSavingPassword(false)
   }
 
+  const handleDeleteAccount = async () => {
+  if (deleteConfirm !== 'ВИДАЛИТИ') { toast.error('Введи слово ВИДАЛИТИ'); return }
+  setDeleting(true)
+  try {
+    await api.delete('/user/account')
+    localStorage.removeItem('user')
+    window.location.href = '/login'
+  } catch (e) {
+    toast.error(e.response?.data?.error || 'Помилка')
+  }
+  setDeleting(false)
+}
+
   const initials = name
     ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : 'VL'
@@ -102,6 +117,9 @@ export default function ProfileModal({ onClose, onUpdate }) {
           </button>
           <button style={{ ...s.tab, ...(tab === 'security' ? s.tabActive : {}) }} onClick={() => setTab('security')}>
             <i className="ti ti-lock" style={{ fontSize: 14 }} /> Безпека
+          </button>
+          <button style={{ ...s.tab, ...(tab === 'danger' ? s.tabActive : {}) }} onClick={() => setTab('danger')}>
+            <i className="ti ti-alert-triangle" style={{ fontSize: 14 }} /> Акаунт
           </button>
         </div>
 
@@ -183,6 +201,37 @@ export default function ProfileModal({ onClose, onUpdate }) {
             </button>
           </form>
         )}
+
+{tab === 'danger' && (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ background: '#FAECE7', border: '0.5px solid #F5B8A8', borderRadius: 10, padding: '14px 16px' }}>
+      <div style={{ fontSize: 13, fontWeight: 600, color: '#993C1D', marginBottom: 6 }}>
+        ⚠️ Видалення акаунту
+      </div>
+      <div style={{ fontSize: 12, color: '#993C1D', lineHeight: 1.6 }}>
+        Ця дія незворотна. Всі твої транзакції, категорії, бюджети та досягнення будуть видалені назавжди.
+      </div>
+    </div>
+    <div style={s.field}>
+      <label style={s.label}>Для підтвердження введи слово <strong>ВИДАЛИТИ</strong></label>
+      <input
+        style={{ ...s.input, borderColor: deleteConfirm && deleteConfirm !== 'ВИДАЛИТИ' ? '#F5B8A8' : undefined }}
+        type="text"
+        value={deleteConfirm}
+        onChange={e => setDeleteConfirm(e.target.value)}
+        placeholder="ВИДАЛИТИ"
+      />
+    </div>
+    <button
+      onClick={handleDeleteAccount}
+      disabled={deleting || deleteConfirm !== 'ВИДАЛИТИ'}
+      style={{ padding: '10px 0', background: deleteConfirm === 'ВИДАЛИТИ' ? '#993C1D' : '#ccc', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, cursor: deleteConfirm === 'ВИДАЛИТИ' ? 'pointer' : 'not-allowed', fontWeight: 500, opacity: deleting ? 0.7 : 1 }}
+    >
+      {deleting ? 'Видалення...' : 'Видалити акаунт назавжди'}
+    </button>
+  </div>
+)}
+
         {/* Підтримка розробника */}
 <div style={{ marginTop: 8, padding: '12px 14px', background: 'var(--color-background-secondary)', borderRadius: 8, textAlign: 'center' }}>
   <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 8, lineHeight: 1.5 }}>
