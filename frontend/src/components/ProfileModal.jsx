@@ -183,6 +183,20 @@ export default function ProfileModal({ onClose, onUpdate }) {
             </button>
           </form>
         )}
+        {/* Підтримка розробника */}
+<div style={{ marginTop: 8, padding: '12px 14px', background: 'var(--color-background-secondary)', borderRadius: 8, textAlign: 'center' }}>
+  <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 8, lineHeight: 1.5 }}>
+    ☕ Якщо Aperio економить твій час і гроші — можеш віддячити розробнику
+  </div>
+  <a
+    href="https://send.monobank.ua/jar/93HaeWmhhg"
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 16px', background: 'linear-gradient(135deg, #1A1F71, #2B3DE0)', color: '#fff', borderRadius: 20, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}
+  >
+    ☕ Купити каву
+  </a>
+</div>
       </div>
     </div>,
     document.body
