@@ -4,9 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "seed": "node src/seed.js"
+    "start": "bun src/index.js",
+    "dev": "bun --watch src/index.js",
+    "seed": "bun src/seed.js"
   },
   "keywords": [],
   "author": "",
