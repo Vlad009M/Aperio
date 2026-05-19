@@ -14,6 +14,7 @@ import GamePage from './GamePage.jsx'
 import GameWidget from '../components/GameWidget.jsx'
 import BudgetSection from '../components/BudgetSection.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
+import { useIsMobile } from '../hooks/useResponsive.js'
 
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 
@@ -121,6 +122,8 @@ export default function Dashboard() {
   const [showProfile, setShowProfile] = useState(false)
   const [currentUser, setCurrentUser] = useState(user)
   const [gameKey, setGameKey] = useState(0)
+  const isMobile = useIsMobile()
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
 
   const loadMessages = async () => {
     try {
@@ -293,9 +296,34 @@ export default function Dashboard() {
   const initials = currentUser.name ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'VL'
 
   return (
-    <div style={s.app}>
+    <div style={{ ...s.app, flexDirection: isMobile ? 'column' : 'row' }}>
+      {/* Mobile top bar */}
+{isMobile && (
+  <div style={s.mobileTopBar}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <img src="/Aperio.png" alt="Aperio" style={{ width: 28, height: 28, borderRadius: 7, objectFit: 'cover' }} />
+      <span style={s.logoText}>Aperio</span>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <ThemeToggle />
+      {(activeTab === 'dashboard' || activeTab === 'transactions') && (
+        <button onClick={() => setShowForm(v => !v)} style={s.mobileAddBtn}>
+          <i className="ti ti-plus" style={{ fontSize: 18 }} />
+        </button>
+      )}
+      <button onClick={() => setShowProfile(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+        <div style={s.avatar}>
+          {currentUser.avatarUrl
+            ? <img src={currentUser.avatarUrl} alt="avatar" style={s.avatarImg} />
+            : initials
+          }
+        </div>
+      </button>
+    </div>
+  </div>
+)}
       {/* SIDEBAR */}
-      <div style={s.sidebar}>
+      <div style={{ ...s.sidebar, display: isMobile ? 'none' : 'flex', flexDirection: 'column' }}>
         <div style={s.logoRow}>
           <img src="/Aperio.png" alt="Aperio" style={{ width: 34, height: 34, borderRadius: 8, objectFit: 'cover' }} />
           <span style={s.logoText}>Aperio</span>
@@ -334,7 +362,7 @@ export default function Dashboard() {
       </div>
 
       {/* MAIN */}
-      <div style={s.main}>
+      <div style={{ ...s.main, ...(isMobile && { padding: '16px', paddingBottom: 80 }) }}>
 
         {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && (
@@ -358,7 +386,7 @@ export default function Dashboard() {
               <div style={s.formCard}>
                 <div style={s.formTitle}>Нова транзакція</div>
                 <form onSubmit={addTransaction}>
-                  <div style={s.formRow}>
+                  <div style={{ ...s.formRow, ...(isMobile && { flexWrap: 'wrap' }) }}>
                     <select style={s.select} value={form.type} onChange={e => setForm({ ...form, type: e.target.value, categoryId: '' })}>
                       <option value="expense">Витрата</option>
                       <option value="income">Дохід</option>
@@ -368,7 +396,7 @@ export default function Dashboard() {
                     <input style={s.input} type="date" value={form.date}
                       onChange={e => setForm({ ...form, date: e.target.value })} />
                   </div>
-                  <div style={s.formRow}>
+                  <div style={{ ...s.formRow, ...(isMobile && { flexWrap: 'wrap' }) }}>
                     <select style={s.select} value={form.categoryId}
                       onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
                       <option value="">Оберіть категорію</option>
@@ -387,7 +415,7 @@ export default function Dashboard() {
               </div>
             )}
 
-            <div style={s.twoCol}>
+            <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : '1fr 280px' }}>
               {/* LEFT */}
               <div>
                 <div style={s.balanceCard}>
@@ -456,7 +484,7 @@ export default function Dashboard() {
                   <span style={s.seeAll} onClick={() => setActiveTab('transactions')}>Всі →</span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, alignItems: 'start' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: 16, alignItems: 'start' }}>
                   <div style={s.txCard}>
                     {transactions.slice(0, 6).map(t => {
                       const catDef = CATEGORIES.find(c => c.name === t.category?.name)
@@ -709,6 +737,62 @@ export default function Dashboard() {
         {activeTab === 'game' && <GamePage />}
       </div>
 
+{/* Mobile bottom nav */}
+{isMobile && (
+  <div style={s.bottomNav}>
+    {[
+      { id: 'dashboard',    icon: 'ti-layout-dashboard', label: 'Дашборд' },
+      { id: 'transactions', icon: 'ti-arrows-exchange',  label: 'Транзакції' },
+      { id: 'charts',       icon: 'ti-chart-bar',        label: 'Графіки' },
+      { id: 'ai',           icon: 'ti-robot',            label: 'AI' },
+      { id: '_more',        icon: 'ti-dots',             label: 'Ще' },
+    ].map(item => (
+      <button key={item.id}
+        onClick={() => item.id === '_more'
+          ? setShowMobileMenu(v => !v)
+          : (setActiveTab(item.id), setShowMobileMenu(false))
+        }
+        style={{
+          ...s.bottomNavItem,
+          ...(activeTab === item.id || (item.id === '_more' && showMobileMenu) ? s.bottomNavActive : {}),
+        }}>
+        <i className={`ti ${item.icon}`} style={{ fontSize: 20 }} />
+        <span style={{ fontSize: 9, marginTop: 1 }}>{item.label}</span>
+        {item.id === '_more' && unreadCount > 0 && (
+          <span style={{ position: 'absolute', top: 6, right: 10, background: '#993C1D', color: '#fff', borderRadius: 20, padding: '1px 5px', fontSize: 8, fontWeight: 600 }}>{unreadCount}</span>
+        )}
+      </button>
+    ))}
+  </div>
+)}
+
+{/* Mobile more drawer */}
+{isMobile && showMobileMenu && (
+  <div style={s.mobileMoreDrawer} onClick={() => setShowMobileMenu(false)}>
+    <div style={s.mobileMoreContent} onClick={e => e.stopPropagation()}>
+      {[
+        { id: 'messages', icon: 'ti-bell',        label: 'Повідомлення', badge: unreadCount },
+        { id: 'game',     icon: 'ti-sword',        label: 'Герой' },
+        { id: 'import',   icon: 'ti-download',     label: 'Імпорт' },
+        ...(user.role === 'ROOT' ? [{ id: 'admin', icon: 'ti-shield-check', label: 'Адмін' }] : []),
+      ].map(item => (
+        <button key={item.id}
+          onClick={() => { setActiveTab(item.id); setShowMobileMenu(false) }}
+          style={{ ...s.moreDrawerItem, ...(activeTab === item.id ? s.moreDrawerActive : {}) }}>
+          <i className={`ti ${item.icon}`} style={{ fontSize: 18 }} />
+          <span style={{ flex: 1 }}>{item.label}</span>
+          {item.badge > 0 && <span style={s.navBadge}>{item.badge}</span>}
+        </button>
+      ))}
+      <div style={{ height: 1, background: 'var(--color-border-tertiary)', margin: '8px 0' }} />
+      <button onClick={logout} style={{ ...s.moreDrawerItem, color: '#993C1D' }}>
+        <i className="ti ti-logout" style={{ fontSize: 18 }} />
+        <span>Вийти</span>
+      </button>
+    </div>
+  </div>
+)}
+
       {editTx && (
         <EditModal
           transaction={editTx}
@@ -813,4 +897,13 @@ const s = {
   challengeBar: { height: 6, background: 'rgba(255,255,255,0.2)', borderRadius: 3, overflow: 'hidden' },
   challengeBarFill: { height: '100%', background: '#fff', borderRadius: 3, transition: 'width 0.4s ease' },
   challengeBtn: { marginTop: 12, fontSize: 12, color: '#fff', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontWeight: 500, width: '100%' },
+  mobileTopBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 16px', background: 'var(--color-background-primary)', borderBottom: '0.5px solid var(--color-border-tertiary)', position: 'sticky', top: 0, zIndex: 50 },
+  mobileAddBtn: { width: 36, height: 36, borderRadius: 9, background: '#7F77DD', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  bottomNav: { position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--color-background-primary)', borderTop: '0.5px solid var(--color-border-tertiary)', display: 'flex', zIndex: 100, paddingBottom: 'env(safe-area-inset-bottom, 0px)' },
+  bottomNavItem: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8px 4px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-tertiary)', position: 'relative', gap: 2 },
+  bottomNavActive: { color: '#534AB7' },
+  mobileMoreDrawer: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 99, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' },
+  mobileMoreContent: { background: 'var(--color-background-primary)', borderRadius: '16px 16px 0 0', padding: '20px 16px 36px' },
+  moreDrawerItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', width: '100%', borderRadius: 10, fontSize: 15, color: 'var(--color-text-primary)', textAlign: 'left' },
+  moreDrawerActive: { background: '#EEEDFE', color: '#534AB7' },
 }

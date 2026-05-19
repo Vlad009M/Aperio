@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import api from '../api/index.js'
+import { useIsMobile } from '../hooks/useResponsive.js'
 
 export default function GamePage() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('hero')
+  const isMobile = useIsMobile()
 
   useEffect(() => { loadGame() }, [])
 
@@ -41,7 +43,7 @@ export default function GamePage() {
       </div>
 
       {/* Tabs */}
-      <div style={s.tabs}>
+      <div style={{ ...s.tabs, ...(isMobile && { width: '100%' }) }}>
         {[
           { id: 'hero',       label: '🦸 Герой' },
           { id: 'achievements', label: `🏆 Ачівки (${achievements.unlocked.length})` },
@@ -56,7 +58,7 @@ export default function GamePage() {
 
       {/* ── HERO TAB ── */}
       {tab === 'hero' && (
-        <div style={s.grid}>
+        <div style={{ ...s.grid, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
 
           {/* Картка героя */}
           <div style={s.heroCard}>

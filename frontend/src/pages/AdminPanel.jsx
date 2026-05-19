@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import toast from 'react-hot-toast'
 import api from '../api/index.js'
+import { useIsMobile } from '../hooks/useResponsive.js'
 
 export default function AdminPanel() {
   const [stats, setStats] = useState(null)
@@ -82,6 +83,8 @@ export default function AdminPanel() {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
+  const isMobile = useIsMobile()
+
   if (loading) return <div style={s.loading}>Завантаження...</div>
 
   return (
@@ -97,7 +100,7 @@ export default function AdminPanel() {
       </div>
 
       {/* Статистика */}
-      <div style={s.statsGrid}>
+      <div style={{ ...s.statsGrid, gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)' }}>
         {[
           { icon: 'ti-users', bg: '#EEEDFE', color: '#534AB7', label: 'Користувачів', val: stats?.usersCount },
           { icon: 'ti-arrows-exchange', bg: '#EAF3DE', color: '#3B6D11', label: 'Транзакцій', val: stats?.txCount },

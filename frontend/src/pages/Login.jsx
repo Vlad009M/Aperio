@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import ReCAPTCHA from 'react-google-recaptcha'
 import api from '../api/index.js'
+import { useIsMobile } from '../hooks/useResponsive.js'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -10,6 +11,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const [captchaToken, setCaptchaToken] = useState(null)
+  const isMobile = useIsMobile()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -37,7 +39,7 @@ const handleGoogleLogin = () => {
 
   return (
     <div style={s.container}>
-      <div style={s.left}>
+      <div style={{ ...s.left, display: isMobile ? 'none' : 'flex' }}>
         <div style={s.leftContent}>
           <div style={s.logoRow}>
             <img src="/Aperio.png" alt="Aperio" style={s.logoImg} />
@@ -61,9 +63,9 @@ const handleGoogleLogin = () => {
         </div>
       </div>
 
-      <div style={s.right}>
-        <div style={s.card}>
-          <div style={s.cardLogoRow}>
+      <div style={{ ...s.right, ...(isMobile && { maxWidth: '100%', padding: '24px 16px', background: '#fff' }) }}>
+        <div style={{ ...s.card, ...(isMobile && { padding: '28px 20px', maxWidth: '100%', boxShadow: 'none', border: 'none' }) }}>
+          <div style={{ ...s.cardLogoRow, ...(isMobile && { display: 'flex' }) }}>
             <img src="/Aperio.png" alt="Aperio" style={{ width: 36, height: 36, borderRadius: 9, objectFit: 'cover' }} />
             <span style={s.cardLogoText}>Aperio</span>
           </div>

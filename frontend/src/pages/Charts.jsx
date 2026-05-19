@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
+import { useIsMobile } from '../hooks/useResponsive.js'
 
 const COLORS = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fee140', '#a18cd1', '#fda085']
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 const fmt = (v) => `₴${Number(v).toLocaleString('uk')}`
+
 
 // ── Pie Chart ──────────────────────────────────────────────
 function PieChartSVG({ data, size = 200 }) {
@@ -220,6 +222,7 @@ function LineChartSVG({ data, height = 200 }) {
 
 // ── Main Component ─────────────────────────────────────────
 export default function Charts({ transactions, categories }) {
+  const isMobile = useIsMobile()
   const [compareMonth1, setCompareMonth1] = useState(new Date().getMonth() === 0 ? 11 : new Date().getMonth() - 1)
   const [compareMonth2, setCompareMonth2] = useState(new Date().getMonth())
   const year = new Date().getFullYear()
@@ -290,7 +293,7 @@ export default function Charts({ transactions, categories }) {
         </button>
       </div>
 
-      <div style={s.row2}>
+      <div style={{ ...s.row2, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
         {/* Pie */}
         <div style={s.card}>
           <div style={s.cardTitle}>Витрати по категоріях (цей місяць)</div>
@@ -335,7 +338,7 @@ export default function Charts({ transactions, categories }) {
             {MONTHS.map((m, i) => <option key={i} value={i}>{m}</option>)}
           </select>
         </div>
-        <div style={s.compareRow}>
+        <div style={{ ...s.compareRow, ...(isMobile && { gridTemplateColumns: '1fr' }) }}>
           <div style={s.compareCol}>
             <div style={s.compareHeader}>{MONTHS[compareMonth1 < 0 ? 11 : compareMonth1]}</div>
             <div style={s.compareTotal}>{fmt(m1.total)}</div>
@@ -347,7 +350,7 @@ export default function Charts({ transactions, categories }) {
             ))}
             {m1.cats.length === 0 && <div style={s.empty}>Немає даних</div>}
           </div>
-          <div style={{ width: 1, background: '#eee' }} />
+          {!isMobile && <div style={{ width: 1, background: '#eee' }} />}
           <div style={s.compareCol}>
             <div style={{ ...s.compareHeader, color: '#534AB7' }}>{MONTHS[compareMonth2]}</div>
             <div style={s.compareTotal}>{fmt(m2.total)}</div>

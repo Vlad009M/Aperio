@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import api from '../api/index.js'
+import { useIsMobile } from '../hooks/useResponsive.js'
 
 export default function AIAnalysis() {
   const [analysis, setAnalysis] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const isMobile = useIsMobile()
 
   const analyze = async () => {
     setLoading(true)
@@ -31,7 +33,7 @@ export default function AIAnalysis() {
 
   return (
     <div>
-      <div style={s.header}>
+      <div style={{ ...s.header, ...(isMobile && { flexDirection: 'column', gap: 12 }) }}>
         <div>
           <h1 style={s.title}>🤖 AI Аналіз</h1>
           <p style={s.subtitle}>Claude аналізує твої витрати і дає персональні поради</p>
@@ -46,7 +48,7 @@ export default function AIAnalysis() {
           <div style={s.emptyIcon}>🤖</div>
           <h2 style={s.emptyTitle}>Готовий до аналізу!</h2>
           <p style={s.emptyText}>Натисни кнопку вище і Claude проаналізує твої витрати за поточний місяць, знайде де ти переплачуєш і запропонує бюджет на наступний місяць.</p>
-          <div style={s.features}>
+          <div style={{ ...s.features, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
             {['📊 Загальний висновок про фінанси', '⚠️ Категорії з надмірними витратами', '💡 Конкретні поради з цифрами', '🎯 Рекомендований бюджет'].map((f, i) => (
               <div key={i} style={s.feature}>{f}</div>
             ))}
