@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import ReCAPTCHA from 'react-google-recaptcha'
 import api from '../api/index.js'
+import posthog from 'posthog-js'
 import { useIsMobile } from '../hooks/useResponsive.js'
 
 export default function Register() {
@@ -27,6 +28,8 @@ export default function Register() {
       // ДОДАНО: captchaToken відправляєтся на сервер разом з іншими даними
       const res = await api.post('/auth/register', { name, email, password, captchaToken })
       localStorage.setItem('user', JSON.stringify(res.data.user))
+      posthog.identify(res.data.user.id, { email: res.data.user.email, name: res.data.user.name })
+      posthog.capture('user_registered', { method: 'email' })
       navigate('/dashboard')
     } catch (e) {
       setError(e.response?.data?.error || 'Помилка реєстрації')
@@ -35,6 +38,7 @@ export default function Register() {
 }
 
 const handleGoogleLogin = () => {
+  posthog.capture('user_registered', { method: 'google' })
     // Відправляємо на наш бекенд, а він вже перенаправить на Google
     window.location.href = 'http://localhost:3001/api/auth/google'
   }

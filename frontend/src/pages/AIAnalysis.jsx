@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import api from '../api/index.js'
 import { useIsMobile } from '../hooks/useResponsive.js'
+import posthog from 'posthog-js'
 
 export default function AIAnalysis() {
   const [analysis, setAnalysis] = useState('')
@@ -15,8 +16,10 @@ export default function AIAnalysis() {
     try {
       const res = await api.post('/ai/analyze')
       setAnalysis(res.data.analysis)
+      posthog.capture('ai_analysis_completed')
     } catch (e) {
       setError('Помилка аналізу. Перевір що є транзакції за поточний місяць.')
+      posthog.capture('ai_analysis_failed')
     }
     setLoading(false)
   }

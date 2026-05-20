@@ -24,6 +24,10 @@ Sentry.init({
 posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
   capture_pageview: false,
+  loaded: (ph) => {
+    console.log('PostHog loaded, key:', ph.config.token)
+    window.posthog = ph
+  }
 })
 
 function PostHogPageView() {

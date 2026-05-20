@@ -15,6 +15,7 @@ import GameWidget from '../components/GameWidget.jsx'
 import BudgetSection from '../components/BudgetSection.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import { useIsMobile } from '../hooks/useResponsive.js'
+import posthog from 'posthog-js'
 
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 
@@ -230,6 +231,11 @@ export default function Dashboard() {
       setForm({ amount: '', type: 'expense', description: '', categoryId: '', date: now.toISOString().split('T')[0] })
       setShowForm(false)
       toast.success('Транзакцію додано!')
+      posthog.capture('transaction_added', {
+        type: form.type,
+        amount: parseFloat(form.amount),
+        category: categories.find(c => c.id === form.categoryId)?.name,
+      })
       loadData()
       syncGame()
     } catch { toast.error('Помилка') }
@@ -240,6 +246,7 @@ export default function Dashboard() {
     try {
       await api.delete(`/transactions/${id}`)
       toast.success('Видалено')
+      posthog.capture('transaction_deleted')
       loadData()
       syncGame()
     } catch { toast.error('Помилка') }
@@ -255,6 +262,7 @@ export default function Dashboard() {
   const logout = async () => {
     try { await api.post('/auth/logout') } catch {}
     localStorage.removeItem('user')
+    posthog.reset()
     navigate('/login')
   }
 
@@ -624,7 +632,7 @@ export default function Dashboard() {
                       savings >= 20 ? `Непогано — ${savings}% заощаджень. Спробуй довести до 30%.` :
                       `Витрати ${stats.expense > stats.income ? 'перевищують' : 'майже рівні'} доходам. Перейди до AI Аналізу для детальних порад.`}
                   </div>
-                  <button onClick={() => setActiveTab('ai')} style={s.aiBtn}>Детальний аналіз →</button>
+                  <button onClick={() => { posthog.capture('ai_analysis_opened'); setActiveTab('ai') }} style={s.aiBtn}>Детальний аналіз →</button>
                 </div>
 
                 <BudgetSection categories={categories} categoriesMeta={CATEGORIES} filterMonth={filterMonth} filterYear={filterYear} />

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import toast from 'react-hot-toast'
 import api from '../api/index.js'
+import posthog from 'posthog-js'
 
 const PERIODS = [
   { id: 'day',   label: 'За сьогодні',   icon: '📅', desc: 'Видалить всі транзакції за сьогоднішній день' },
@@ -24,6 +25,10 @@ export default function BulkDeleteModal({ onClose, onSuccess }) {
     try {
       const res = await api.delete('/transactions/bulk', { data: { period: selected } })
       toast.success(`Видалено ${res.data.deleted} транзакцій`)
+      posthog.capture('transactions_bulk_deleted', {
+        period: selected,
+        count: res.data.deleted,
+      })
       onSuccess()
       onClose()
     } catch (e) {

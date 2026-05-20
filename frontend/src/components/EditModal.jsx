@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import toast from 'react-hot-toast'
 import api from '../api/index.js'
+import posthog from 'posthog-js'
 
 export default function EditModal({ transaction, categories, onClose, onSuccess }) {
   const [form, setForm] = useState({
@@ -25,6 +26,10 @@ export default function EditModal({ transaction, categories, onClose, onSuccess 
     try {
       await api.put(`/transactions/${transaction.id}`, form)
       toast.success('Транзакцію оновлено!')
+      posthog.capture('transaction_edited', {
+        type: form.type,
+        amount: parseFloat(form.amount),
+      })
       onSuccess()
       onClose()
     } catch {

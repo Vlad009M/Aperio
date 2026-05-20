@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react'
 import Papa from 'papaparse'
 import toast from 'react-hot-toast'
 import api from '../api/index.js'
+import posthog from 'posthog-js'
 
 const MONOBANK_COLUMNS = {
   date: ['Дата i час операції', 'Дата і час операції', 'Дата i час', 'Date'],
@@ -82,6 +83,11 @@ export default function Import({ categories, onSuccess }) {
             duplicates: res.data.transactions.filter(t => t.isDuplicate).length,
           })
           setStep(2)
+          posthog.capture('import_file_uploaded', {
+            total: res.data.transactions.length,
+            auto: res.data.transactions.filter(t => t.autoDetected && !t.isDuplicate).length,
+            duplicates: res.data.transactions.filter(t => t.isDuplicate).length,
+          })
         } catch {
           toast.error('Помилка обробки файлу')
         }
@@ -126,6 +132,10 @@ export default function Import({ categories, onSuccess }) {
     try {
       const res = await api.post('/import', { transactions: toImport })
       toast.success(`Імпортовано ${res.data.imported} транзакцій! Пропущено ${res.data.duplicates} дублікатів.`)
+      posthog.capture('import_completed', {
+        imported: res.data.imported,
+        duplicates: res.data.duplicates,
+      })
       setStep(3)
       onSuccess()
       api.post('/game/sync').catch(() => {})
