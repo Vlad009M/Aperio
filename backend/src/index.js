@@ -3,6 +3,15 @@ const cors = require('cors')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 const cookieParser = require('cookie-parser')
+
+const Sentry = require('@sentry/node')
+
+Sentry.init({
+  dsn: 'https://c8630757e63412eec7b319ce7ab056a1@o4511423343165440.ingest.de.sentry.io/4511423361122384',
+  environment: process.env.NODE_ENV || 'development',
+  tracesSampleRate: 1.0,
+})
+
 require('dotenv').config()
 
 const app = express()
@@ -77,6 +86,8 @@ app.use('/api/budgets', require('./routes/budgets'))
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Aperio API працює!' })
 })
+
+Sentry.setupExpressErrorHandler(app)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
