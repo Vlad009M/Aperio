@@ -9,7 +9,7 @@ import './index.css'
 import * as Sentry from '@sentry/react'
 
 Sentry.init({
-  dsn: 'https://6ad994d73bbc7efe14c76d69804bb375@o4511423343165440.ingest.de.sentry.io/4511423357845584',
+  dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: import.meta.env.MODE,
   tracesSampleRate: 1.0,
   integrations: [

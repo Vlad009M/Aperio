@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser')
 const Sentry = require('@sentry/node')
 
 Sentry.init({
-  dsn: 'https://c8630757e63412eec7b319ce7ab056a1@o4511423343165440.ingest.de.sentry.io/4511423361122384',
+  dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV || 'development',
   tracesSampleRate: 1.0,
 })
