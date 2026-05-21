@@ -21,7 +21,11 @@ app.use(helmet())
 
 // CORS — домен з env, не захардкоджений
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:5173',
+    'https://aperio.pp.ua',
+    'https://www.aperio.pp.ua'
+  ],
   credentials: true
 }))
 
