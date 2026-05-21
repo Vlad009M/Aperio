@@ -171,7 +171,6 @@ router.get('/google', (req, res) => {
 // 2. Колбек (Google повертає сюди код)
 router.get('/google/callback', async (req, res) => {
   const { code } = req.query
-  console.log('Google callback received, code exists:', !!code)
   if (!code) return res.redirect(`${FRONTEND_URL}/login?error=no_code`)
 
   try {
@@ -187,52 +186,40 @@ router.get('/google/callback', async (req, res) => {
       }),
     })
     const tokenData = await tokenResponse.json()
-    console.log('Token response:', JSON.stringify(tokenData))
     if (tokenData.error) throw new Error(tokenData.error_description)
 
-    // 2.2 Отримуємо дані профілю користувача
     const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${tokenData.access_token}` },
     })
     const userData = await userResponse.json()
-    console.log('User data email:', userData.email, 'name:', userData.name)
 
-  let user = await prisma.user.findUnique({ where: { email: userData.email } })
-  console.log('User found in DB:', !!user)
+    let user = await prisma.user.findUnique({ where: { email: userData.email } })
 
-    // 2.3 Шукаємо або створюємо користувача в БД
     if (!user) {
-      // Генеруємо надійний випадковий пароль-заглушку для OAuth юзера
       const randomPassword = crypto.randomBytes(32).toString('hex')
       const hashed = await bcrypt.hash(randomPassword, 12)
-      
       user = await prisma.user.create({
-        data: { 
-          email: userData.email, 
-          name: userData.name || 'Користувач Google', 
-          password: hashed 
+        data: {
+          email: userData.email,
+          name: userData.name || 'Користувач Google',
+          password: hashed
         }
       })
     }
 
-    if (user.blocked) {
-      return res.redirect(`${FRONTEND_URL}/login?error=blocked`)
-    }
+    if (user.blocked) return res.redirect(`${FRONTEND_URL}/login?error=blocked`)
 
-    // 2.4 Генеруємо наш внутрішній JWT токен
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     )
 
-    // 2.5 Ставимо куку і перекидаємо на дашборд
     res.cookie('token', token, COOKIE_OPTIONS)
-    console.log('Cookie set, redirecting to:', `${FRONTEND_URL}/dashboard`)
     res.redirect(`${FRONTEND_URL}/dashboard`)
 
   } catch (e) {
-    console.error('Помилка Google OAuth повна:', e.message, e.stack)
+    console.error('Google OAuth error:', e.message)
     res.redirect(`${FRONTEND_URL}/login?error=oauth_failed`)
   }
 })
