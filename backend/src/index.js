@@ -56,7 +56,7 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 })
 
-// AI аналіз: 10 запитів за годину (захист від витрат на API)
+// AI аналіз: 10 запитів за годину (захист від витрат на API) 
 const aiLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,
