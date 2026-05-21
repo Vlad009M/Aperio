@@ -197,12 +197,10 @@ router.get('/google/callback', async (req, res) => {
     const userData = await userResponse.json()
     console.log('User data email:', userData.email, 'name:', userData.name)
 
-let user = await prisma.user.findUnique({ where: { email: userData.email } })
-console.log('User found in DB:', !!user)
+  let user = await prisma.user.findUnique({ where: { email: userData.email } })
+  console.log('User found in DB:', !!user)
 
     // 2.3 Шукаємо або створюємо користувача в БД
-    let user = await prisma.user.findUnique({ where: { email: userData.email } })
-
     if (!user) {
       // Генеруємо надійний випадковий пароль-заглушку для OAuth юзера
       const randomPassword = crypto.randomBytes(32).toString('hex')
