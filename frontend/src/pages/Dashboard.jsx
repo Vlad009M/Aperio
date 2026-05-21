@@ -227,6 +227,7 @@ export default function Dashboard() {
       const optimisticTx = {
         ...newTx,
         id: Math.random().toString(), // тимчасовий ID
+        _optimistic: true,
         category: categories.find(c => c.id === newTx.categoryId) || { name: 'Інше' }
       };
 
@@ -564,10 +565,19 @@ export default function Dashboard() {
                             {t.type === 'income' ? '+' : '-'}₴{t.amount.toLocaleString()}
                           </div>
                           <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                            <button onClick={() => setEditTx(t)} style={s.actionBtn} title="Редагувати">
+                            <button 
+                                onClick={() => !t._optimistic && setEditTx(t)} 
+                                style={{ ...s.actionBtn, opacity: t._optimistic ? 0.3 : 1 }} 
+                                title={t._optimistic ? 'Збереження...' : 'Редагувати'}
+                                disabled={t._optimistic}>
                               <img src="/icons/edit.svg" width={28} height={28} alt="edit" />
                             </button>
-                            <button onClick={() => deleteTransaction(t.id)} style={s.actionBtn} title="Видалити">
+                            <button 
+                                  onClick={() => !t._optimistic && deleteTransaction(t.id)} 
+                                  style={{ ...s.actionBtn, opacity: t._optimistic ? 0.3 : 1 }} 
+                                  title={t._optimistic ? 'Збереження...' : 'Видалити'}
+                                  disabled={t._optimistic}
+                                >
                               <img src="/icons/delete.svg" width={28} height={28} alt="delete" />
                             </button>
                           </div>
@@ -728,10 +738,20 @@ export default function Dashboard() {
                       {t.type === 'income' ? '+' : '-'}₴{t.amount.toLocaleString()}
                     </div>
                     <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                      <button onClick={() => setEditTx(t)} style={s.actionBtn} title="Редагувати">
+                      <button 
+                          onClick={() => !t._optimistic && setEditTx(t)} 
+                          style={{ ...s.actionBtn, opacity: t._optimistic ? 0.3 : 1 }} 
+                          title={t._optimistic ? 'Збереження...' : 'Редагувати'}
+                          disabled={t._optimistic}
+                        >
                         <img src="/icons/edit.svg" width={28} height={28} alt="edit" />
                       </button>
-                      <button onClick={() => deleteTransaction(t.id)} style={s.actionBtn} title="Видалити">
+                      <button 
+                            onClick={() => !t._optimistic && deleteTransaction(t.id)} 
+                            style={{ ...s.actionBtn, opacity: t._optimistic ? 0.3 : 1 }} 
+                            title={t._optimistic ? 'Збереження...' : 'Видалити'}
+                            disabled={t._optimistic}
+                          >
                         <img src="/icons/delete.svg" width={28} height={28} alt="delete" />
                       </button>
                     </div>
