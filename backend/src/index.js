@@ -50,7 +50,7 @@ app.use((req, res, next) => {
 // Авторизація: 10 спроб за 15 хвилин
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 50,
   message: { error: 'Забагато спроб. Спробуй через 15 хвилин.' },
   standardHeaders: true,
   legacyHeaders: false,
