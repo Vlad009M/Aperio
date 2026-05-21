@@ -14,21 +14,26 @@ function App() {
   const [isAuth, setIsAuth] = useState(false)
 
   useEffect(() => {
-    // ЗАВЖДИ перевіряємо токен на бекенді, ігноруючи старі записи в localStorage
-    api.get('/auth/me')
-      .then(res => {
-        // Якщо токен дійсний, оновлюємо дані
-        localStorage.setItem('user', JSON.stringify(res.data.user))
-        setIsAuth(true)
-        setAuthChecked(true)
-      })
-      .catch(() => {
-        // ЖОРСТКА ЗАЧИСТКА: якщо бекенд повернув 401, видаляємо мертву сесію
-        localStorage.removeItem('user')
-        setIsAuth(false)
-        setAuthChecked(true)
-      })
-  }, [])
+  const user = localStorage.getItem('user')
+  if (user) {
+    // Є збережена сесія — довіряємо їй, не перевіряємо бекенд
+    setIsAuth(true)
+    setAuthChecked(true)
+    return
+  }
+  // Немає сесії — перевіряємо бекенд (для cookie-based auth)
+  api.get('/auth/me')
+    .then(res => {
+      localStorage.setItem('user', JSON.stringify(res.data.user))
+      setIsAuth(true)
+      setAuthChecked(true)
+    })
+    .catch(() => {
+      localStorage.removeItem('user')
+      setIsAuth(false)
+      setAuthChecked(true)
+    })
+}, [])
 
   // Поки йде перевірка, нічого не рендеримо (можна замінити на спінер)
   if (!authChecked) return null 
