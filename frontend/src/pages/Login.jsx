@@ -97,7 +97,7 @@ const handleGoogleLogin = () => {
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
               <ReCAPTCHA
-                sitekey="6LfLV_AsAAAAAA3n3mEV7uXNYWm7krW3XCEkgI9m"
+                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LfLV_AsAAAAAA3n3mEV7uXNYWm7krW3XCEkgI9m"}
                 onChange={(token) => setCaptchaToken(token)}
                 onExpired={() => setCaptchaToken(null)}
               />

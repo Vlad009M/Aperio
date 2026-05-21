@@ -27,7 +27,6 @@ posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
   capture_pageleave: true,
   loaded: (ph) => {
     window.posthog = ph
-    console.log('PostHog loaded, key:', ph.config.token)
   }
 })
 
