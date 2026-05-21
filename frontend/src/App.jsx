@@ -7,7 +7,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy.jsx'
 import TermsOfService from './pages/TermsOfService.jsx'
 import About from './pages/About.jsx'
 
-const isAuth = () => !!localStorage.getItem('token')
+const isAuth = () => !!localStorage.getItem('user')
 
 function App() {
   return (
