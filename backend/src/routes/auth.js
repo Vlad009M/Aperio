@@ -171,6 +171,7 @@ router.get('/google', (req, res) => {
 // 2. Колбек (Google повертає сюди код)
 router.get('/google/callback', async (req, res) => {
   const { code } = req.query
+  console.log('Google callback received, code exists:', !!code)
   if (!code) return res.redirect(`${FRONTEND_URL}/login?error=no_code`)
 
   try {
@@ -228,7 +229,7 @@ router.get('/google/callback', async (req, res) => {
     res.redirect(`${FRONTEND_URL}/dashboard`)
 
   } catch (e) {
-    console.error('Помилка Google OAuth:', e)
+    console.error('Помилка Google OAuth повна:', e.message, e.stack)
     res.redirect(`${FRONTEND_URL}/login?error=oauth_failed`)
   }
 })
