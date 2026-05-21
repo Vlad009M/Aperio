@@ -228,6 +228,7 @@ router.get('/google/callback', async (req, res) => {
 
     // 2.5 Ставимо куку і перекидаємо на дашборд
     res.cookie('token', token, COOKIE_OPTIONS)
+    console.log('Cookie set, redirecting to:', `${FRONTEND_URL}/dashboard`)
     res.redirect(`${FRONTEND_URL}/dashboard`)
 
   } catch (e) {
