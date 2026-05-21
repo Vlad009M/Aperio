@@ -28,23 +28,13 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }))
 app.use(cookieParser())
 
-const { doubleCsrf } = require('csrf-csrf')
-
-const { doubleCsrfProtection } = doubleCsrf({
-  getSecret: () => process.env.CSRF_SECRET || 'aperio-csrf-secret-key',
-  cookieName: 'csrf-token',
-  cookieOptions: {
-    httpOnly: true,
-    sameSite: 'strict',
-    secure: process.env.NODE_ENV === 'production',
-  },
-  size: 64,
-  ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
-})
-
-app.use(doubleCsrfProtection)
-app.get('/api/csrf-token', (req, res) => {
-  res.json({ csrfToken: req.csrfToken() })
+// CSRF захист через перевірку Origin
+app.use((req, res, next) => {
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next()
+  const origin = req.headers.origin || req.headers.referer || ''
+  const allowed = process.env.FRONTEND_URL || 'http://localhost:5173'
+  if (origin.startsWith(allowed)) return next()
+  return res.status(403).json({ error: 'CSRF перевірка не пройдена' })
 })
 
 // --- Rate limiters ---
