@@ -30,7 +30,7 @@ export default function Register() {
       localStorage.setItem('user', JSON.stringify(res.data.user))
       posthog.identify(res.data.user.id, { email: res.data.user.email, name: res.data.user.name })
       posthog.capture('user_registered', { method: 'email' })
-      navigate('/dashboard')
+      window.location.href = '/dashboard'
     } catch (e) {
       setError(e.response?.data?.error || 'Помилка реєстрації')
     }

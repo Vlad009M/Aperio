@@ -29,7 +29,7 @@ export default function Login() {
       localStorage.setItem('user', JSON.stringify(res.data.user))
       posthog.identify(res.data.user.id, { email: res.data.user.email })
       posthog.capture('user_logged_in', { method: 'email' })
-      navigate('/dashboard')
+      window.location.href = '/dashboard'
     } catch (e) {
       setError(e.response?.data?.error || 'Невірний email або пароль')
     }
