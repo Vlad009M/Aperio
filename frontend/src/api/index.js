@@ -5,15 +5,17 @@ const api = axios.create({
   withCredentials: true
 })
 
+// src/api/index.js
 api.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+  (response) => response,
+  (error) => {
+    // Якщо бекенд каже, що ми не авторизовані
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('user'); // ОДНОЗНАЧНО ВИДАЛЯЄМО ЮЗЕРА!
+      window.location.href = '/login'; // І тільки потім кидаємо на логін
     }
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
 export default api
