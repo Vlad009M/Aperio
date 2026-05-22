@@ -88,7 +88,7 @@ const generalLimiter = rateLimit({
 })
 
 app.use('/api/auth', authLimiter)
-app.use('/api/ai', aiLimiter)
+app.use('/api/ai/analyze', aiLimiter)
 app.use('/api/admin', adminLimiter)
 app.use('/api', generalLimiter)
 

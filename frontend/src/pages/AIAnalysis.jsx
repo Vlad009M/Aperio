@@ -17,10 +17,10 @@ export default function AIAnalysis({ emailVerified }) {
 
   // Завантажуємо ліміти при відкритті вкладки
   useEffect(() => {
-    if (emailVerified) {
-      fetchLimits()
-    }
-  }, [emailVerified])
+  if (emailVerified) {
+    fetchLimits()
+  }
+}, [])
 
   const fetchLimits = async () => {
     try {
