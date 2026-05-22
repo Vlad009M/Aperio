@@ -3,7 +3,8 @@ const { Resend } = require('resend')
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const sendVerificationEmail = async (email, name, token) => {
-  const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`
+const backendUrl = process.env.BACKEND_URL || process.env.FRONTEND_URL.replace('https://dev.', 'https://api-dev.').replace('https://www.', 'https://api.').replace('https://aperio.pp.ua', 'https://api.aperio.pp.ua')
+const verifyUrl = `${backendUrl}/api/auth/verify-email?token=${token}`
   
   await resend.emails.send({
     from: 'Aperio <noreply@aperio.pp.ua>',
