@@ -1,28 +1,29 @@
 import { useState } from 'react'
+import { useIsMobile } from '../hooks/useResponsive.js'
 
 const MONO_URL = 'https://send.monobank.ua/jar/93HaeWmhhg'
 
 export default function DonateButton() {
   const [hovered, setHovered] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
+  const isMobile = useIsMobile()
 
   return (
     <>
-      {/* Tooltip */}
       {showTooltip && (
-        <div style={s.tooltip}>
+        <div style={{ ...s.tooltip, bottom: isMobile ? 138 : 72 }}>
           ☕ Підтримати розробника
           <div style={s.tooltipArrow} />
         </div>
       )}
 
-      {/* Button */}
       <a
         href={MONO_URL}
         target="_blank"
         rel="noopener noreferrer"
         style={{
           ...s.btn,
+          bottom: isMobile ? 72 : 24,
           ...(hovered ? s.btnHover : {}),
         }}
         onMouseEnter={() => { setHovered(true); setShowTooltip(true) }}
@@ -41,7 +42,6 @@ export default function DonateButton() {
 const s = {
   btn: {
     position: 'fixed',
-    bottom: 24,
     right: 24,
     zIndex: 9998,
     display: 'flex',
@@ -76,7 +76,6 @@ const s = {
   },
   tooltip: {
     position: 'fixed',
-    bottom: 72,
     right: 24,
     zIndex: 9997,
     background: 'rgba(0,0,0,0.8)',
