@@ -14,7 +14,7 @@ const findColumn = (headers, variants) => {
   return variants.find(v => headers.includes(v)) || null
 }
 
-export default function Import({ categories, onSuccess }) {
+export default function Import({ categories, onSuccess, emailVerified }) {
   const [step, setStep] = useState(1)
   const [dragging, setDragging] = useState(false)
   const [parsed, setParsed] = useState([])
@@ -195,12 +195,12 @@ export default function Import({ categories, onSuccess }) {
       {step === 1 && (
         <div style={s.stepCard}>
           <div
-            style={{ ...s.dropzone, ...(dragging ? s.dropzoneActive : {}) }}
-            onDragOver={e => { e.preventDefault(); setDragging(true) }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={handleDrop}
-            onClick={() => fileRef.current?.click()}
-          >
+              onDragOver={e => { e.preventDefault(); setDragging(true) }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={handleDrop}
+              onClick={() => emailVerified && fileRef.current?.click()}
+              style={{ ...s.dropzone, ...(dragging ? s.dropzoneActive : {}), opacity: emailVerified ? 1 : 0.5, cursor: emailVerified ? 'pointer' : 'not-allowed' }}
+            >
             <input ref={fileRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileChange} />
             {loading ? (
               <div style={s.dropContent}>

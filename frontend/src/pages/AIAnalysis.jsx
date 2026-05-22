@@ -3,16 +3,20 @@ import api from '../api/index.js'
 import { useIsMobile } from '../hooks/useResponsive.js'
 import posthog from 'posthog-js'
 
-export default function AIAnalysis() {
+export default function AIAnalysis({ emailVerified }) {
   const [analysis, setAnalysis] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const isMobile = useIsMobile()
 
   const analyze = async () => {
-    setLoading(true)
-    setError('')
-    setAnalysis('')
+  if (!emailVerified) {
+    setError('Підтвердіть email перед використанням AI аналізу')
+    return
+  }
+  setLoading(true)
+  setError('')
+  setAnalysis('')
     try {
       const res = await api.post('/ai/analyze')
       setAnalysis(res.data.analysis)
@@ -41,7 +45,7 @@ export default function AIAnalysis() {
           <h1 style={s.title}>🤖 AI Аналіз</h1>
           <p style={s.subtitle}>Claude аналізує твої витрати і дає персональні поради</p>
         </div>
-        <button onClick={analyze} disabled={loading} style={{ ...s.btn, opacity: loading ? 0.7 : 1 }}>
+        <button onClick={analyze} disabled={loading || !emailVerified} style={{ ...s.btn, opacity: (loading || !emailVerified) ? 0.5 : 1 }}>
           {loading ? '⏳ Аналізую...' : '✨ Проаналізувати місяць'}
         </button>
       </div>

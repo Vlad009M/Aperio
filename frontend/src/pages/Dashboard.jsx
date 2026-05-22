@@ -778,11 +778,11 @@ const handleResendCode = async () => {
                 </div>
               </div>
                <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setShowBulkDelete(true)} style={{ ...s.addBtn, background: '#FEF2EE', color: '#993C1D', border: '0.5px solid #F5B8A8' }}>
-                  <i className="ti ti-trash" /> Видалити
-                </button>
-                <button onClick={() => { setActiveTab('dashboard'); setShowForm(true) }} style={s.addBtn}>
-                  <i className="ti ti-plus" /> Додати
+              <button onClick={() => setShowBulkDelete(true)} style={{ ...s.addBtn, background: '#FEF2EE', color: '#993C1D', border: '0.5px solid #F5B8A8', opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
+                <i className="ti ti-trash" /> Видалити
+              </button>
+              <button onClick={() => { setActiveTab('dashboard'); setShowForm(true) }} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
+                <i className="ti ti-plus" /> Додати
               </button>
             </div>
             </div>
@@ -883,9 +883,9 @@ const handleResendCode = async () => {
         )}
 
         {activeTab === 'charts' && <Charts transactions={allTransactions} categories={categories} />}
-        {activeTab === 'ai' && <AIAnalysis />}
+        {activeTab === 'ai' && <AIAnalysis emailVerified={emailVerified} />}
         {activeTab === 'admin' && <AdminPanel />}
-        {activeTab === 'import' && (<Import categories={categories} onSuccess={loadData} /> )}
+        {activeTab === 'import' && <Import categories={categories} onSuccess={loadData} emailVerified={emailVerified} />}
         {activeTab === 'game' && <GamePage />}
 
        {/* FOOTER */}
