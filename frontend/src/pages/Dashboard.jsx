@@ -127,7 +127,7 @@ export default function Dashboard() {
   const [gameKey, setGameKey] = useState(0)
   const isMobile = useIsMobile()
   const [showMobileMenu, setShowMobileMenu] = useState(false)
-  const [emailVerified, setEmailVerified] = useState(user.emailVerified ?? true)
+  const [emailVerified, setEmailVerified] = useState(user.emailVerified === true)
   const [verifyCode, setVerifyCode] = useState('')
   const [verifyLoading, setVerifyLoading] = useState(false)
   const [verifyError, setVerifyError] = useState('')
