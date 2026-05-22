@@ -152,6 +152,12 @@ export default function ProfileModal({ onClose, onUpdate }) {
             <div style={s.field}>
               <label style={s.label}>Email</label>
               <input style={{ ...s.input, opacity: 0.55, cursor: 'not-allowed' }} type="email" value={user.email || ''} readOnly />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                {user.emailVerified
+                  ? <><i className="ti ti-circle-check" style={{ fontSize: 13, color: '#639922' }} /><span style={{ fontSize: 11, color: '#639922' }}>Верифікований</span></>
+                  : <><i className="ti ti-circle-x" style={{ fontSize: 13, color: '#993C1D' }} /><span style={{ fontSize: 11, color: '#993C1D' }}>Не верифікований</span></>
+                }
+              </div>
             </div>
 
             <div style={s.field}>

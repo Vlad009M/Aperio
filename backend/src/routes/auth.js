@@ -1,8 +1,9 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const crypto = require('crypto')
+const crypto = require('crypto') 
 const prisma = require('../prisma')
+const { sendVerificationEmail } = require('../email')
 
 const router = express.Router()
 
@@ -63,6 +64,16 @@ if (!verifyData.success) {
     const user = await prisma.user.create({
       data: { email: email.toLowerCase().trim(), password: hashed, name: name.trim() }
     })
+
+    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString()
+const verifyTokenExp = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+await prisma.user.update({
+  where: { id: user.id },
+  data: { verifyToken: verifyCode, verifyTokenExp }
+})
+
+sendVerificationEmail(user.email, user.name, verifyCode).catch(console.error)
 
     const token = jwt.sign(
       { userId: user.id, role: user.role },
@@ -223,6 +234,68 @@ router.get('/google/callback', async (req, res) => {
   } catch (e) {
     console.error('Google OAuth error:', e.message)
     res.redirect(`${FRONTEND_URL}/login?error=oauth_failed`)
+  }
+})
+
+router.post('/verify-email', async (req, res) => {
+  const { code } = req.body
+  const token = req.cookies.token
+
+  if (!token) return res.status(401).json({ error: 'Не авторизований' })
+  if (!code) return res.status(400).json({ error: 'Код обов\'язковий' })
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId }
+    })
+
+    if (!user) return res.status(401).json({ error: 'Користувача не знайдено' })
+    if (user.emailVerified) return res.json({ success: true, alreadyVerified: true })
+
+    if (user.verifyToken !== code) {
+      return res.status(400).json({ error: 'Невірний код' })
+    }
+
+    if (user.verifyTokenExp < new Date()) {
+      return res.status(400).json({ error: 'Код застарів. Запросіть новий.' })
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerified: true, verifyToken: null, verifyTokenExp: null }
+    })
+
+    res.json({ success: true })
+  } catch {
+    res.status(401).json({ error: 'Невалідний токен' })
+  }
+})
+
+// Повторна відправка коду
+router.post('/resend-verification', async (req, res) => {
+  const token = req.cookies.token
+  if (!token) return res.status(401).json({ error: 'Не авторизований' })
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } })
+
+    if (!user) return res.status(401).json({ error: 'Користувача не знайдено' })
+    if (user.emailVerified) return res.json({ success: true })
+
+    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString()
+    const verifyTokenExp = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { verifyToken: verifyCode, verifyTokenExp }
+    })
+
+    sendVerificationEmail(user.email, user.name, verifyCode).catch(console.error)
+    res.json({ success: true })
+  } catch {
+    res.status(401).json({ error: 'Помилка сервера' })
   }
 })
 

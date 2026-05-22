@@ -21,6 +21,9 @@ model User {
   avatarUrl        String?
   role             Role          @default(USER)
   blocked          Boolean       @default(false)
+  emailVerified    Boolean       @default(false)
+  verifyToken      String?
+  verifyTokenExp   DateTime?
   createdAt        DateTime      @default(now())
   transactions     Transaction[]
   categories       Category[]

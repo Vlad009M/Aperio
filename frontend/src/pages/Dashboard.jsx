@@ -127,6 +127,40 @@ export default function Dashboard() {
   const [gameKey, setGameKey] = useState(0)
   const isMobile = useIsMobile()
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [emailVerified, setEmailVerified] = useState(user.emailVerified === true)
+  const [verifyCode, setVerifyCode] = useState('')
+  const [verifyLoading, setVerifyLoading] = useState(false)
+  const [verifyError, setVerifyError] = useState('')
+  const [verifySuccess, setVerifySuccess] = useState(false)
+
+const handleVerifyEmail = async () => {
+  if (!verifyCode || verifyCode.length !== 6) {
+    setVerifyError('Введи 6-значний код')
+    return
+  }
+  setVerifyLoading(true)
+  setVerifyError('')
+  try {
+    await api.post('/auth/verify-email', { code: verifyCode })
+    setEmailVerified(true)
+    setVerifySuccess(true)
+    const updatedUser = { ...user, emailVerified: true }
+    localStorage.setItem('user', JSON.stringify(updatedUser))
+  } catch (e) {
+    setVerifyError(e.response?.data?.error || 'Невірний код')
+  }
+  setVerifyLoading(false)
+}
+
+const handleResendCode = async () => {
+  try {
+    await api.post('/auth/resend-verification')
+    setVerifyError('')
+    toast.success('Новий код відправлено на пошту!')
+  } catch {
+    toast.error('Помилка відправки')
+  }
+}
 
   const loadMessages = async () => {
     try {
@@ -259,7 +293,11 @@ export default function Dashboard() {
   })
 
   const addTransaction = (e) => {
-    e.preventDefault()
+  e.preventDefault()
+  if (!emailVerified) {
+    toast.error('Підтвердіть email перед додаванням транзакцій')
+    return
+  }
     if (!form.amount || !form.categoryId) { toast.error('Заповни всі поля'); return }
     
     // Формуємо дані
@@ -280,6 +318,10 @@ export default function Dashboard() {
   }
 
   const deleteTransaction = async (id) => {
+  if (!emailVerified) {
+    toast.error('Підтвердіть email перед видаленням')
+    return
+  }
   // Миттєво видаляємо з UI
   setAllTransactions(old => old.filter(t => t.id !== id))
   setTransactions(old => old.filter(t => t.id !== id))
@@ -368,7 +410,7 @@ export default function Dashboard() {
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <ThemeToggle />
       {(activeTab === 'dashboard' || activeTab === 'transactions') && (
-        <button onClick={() => setShowForm(v => !v)} style={s.mobileAddBtn}>
+        <button onClick={() => emailVerified && setShowForm(v => !v)} style={{ ...s.mobileAddBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
           <i className="ti ti-plus" style={{ fontSize: 18 }} />
         </button>
       )}
@@ -428,6 +470,36 @@ export default function Dashboard() {
         {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && (
           <div>
+            {!emailVerified && (
+              <div style={{ background: 'linear-gradient(135deg, #FEF9F0, #FEF2DE)', border: '0.5px solid #F5C842', borderRadius: 12, padding: '16px 20px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: '#633806', marginBottom: 4 }}>
+                    📧 Підтвердіть свою email адресу
+                  </div>
+                  <div style={{ fontSize: 12, color: '#985A00' }}>
+                    Введи 6-значний код з листа який прийшов на твою пошту
+                  </div>
+                  {verifyError && <div style={{ fontSize: 12, color: '#993C1D', marginTop: 4 }}>{verifyError}</div>}
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <input
+                    style={{ width: 120, padding: '8px 12px', border: '0.5px solid #F5C842', borderRadius: 8, fontSize: 16, letterSpacing: 4, textAlign: 'center', outline: 'none' }}
+                    placeholder="000000"
+                    maxLength={6}
+                    value={verifyCode}
+                    onChange={e => setVerifyCode(e.target.value.replace(/\D/g, ''))}
+                  />
+                  <button onClick={handleVerifyEmail} disabled={verifyLoading}
+                    style={{ padding: '8px 16px', background: '#534AB7', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontWeight: 500, opacity: verifyLoading ? 0.7 : 1 }}>
+                    {verifyLoading ? '...' : 'Підтвердити'}
+                  </button>
+                  <button onClick={handleResendCode}
+                    style={{ padding: '8px 12px', background: 'none', border: '0.5px solid #F5C842', borderRadius: 8, fontSize: 12, cursor: 'pointer', color: '#985A00' }}>
+                    Надіслати знову
+                  </button>
+                </div>
+              </div>
+            )}
             <div style={s.topBar}>
               <div>
                 <div style={s.pageTitle}>Дашборд</div>
@@ -437,7 +509,7 @@ export default function Dashboard() {
                   <button onClick={() => { const d = new Date(filterYear, filterMonth + 1); setFilterMonth(d.getMonth()); setFilterYear(d.getFullYear()) }} style={s.monthBtn}>›</button>
                 </div>
               </div>
-              <button onClick={() => setShowForm(!showForm)} style={s.addBtn}>
+              <button onClick={() => emailVerified && setShowForm(!showForm)} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
                 <i className="ti ti-plus" /> {showForm ? 'Закрити' : 'Додати'}
               </button>
             </div>
@@ -706,11 +778,11 @@ export default function Dashboard() {
                 </div>
               </div>
                <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setShowBulkDelete(true)} style={{ ...s.addBtn, background: '#FEF2EE', color: '#993C1D', border: '0.5px solid #F5B8A8' }}>
-                  <i className="ti ti-trash" /> Видалити
-                </button>
-                <button onClick={() => { setActiveTab('dashboard'); setShowForm(true) }} style={s.addBtn}>
-                  <i className="ti ti-plus" /> Додати
+              <button onClick={() => setShowBulkDelete(true)} style={{ ...s.addBtn, background: '#FEF2EE', color: '#993C1D', border: '0.5px solid #F5B8A8', opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
+                <i className="ti ti-trash" /> Видалити
+              </button>
+              <button onClick={() => { setActiveTab('dashboard'); setShowForm(true) }} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
+                <i className="ti ti-plus" /> Додати
               </button>
             </div>
             </div>
@@ -811,9 +883,9 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'charts' && <Charts transactions={allTransactions} categories={categories} />}
-        {activeTab === 'ai' && <AIAnalysis />}
+        {activeTab === 'ai' && <AIAnalysis emailVerified={emailVerified} />}
         {activeTab === 'admin' && <AdminPanel />}
-        {activeTab === 'import' && (<Import categories={categories} onSuccess={loadData} /> )}
+        {activeTab === 'import' && <Import categories={categories} onSuccess={loadData} emailVerified={emailVerified} />}
         {activeTab === 'game' && <GamePage />}
 
        {/* FOOTER */}
