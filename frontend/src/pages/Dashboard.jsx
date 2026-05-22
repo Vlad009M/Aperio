@@ -293,7 +293,11 @@ const handleResendCode = async () => {
   })
 
   const addTransaction = (e) => {
-    e.preventDefault()
+  e.preventDefault()
+  if (!emailVerified) {
+    toast.error('Підтвердіть email перед додаванням транзакцій')
+    return
+  }
     if (!form.amount || !form.categoryId) { toast.error('Заповни всі поля'); return }
     
     // Формуємо дані
@@ -314,6 +318,10 @@ const handleResendCode = async () => {
   }
 
   const deleteTransaction = async (id) => {
+  if (!emailVerified) {
+    toast.error('Підтвердіть email перед видаленням')
+    return
+  }
   // Миттєво видаляємо з UI
   setAllTransactions(old => old.filter(t => t.id !== id))
   setTransactions(old => old.filter(t => t.id !== id))
@@ -402,7 +410,7 @@ const handleResendCode = async () => {
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <ThemeToggle />
       {(activeTab === 'dashboard' || activeTab === 'transactions') && (
-        <button onClick={() => setShowForm(v => !v)} style={s.mobileAddBtn}>
+        <button onClick={() => emailVerified && setShowForm(v => !v)} style={{ ...s.mobileAddBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
           <i className="ti ti-plus" style={{ fontSize: 18 }} />
         </button>
       )}
@@ -501,7 +509,7 @@ const handleResendCode = async () => {
                   <button onClick={() => { const d = new Date(filterYear, filterMonth + 1); setFilterMonth(d.getMonth()); setFilterYear(d.getFullYear()) }} style={s.monthBtn}>›</button>
                 </div>
               </div>
-              <button onClick={() => setShowForm(!showForm)} style={s.addBtn}>
+              <button onClick={() => emailVerified && setShowForm(!showForm)} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
                 <i className="ti ti-plus" /> {showForm ? 'Закрити' : 'Додати'}
               </button>
             </div>
