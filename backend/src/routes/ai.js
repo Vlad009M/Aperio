@@ -41,16 +41,20 @@ router.post('/analyze', auth, async (req, res) => {
     const now = new Date()
     const lastRefill = new Date(user.lastRefillAt)
     
-    // Перевіряємо, чи не час оновити ліміт перед самим запитом
-    if ((now - lastRefill) / (1000 * 60 * 60) >= 12) {
+    // Визначаємо, чи це ти (по email або ролі)
+    const isAdmin = user.email === 'matovkavlad@gmail.com' || user.role === 'ROOT';
+    
+    // Перевіряємо, чи не час оновити ліміт (для звичайних юзерів)
+    if (!isAdmin && (now - lastRefill) / (1000 * 60 * 60) >= 12) {
       user = await prisma.user.update({
         where: { id: req.userId },
         data: { aiTokens: 5, lastRefillAt: now }
       })
     }
 
-    if (user.aiTokens <= 0) {
-      return res.status(403).json({ error: 'LIMIT_REACHED' }) // Спеціальний код помилки
+    // Блокуємо тільки якщо це НЕ адмін і токенів 0
+    if (!isAdmin && user.aiTokens <= 0) {
+      return res.status(403).json({ error: 'LIMIT_REACHED' })
     }
     // -------------------------
 
@@ -118,17 +122,19 @@ ${categoryText}
 (розбивка по категоріях на наступний місяць)`
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-3-haiku-20240307',
       max_tokens: 1024,
       messages: [{ role: 'user', content: prompt }]
     })
 
     // --- ЗНІМАЄМО ТОКЕН ---
-    // Якщо все пройшло успішно, віднімаємо 1 токен
-    await prisma.user.update({
-      where: { id: req.userId },
-      data: { aiTokens: { decrement: 1 } }
-    })
+    // Віднімаємо токен ТІЛЬКИ якщо це НЕ адмін
+    if (!isAdmin) {
+      await prisma.user.update({
+        where: { id: req.userId },
+        data: { aiTokens: { decrement: 1 } }
+      })
+    }
     // -----------------------
 
     res.json({ analysis: message.content[0].text })
