@@ -1,8 +1,9 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const crypto = require('crypto')
 const prisma = require('../prisma')
+const crypto = require('crypto')
+const { sendVerificationEmail } = require('../email')
 
 const router = express.Router()
 
@@ -63,6 +64,16 @@ if (!verifyData.success) {
     const user = await prisma.user.create({
       data: { email: email.toLowerCase().trim(), password: hashed, name: name.trim() }
     })
+
+    const verifyToken = crypto.randomBytes(32).toString('hex')
+    const verifyTokenExp = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { verifyToken, verifyTokenExp }
+    })
+
+sendVerificationEmail(user.email, user.name, verifyToken).catch(console.error)
 
     const token = jwt.sign(
       { userId: user.id, role: user.role },
@@ -223,6 +234,31 @@ router.get('/google/callback', async (req, res) => {
   } catch (e) {
     console.error('Google OAuth error:', e.message)
     res.redirect(`${FRONTEND_URL}/login?error=oauth_failed`)
+  }
+})
+
+router.get('/verify-email', async (req, res) => {
+  const { token } = req.query
+  if (!token) return res.redirect(`${FRONTEND_URL}/login?verified=false`)
+
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        verifyToken: token,
+        verifyTokenExp: { gt: new Date() }
+      }
+    })
+
+    if (!user) return res.redirect(`${FRONTEND_URL}/login?verified=false`)
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerified: true, verifyToken: null, verifyTokenExp: null }
+    })
+
+    res.redirect(`${FRONTEND_URL}/dashboard?verified=true`)
+  } catch {
+    res.redirect(`${FRONTEND_URL}/login?verified=false`)
   }
 })
 
