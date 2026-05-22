@@ -93,16 +93,16 @@ const handleGoogleLogin = () => {
             </div>
               <div style={s.fieldGroup}>
               <label style={s.label}>Пароль</label>
-              <div style={{ position: 'relative' }}>
-                <input style={{ ...s.input, paddingRight: 40 }} 
-                  type={showPassword ? 'text' : 'password'} 
-                  placeholder="••••••••"
-                  value={password} onChange={e => setPassword(e.target.value)} required />
-                <button type="button" onClick={() => setShowPassword(v => !v)}
-                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#888', padding: 0 }}>
-                  <i className={`ti ${showPassword ? 'ti-eye-off' : 'ti-eye'}`} style={{ fontSize: 18 }} />
-                </button>
-              </div>
+              <div style={{ position: 'relative', width: '100%' }}>
+              <input style={{ ...s.input, paddingRight: 40, width: '100%', boxSizing: 'border-box' }} 
+                type={showPassword ? 'text' : 'password'} 
+                placeholder="••••••••"
+                value={password} onChange={e => setPassword(e.target.value)} required />
+              <button type="button" onClick={() => setShowPassword(v => !v)}
+                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#888', padding: 0 }}>
+                <i className={`ti ${showPassword ? 'ti-eye-off' : 'ti-eye'}`} style={{ fontSize: 18 }} />
+              </button>
+            </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
               <ReCAPTCHA

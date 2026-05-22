@@ -115,8 +115,8 @@ const handleGoogleLogin = () => {
             </div>
             <div style={s.fieldGroup}>
               <label style={s.label}>Пароль</label>
-              <div style={{ position: 'relative' }}>
-                <input style={{ ...s.input, paddingRight: 40 }}
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input style={{ ...s.input, paddingRight: 40, width: '100%', boxSizing: 'border-box' }}
                   type={showPassword ? 'text' : 'password'} 
                   placeholder="Мінімум 8 символів"
                   value={password} onChange={e => setPassword(e.target.value)} required />
