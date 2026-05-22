@@ -17,6 +17,7 @@ import BudgetSection from '../components/BudgetSection.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import { useIsMobile } from '../hooks/useResponsive.js'
 import posthog from 'posthog-js'
+import FeedbackModal from '../components/FeedbackModal.jsx'
 
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 
@@ -132,6 +133,7 @@ export default function Dashboard() {
   const [verifyLoading, setVerifyLoading] = useState(false)
   const [verifyError, setVerifyError] = useState('')
   const [verifySuccess, setVerifySuccess] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
 
 const handleVerifyEmail = async () => {
   if (!verifyCode || verifyCode.length !== 6) {
@@ -430,7 +432,13 @@ const handleResendCode = async () => {
         <div style={s.logoRow}>
           <img src="/Aperio.png" alt="Aperio" style={{ width: 34, height: 34, borderRadius: 8, objectFit: 'cover' }} />
           <span style={s.logoText}>Aperio</span>
-          <ThemeToggle />
+          <button onClick={() => setShowFeedback(true)} style={s.betaBadge}>
+            <span style={s.betaDot} />
+            BETA
+          </button>
+          <div style={{ marginLeft: 'auto' }}>
+            <ThemeToggle />
+          </div>
         </div>
         <div style={s.navLabel}>Меню</div>
         {navItems.map(item => (
@@ -993,6 +1001,9 @@ const handleResendCode = async () => {
         }}
       />
     )}
+
+    {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+      
     </div>
   )
 }
@@ -1088,4 +1099,6 @@ const s = {
   footerText: { fontSize: 12, color: 'var(--color-text-tertiary)' },
   footerDot: { fontSize: 12, color: 'var(--color-border-tertiary)' },
   footerLink: { fontSize: 12, color: 'var(--color-text-tertiary)', textDecoration: 'none' },
+  betaBadge: { display: 'inline-flex', alignItems: 'center', gap: 5, background: '#EEEDFE', color: '#534AB7', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, padding: '3px 8px', borderRadius: 20, border: 'none', cursor: 'pointer' },
+  betaDot: { width: 6, height: 6, borderRadius: '50%', background: '#7F77DD', display: 'inline-block', boxShadow: '0 0 0 2px rgba(127,119,221,0.3)' },
 }
