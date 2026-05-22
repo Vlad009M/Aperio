@@ -1,8 +1,8 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto') 
 const prisma = require('../prisma')
-const crypto = require('crypto')
 const { sendVerificationEmail } = require('../email')
 
 const router = express.Router()
