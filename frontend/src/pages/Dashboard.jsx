@@ -949,6 +949,7 @@ const handleResendCode = async () => {
         { id: 'game',     icon: 'ti-sword',        label: 'Герой' },
         { id: 'import',   icon: 'ti-download',     label: 'Імпорт' },
         ...(user.role === 'ROOT' ? [{ id: 'admin', icon: 'ti-shield-check', label: 'Адмін' }] : []),
+        { id: '_feedback', icon: 'ti-message-circle', label: 'Залишити відгук' },
       ].map(item => (
         <button key={item.id}
           onClick={() => {
