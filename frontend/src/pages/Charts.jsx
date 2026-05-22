@@ -1,10 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { useIsMobile } from '../hooks/useResponsive.js'
 
 const COLORS = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fee140', '#a18cd1', '#fda085']
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 const fmt = (v) => `₴${Number(v).toLocaleString('uk')}`
-
 
 // ── Pie Chart ──────────────────────────────────────────────
 function PieChartSVG({ data, size = 200 }) {
@@ -40,32 +39,21 @@ function PieChartSVG({ data, size = 200 }) {
           <title>{sl.name}: {fmt(sl.value)} ({(sl.pct * 100).toFixed(1)}%)</title>
         </path>
       ))}
-      {/* Center label */}
       <text x={cx} y={cy - 6} textAnchor="middle" fontSize={12} fill="#888">Всього</text>
       <text x={cx} y={cy + 12} textAnchor="middle" fontSize={14} fontWeight="600" fill="#333">{fmt(total)}</text>
     </svg>
   )
 }
 
-// ── Bar Chart ──────────────────────────────────────────────
+// ── Bar Chart — повністю responsive через viewBox ──────────
 function BarChartSVG({ data, height = 200 }) {
-  const ref = useRef(null)
-  const [width, setWidth] = useState(400)
-  useEffect(() => {
-  if (!ref.current) return
-  const ob = new ResizeObserver(e => {
-    const w = e[0].contentRect.width
-    setWidth(w > 0 ? w : 300)
-  })
-  ob.observe(ref.current)
-  const initialW = ref.current.getBoundingClientRect().width
-  setWidth(initialW > 0 ? initialW : 300)
-  return () => ob.disconnect()
-  }, [])
+  // Фіксований internal canvas — viewBox масштабує під будь-який екран
+  const VW = 500
+  const VH = height
+  const padL = 44, padR = 16, padT = 16, padB = 36
+  const W = VW - padL - padR
+  const H = VH - padT - padB
 
-  const padL = 44, padR = 12, padT = 16, padB = 36
-  const W = width - padL - padR
-  const H = height - padT - padB
   const keys = ['income', 'expense']
   const keyColors = { income: '#43e97b', expense: '#fa709a' }
   const keyNames = { income: 'Доходи', expense: 'Витрати' }
@@ -74,18 +62,25 @@ function BarChartSVG({ data, height = 200 }) {
   const [tooltip, setTooltip] = useState(null)
 
   return (
-    <div ref={ref} style={{ width: '100%' }}>
-      <svg width={width} height={height}>
+    <div style={{ width: '100%' }}>
+      <svg
+        viewBox={`0 0 ${VW} ${VH}`}
+        preserveAspectRatio="xMidYMid meet"
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+      >
         {/* Grid lines */}
         {[0, 0.25, 0.5, 0.75, 1].map((t, i) => {
           const y = padT + H * (1 - t)
-          return <g key={i}>
-            <line x1={padL} x2={padL + W} y1={y} y2={y} stroke="#f0f0f0" strokeWidth={1} />
-            <text x={padL - 6} y={y + 4} textAnchor="end" fontSize={10} fill="#aaa">
-              {t === 0 ? '0' : `${Math.round(maxVal * t / 1000)}k`}
-            </text>
-          </g>
+          return (
+            <g key={i}>
+              <line x1={padL} x2={padL + W} y1={y} y2={y} stroke="#f0f0f0" strokeWidth={1} />
+              <text x={padL - 6} y={y + 4} textAnchor="end" fontSize={10} fill="#aaa">
+                {t === 0 ? '0' : `${Math.round(maxVal * t / 1000)}k`}
+              </text>
+            </g>
+          )
         })}
+
         {/* Bars */}
         {data.map((d, di) => {
           const groupW = W / data.length
@@ -104,20 +99,27 @@ function BarChartSVG({ data, height = 200 }) {
             )
           })
         })}
+
         {/* X labels */}
         {data.map((d, di) => {
           const groupW = W / data.length
           const gx = padL + di * groupW + groupW / 2
-          return <text key={di} x={gx} y={height - 8} textAnchor="middle" fontSize={11} fill="#888">{d.month}</text>
+          return (
+            <text key={di} x={gx} y={VH - 8} textAnchor="middle" fontSize={11} fill="#888">
+              {d.month}
+            </text>
+          )
         })}
+
         {/* Tooltip */}
         {tooltip && (
           <g>
-            <rect x={tooltip.x - 60} y={tooltip.y - 28} width={120} height={22} rx={4} fill="rgba(0,0,0,0.75)" />
-            <text x={tooltip.x} y={tooltip.y - 13} textAnchor="middle" fontSize={11} fill="#fff">{tooltip.label}</text>
+            <rect x={Math.min(tooltip.x - 60, VW - 130)} y={tooltip.y - 28} width={120} height={22} rx={4} fill="rgba(0,0,0,0.75)" />
+            <text x={Math.min(tooltip.x, VW - 70)} y={tooltip.y - 13} textAnchor="middle" fontSize={11} fill="#fff">{tooltip.label}</text>
           </g>
         )}
       </svg>
+
       {/* Legend */}
       <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 4 }}>
         {keys.map(k => (
@@ -131,25 +133,14 @@ function BarChartSVG({ data, height = 200 }) {
   )
 }
 
-// ── Line Chart ─────────────────────────────────────────────
+// ── Line Chart — повністю responsive через viewBox ─────────
 function LineChartSVG({ data, height = 200 }) {
-  const ref = useRef(null)
-  const [width, setWidth] = useState(400)
-  useEffect(() => {
-    if (!ref.current) return
-    const ob = new ResizeObserver(e => {
-  const w = e[0].contentRect.width
-  setWidth(w > 0 ? w : 300)
-})
-ob.observe(ref.current)
-const initialW = ref.current.getBoundingClientRect().width
-setWidth(initialW > 0 ? initialW : 300)
-return () => ob.disconnect()
-  }, [])
+  const VW = 600
+  const VH = height
+  const padL = 44, padR = 16, padT = 16, padB = 32
+  const W = VW - padL - padR
+  const H = VH - padT - padB
 
-  const padL = 50, padR = 16, padT = 16, padB = 32
-  const W = width - padL - padR
-  const H = height - padT - padB
   const keys = ['income', 'expense', 'balance']
   const keyColors = { income: '#43e97b', expense: '#fa709a', balance: '#667eea' }
   const keyNames = { income: 'Доходи', expense: 'Витрати', balance: 'Баланс' }
@@ -163,31 +154,46 @@ return () => ob.disconnect()
   const py = (v) => padT + H - ((v - minVal) / range) * H
 
   return (
-    <div ref={ref} style={{ width: '100%' }}>
-      <svg width={width} height={height}>
+    <div style={{ width: '100%' }}>
+      <svg
+        viewBox={`0 0 ${VW} ${VH}`}
+        preserveAspectRatio="xMidYMid meet"
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+      >
         {/* Grid */}
         {[0, 0.25, 0.5, 0.75, 1].map((t, i) => {
           const v = minVal + range * t
           const y = py(v)
-          return <g key={i}>
-            <line x1={padL} x2={padL + W} y1={y} y2={y} stroke="#f0f0f0" strokeWidth={1} />
-            <text x={padL - 6} y={y + 4} textAnchor="end" fontSize={10} fill="#aaa">
-              {Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(0)}k` : Math.round(v)}
-            </text>
-          </g>
+          return (
+            <g key={i}>
+              <line x1={padL} x2={padL + W} y1={y} y2={y} stroke="#f0f0f0" strokeWidth={1} />
+              <text x={padL - 6} y={y + 4} textAnchor="end" fontSize={10} fill="#aaa">
+                {Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(0)}k` : Math.round(v)}
+              </text>
+            </g>
+          )
         })}
+
         {/* Zero line */}
-        {minVal < 0 && <line x1={padL} x2={padL + W} y1={py(0)} y2={py(0)} stroke="#ddd" strokeWidth={1} strokeDasharray="4 2" />}
+        {minVal < 0 && (
+          <line x1={padL} x2={padL + W} y1={py(0)} y2={py(0)} stroke="#ddd" strokeWidth={1} strokeDasharray="4 2" />
+        )}
+
         {/* Lines */}
         {keys.map(k => {
           const pts = data.map((d, i) => `${px(i)},${py(d[k])}`).join(' ')
-          return <polyline key={k} points={pts} fill="none" stroke={keyColors[k]} strokeWidth={k === 'balance' ? 2.5 : 1.5} strokeLinejoin="round" />
+          return (
+            <polyline key={k} points={pts} fill="none" stroke={keyColors[k]}
+              strokeWidth={k === 'balance' ? 2.5 : 1.5} strokeLinejoin="round" />
+          )
         })}
+
         {/* Dots + tooltip triggers */}
         {data.map((d, i) => (
           <g key={i}>
             {keys.map(k => (
-              <circle key={k} cx={px(i)} cy={py(d[k])} r={3.5} fill={keyColors[k]} stroke="#fff" strokeWidth={1.5}
+              <circle key={k} cx={px(i)} cy={py(d[k])} r={3.5}
+                fill={keyColors[k]} stroke="#fff" strokeWidth={1.5}
                 style={{ cursor: 'pointer' }}
                 onMouseEnter={() => setTooltip({ x: px(i), y: Math.min(...keys.map(k2 => py(d[k2]))) - 10, d, i })}
                 onMouseLeave={() => setTooltip(null)}
@@ -195,17 +201,23 @@ return () => ob.disconnect()
             ))}
           </g>
         ))}
+
         {/* X labels */}
         {data.map((d, i) => (
-          <text key={i} x={px(i)} y={height - 8} textAnchor="middle" fontSize={10} fill="#aaa">{d.month}</text>
+          <text key={i} x={px(i)} y={VH - 8} textAnchor="middle" fontSize={10} fill="#aaa">
+            {d.month}
+          </text>
         ))}
+
         {/* Tooltip */}
         {tooltip && (() => {
-          const tx = Math.min(tooltip.x, width - 100)
+          const tx = Math.min(tooltip.x, VW - 110)
           return (
             <g>
               <rect x={tx - 10} y={tooltip.y - 60} width={120} height={68} rx={5} fill="rgba(0,0,0,0.8)" />
-              <text x={tx + 50} y={tooltip.y - 46} textAnchor="middle" fontSize={11} fontWeight="600" fill="#fff">{data[tooltip.i].month}</text>
+              <text x={tx + 50} y={tooltip.y - 46} textAnchor="middle" fontSize={11} fontWeight="600" fill="#fff">
+                {data[tooltip.i].month}
+              </text>
               {keys.map((k, ki) => (
                 <text key={k} x={tx + 50} y={tooltip.y - 32 + ki * 14} textAnchor="middle" fontSize={10} fill={keyColors[k]}>
                   {keyNames[k]}: {fmt(tooltip.d[k])}
@@ -215,8 +227,9 @@ return () => ob.disconnect()
           )
         })()}
       </svg>
+
       {/* Legend */}
-      <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 4 }}>
+      <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 4, flexWrap: 'wrap' }}>
         {keys.map(k => (
           <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#555' }}>
             <span style={{ width: 24, height: 3, background: keyColors[k], display: 'inline-block', borderRadius: 2 }} />
@@ -247,34 +260,37 @@ export default function Charts({ transactions, categories }) {
     .filter(d => d.value > 0)
 
   const barData = Array.from({ length: 6 }, (_, i) => {
-  const d = new Date()
-  d.setMonth(d.getMonth() - (5 - i))
-  const m = d.getMonth()
-  const y = d.getFullYear()
-  const income = transactions
-    .filter(t => t.type === 'income' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === y)
-    .reduce((s, t) => s + t.amount, 0)
-  const expense = transactions
-    .filter(t => t.type === 'expense' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === y)
-    .reduce((s, t) => s + t.amount, 0)
-  return { month: d.toLocaleString('uk', { month: 'short' }), income, expense }
-})
+    const d = new Date()
+    d.setMonth(d.getMonth() - (5 - i))
+    const m = d.getMonth()
+    const y = d.getFullYear()
+    const income = transactions
+      .filter(t => t.type === 'income' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === y)
+      .reduce((s, t) => s + t.amount, 0)
+    const expense = transactions
+      .filter(t => t.type === 'expense' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === y)
+      .reduce((s, t) => s + t.amount, 0)
+    return { month: d.toLocaleString('uk', { month: 'short' }), income, expense }
+  })
 
   const lineData = Array.from({ length: 12 }, (_, i) => {
-  const income = transactions
-    .filter(t => t.type === 'income' && new Date(t.date).getMonth() === i && new Date(t.date).getFullYear() === year)
-    .reduce((s, t) => s + t.amount, 0)
-  const expense = transactions
-    .filter(t => t.type === 'expense' && new Date(t.date).getMonth() === i && new Date(t.date).getFullYear() === year)
-    .reduce((s, t) => s + t.amount, 0)
-  return { month: MONTHS[i].slice(0, 3), balance: income - expense, income, expense }
-})
+    const income = transactions
+      .filter(t => t.type === 'income' && new Date(t.date).getMonth() === i && new Date(t.date).getFullYear() === year)
+      .reduce((s, t) => s + t.amount, 0)
+    const expense = transactions
+      .filter(t => t.type === 'expense' && new Date(t.date).getMonth() === i && new Date(t.date).getFullYear() === year)
+      .reduce((s, t) => s + t.amount, 0)
+    return { month: MONTHS[i].slice(0, 3), balance: income - expense, income, expense }
+  })
 
   const getMonthData = (month) => {
     const m = month < 0 ? 11 : month
     const cats = categories.filter(c => c.type === 'expense').map(cat => ({
       name: cat.name, icon: cat.icon,
-      value: transactions.filter(t => t.category?.name === cat.name && t.type === 'expense' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === year).reduce((s, t) => s + t.amount, 0)
+      value: transactions.filter(t =>
+        t.category?.name === cat.name && t.type === 'expense' &&
+        new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === year
+      ).reduce((s, t) => s + t.amount, 0)
     })).filter(d => d.value > 0)
     return { cats, total: cats.reduce((s, c) => s + c.value, 0) }
   }
@@ -284,7 +300,13 @@ export default function Charts({ transactions, categories }) {
 
   const exportCSV = () => {
     const headers = ['Дата', 'Тип', 'Категорія', 'Опис', 'Сума']
-    const rows = transactions.map(t => [new Date(t.date).toLocaleDateString('uk'), t.type === 'income' ? 'Дохід' : 'Витрата', t.category?.name || '', t.description || '', t.amount])
+    const rows = transactions.map(t => [
+      new Date(t.date).toLocaleDateString('uk'),
+      t.type === 'income' ? 'Дохід' : 'Витрата',
+      t.category?.name || '',
+      t.description || '',
+      t.amount
+    ])
     const csv = [headers, ...rows].map(r => r.join(';')).join('\n')
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
