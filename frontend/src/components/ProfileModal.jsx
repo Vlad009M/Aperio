@@ -32,26 +32,74 @@ export default function ProfileModal({ onClose, onUpdate }) {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (file.size > 2 * 1024 * 1024) { toast.error('Файл не більше 2MB'); return }
+  const compressImage = (file, maxSizeMB = 2) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        let { width, height } = img
 
-    setUploading(true)
-    try {
-      const ext = file.name.split('.').pop()
-      const path = `avatars/${user.id}.${ext}`
-      const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true })
-      if (error) throw error
-      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-      const url = `${data.publicUrl}?t=${Date.now()}`
-      setAvatarUrl(url)
-      toast.success('Фото завантажено!')
-    } catch {
-      toast.error('Помилка завантаження фото')
+        // Зменшуємо розміри якщо дуже велике
+        const maxDim = 1024
+        if (width > maxDim || height > maxDim) {
+          if (width > height) { height = Math.round(height * maxDim / width); width = maxDim }
+          else { width = Math.round(width * maxDim / height); height = maxDim }
+        }
+
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // Стискаємо з якістю 0.8, потім зменшуємо якщо треба
+        let quality = 0.85
+        let dataUrl = canvas.toDataURL('image/jpeg', quality)
+
+        while (dataUrl.length > maxSizeMB * 1024 * 1024 * 1.37 && quality > 0.1) {
+          quality -= 0.1
+          dataUrl = canvas.toDataURL('image/jpeg', quality)
+        }
+
+        // Конвертуємо dataUrl назад у File
+        const arr = dataUrl.split(',')
+        const mime = arr[0].match(/:(.*?);/)[1]
+        const bstr = atob(arr[1])
+        let n = bstr.length
+        const u8arr = new Uint8Array(n)
+        while (n--) u8arr[n] = bstr.charCodeAt(n)
+        resolve(new File([u8arr], 'avatar.jpg', { type: mime }))
+      }
+      img.src = e.target.result
     }
-    setUploading(false)
+    reader.readAsDataURL(file)
+  })
+}
+
+const handleFileChange = async (e) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+
+  setUploading(true)
+  try {
+    // Стискаємо перед завантаженням
+    const compressed = file.size > 2 * 1024 * 1024
+      ? await compressImage(file)
+      : file
+
+    const path = `avatars/${user.id}.jpg`
+    const { error } = await supabase.storage.from('avatars').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' })
+    if (error) throw error
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+    const url = `${data.publicUrl}?t=${Date.now()}`
+    setAvatarUrl(url)
+    toast.success('Фото завантажено!')
+  } catch {
+    toast.error('Помилка завантаження фото')
   }
+  setUploading(false)
+}
 
   const handleSaveProfile = async (e) => {
     e.preventDefault()
