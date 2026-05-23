@@ -5,6 +5,9 @@ on:
     - cron: '0 10 * * 0'  # Щонеділі о 10:00 UTC (12:00 Київ)
   workflow_dispatch:       # Дозволяє запустити вручну з GitHub UI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   backup:
     runs-on: ubuntu-latest
@@ -13,12 +16,7 @@ jobs:
       - name: Checkout main repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Завантажуємо повну історію для bundle
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+          fetch-depth: 0
 
       - name: Install Supabase CLI
         run: |
@@ -49,22 +47,17 @@ jobs:
           token: ${{ secrets.BACKUP_REPO_TOKEN }}
           path: backup-repo
 
-      - name: Copy backups to backup repo
+      - name: Copy and push backups
         run: |
-          mkdir -p backup-repo/db
-          mkdir -p backup-repo/code
+          mkdir -p backup-repo/db backup-repo/code
+
           cp aperio_db_${{ steps.date.outputs.DATE }}.sql backup-repo/db/
           cp aperio_code_${{ steps.date.outputs.DATE }}.bundle backup-repo/code/
 
-          # Залишаємо тільки 8 останніх бекапів
-          cd backup-repo/db
-          ls -t *.sql 2>/dev/null | tail -n +9 | xargs rm -f || true
-          cd ../code
-          ls -t *.bundle 2>/dev/null | tail -n +9 | xargs rm -f || true
+          cd backup-repo/db && ls -t *.sql 2>/dev/null | tail -n +9 | xargs rm -f || true
+          cd ../code && ls -t *.bundle 2>/dev/null | tail -n +9 | xargs rm -f || true
 
-      - name: Push backups
-        run: |
-          cd backup-repo
+          cd ..
           git config user.name "Aperio Backup Bot"
           git config user.email "backup@aperio.pp.ua"
           git add .
