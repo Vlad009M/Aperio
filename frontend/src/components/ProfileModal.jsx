@@ -88,7 +88,7 @@ const handleFileChange = async (e) => {
       ? await compressImage(file)
       : file
 
-    const path = `avatars/${user.id}.jpg`
+    const path = `${user.id}.jpg`
     const { error } = await supabase.storage.from('avatars').upload(path, compressed, { upsert: true, contentType: 'image/jpeg' })
     if (error) throw error
     const { data } = supabase.storage.from('avatars').getPublicUrl(path)
