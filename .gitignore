@@ -9,4 +9,4 @@ dist/
 .vscode/
 .Docs.md
 backup.bat
-.github
+.github\workflows\backup.yml
