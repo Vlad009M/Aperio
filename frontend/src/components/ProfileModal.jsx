@@ -112,6 +112,22 @@ const handleFileChange = async (e) => {
   setUploading(false)
 }
 
+  const handleSaveProfile = async (e) => {
+    e.preventDefault()
+    setSavingProfile(true)
+    try {
+      const res = await api.put('/user/profile', { name, avatarUrl: avatarUrl || null })
+      const updated = { ...user, ...res.data.user }
+      localStorage.setItem('user', JSON.stringify(updated))
+      setUser(updated)
+      toast.success('Профіль оновлено!')
+      onUpdate(updated)
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'Помилка')
+    }
+    setSavingProfile(false)
+  }
+
   const handleSavePassword = async (e) => {
     e.preventDefault()
     if (newPassword !== confirmPassword) { toast.error('Паролі не співпадають'); return }
