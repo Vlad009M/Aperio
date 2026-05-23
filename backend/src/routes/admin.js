@@ -86,6 +86,9 @@ router.delete('/users/:id', auth, requireRoot, async (req, res) => {
     if (req.params.id === req.userId) {
       return res.status(400).json({ error: 'Не можна видалити себе' })
     }
+    // Видаляємо всі пов'язані дані
+    await prisma.message.deleteMany({ where: { OR: [{ fromId: req.params.id }, { toId: req.params.id }] } })
+    await prisma.feedback.deleteMany({ where: { userId: req.params.id } })
     await prisma.transaction.deleteMany({ where: { userId: req.params.id } })
     await prisma.category.deleteMany({ where: { userId: req.params.id } })
     await prisma.user.delete({ where: { id: req.params.id } })
