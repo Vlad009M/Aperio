@@ -103,6 +103,7 @@ const handleFileChange = async (e) => {
     const updated = { ...user, ...res.data.user }
     localStorage.setItem('user', JSON.stringify(updated))
     setUser(updated)
+    window.dispatchEvent(new Event('user-updated'))
     onUpdate(updated) // <--- Цей рядок миттєво оновлює фото в меню зліва!
 
     toast.success('Фото завантажено і збережено!')
@@ -120,6 +121,7 @@ const handleFileChange = async (e) => {
       const updated = { ...user, ...res.data.user }
       localStorage.setItem('user', JSON.stringify(updated))
       setUser(updated)
+      window.dispatchEvent(new Event('user-updated'))
       toast.success('Профіль оновлено!')
       onUpdate(updated)
     } catch (e) {

@@ -18,6 +18,7 @@ import ThemeToggle from '../components/ThemeToggle.jsx'
 import { useIsMobile } from '../hooks/useResponsive.js'
 import posthog from 'posthog-js'
 import FeedbackModal from '../components/FeedbackModal.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 
@@ -102,7 +103,8 @@ function SparkLine({ transactions }) {
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const { user: authUser, setUser: updateAuthUser } = useAuth()
+  const user = authUser || {}
   const navigate = useNavigate()
   const now = new Date()
   const [transactions, setTransactions] = useState([])
@@ -360,8 +362,8 @@ const handleResendCode = async () => {
   const [challengeData, setChallengeData] = useState(null)
 
   useEffect(() => {
-    api.get('/game').then(res => setChallengeData(res.data.challenge)).catch(() => {})
-  }, [])
+  api.get('/game').then(res => setChallengeData(res.data.challenge)).catch(() => {})
+}, [gameKey])
 
   const pieData = categories
     .filter(c => c.type === 'expense')
@@ -1000,6 +1002,7 @@ const handleResendCode = async () => {
         onClose={() => setShowProfile(false)}
         onUpdate={(updated) => {
           setCurrentUser(updated)
+          updateAuthUser(updated)
         }}
       />
     )}
