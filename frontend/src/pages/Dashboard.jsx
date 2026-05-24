@@ -361,13 +361,24 @@ const handleResendCode = async () => {
   const unreadCount = messages.filter(m => !m.read).length
   const incomeChange = prevStats.income > 0 ? Math.round(((stats.income - prevStats.income) / prevStats.income) * 100) : null
   const expenseChange = prevStats.expense > 0 ? Math.round(((stats.expense - prevStats.expense) / prevStats.expense) * 100) : null
-  const savings = stats.income > 0 ? Math.round(((stats.income - stats.expense) / stats.income) * 100) : 0
   const calcSafeToSpend = () => {
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+  const today = now.getDate()
+  const daysLeft = daysInMonth - today + 1 // включаючи сьогодні
+
+  // Витрати за весь місяць
+  const monthExpense = allTransactions.filter(t => {
+    const d = new Date(t.date)
+    return t.type === 'expense' &&
+      d.getMonth() === now.getMonth() &&
+      d.getFullYear() === now.getFullYear()
+  }).reduce((s, t) => s + t.amount, 0)
+
+  // Витрати тільки сьогодні
   const spentToday = allTransactions.filter(t => {
     const d = new Date(t.date)
     return t.type === 'expense' &&
-      d.getDate() === now.getDate() &&
+      d.getDate() === today &&
       d.getMonth() === now.getMonth() &&
       d.getFullYear() === now.getFullYear()
   }).reduce((s, t) => s + t.amount, 0)
@@ -375,18 +386,23 @@ const handleResendCode = async () => {
   if (stats.income === 0) return null
 
   const totalBudget = budgetsData.reduce((s, b) => s + b.amount, 0)
+  const baseAmount = totalBudget > 0 ? totalBudget : stats.income
 
-  if (totalBudget === 0) {
-    const remaining = stats.income - stats.expense
-    return Math.max(0, (remaining / daysInMonth) - spentToday)
-  }
+  // Залишилось грошей з бюджету/доходу
+  const remaining = baseAmount - monthExpense
+  if (remaining <= 0) return { value: 0, baseAmount, monthExpense, spentToday, daysLeft, hasBudget: totalBudget > 0 }
 
-  const dailyBudget = totalBudget / daysInMonth
-  return Math.max(0, dailyBudget - spentToday)
+  // Адаптивно: ділимо те що залишилось на дні що залишились, мінус сьогоднішні витрати
+  const dailyLimit = remaining / daysLeft
+  const value = Math.max(0, dailyLimit - spentToday)
+
+  return { value, baseAmount, monthExpense, spentToday, daysLeft, hasBudget: totalBudget > 0 }
 }
 
-const safeToSpend = calcSafeToSpend()
-const hasBudgets = budgetsData.length > 0
+  const safeData = calcSafeToSpend()
+  const safeToSpend = safeData?.value ?? null
+  const hasBudgets = budgetsData.length > 0
+  const [showSafeTooltip, setShowSafeTooltip] = useState(false)
   const [challengeData, setChallengeData] = useState(null)
 
   useEffect(() => {
@@ -588,34 +604,65 @@ const hasBudgets = budgetsData.length > 0
               {/* LEFT */}
               <div>
                 {filterMonth === now.getMonth() && filterYear === now.getFullYear() && (
-                    <div style={s.safeCard}>
-                      {safeToSpend === null ? (
-                        <div style={{ textAlign: 'center' }}>
-                          <div style={s.safeLabel}>💰 Safe-to-Spend</div>
-                          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
-                            Додай дохід щоб побачити денний ліміт
+                  <div style={s.safeCard}>
+                    {safeToSpend === null ? (
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={s.safeLabel}>💰 Safe-to-Spend</div>
+                        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', marginTop: 4 }}>
+                          Додай дохід щоб побачити денний ліміт
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+                        <div>
+                          <div style={s.safeLabel}>Сьогодні безпечно витратити</div>
+                          <div
+                            style={{ ...s.safeAmount, cursor: 'pointer', display: 'inline-block' }}
+                            onClick={() => setShowSafeTooltip(v => !v)}
+                            title="Як це порахувалось?"
+                          >
+                            {safeToSpend === 0 ? '₴0' : `₴${Math.round(safeToSpend).toLocaleString()}`}
+                            <i className="ti ti-info-circle" style={{ fontSize: 14, marginLeft: 8, opacity: 0.7, verticalAlign: 'middle' }} />
+                          </div>
+                          <div style={s.safeSubtext}>
+                            {safeToSpend === 0
+                              ? 'Сьогодні краще пригальмувати ☕'
+                              : !hasBudgets
+                              ? 'Встанови бюджети для точнішого розрахунку'
+                              : 'На основі твоїх бюджетів'}
                           </div>
                         </div>
-                      ) : (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div>
-                            <div style={s.safeLabel}>Сьогодні безпечно витратити</div>
-                            <div style={s.safeAmount}>
-                              {safeToSpend === 0 ? '₴0' : `₴${Math.round(safeToSpend).toLocaleString()}`}
+                        <div style={s.safeIcon}>💸</div>
+
+                        {showSafeTooltip && safeData && (
+                          <div style={s.safeTooltip} onClick={e => e.stopPropagation()}>
+                            <div style={s.tooltipHeader}>
+                              <span>Як це порахувалось?</span>
+                              <button onClick={() => setShowSafeTooltip(false)} style={s.tooltipClose}>×</button>
                             </div>
-                            <div style={s.safeSubtext}>
-                              {safeToSpend === 0
-                                ? 'Сьогодні краще пригальмувати ☕'
-                                : !hasBudgets
-                                ? 'Встанови бюджети для точнішого розрахунку'
-                                : 'На основі твоїх бюджетів'}
+                            <div style={s.tooltipRow}>
+                              <span style={s.tooltipLabel}>{safeData.hasBudget ? 'Бюджет на місяць' : 'Дохід за місяць'}</span>
+                              <span style={s.tooltipValue}>₴{Math.round(safeData.baseAmount).toLocaleString()}</span>
+                            </div>
+                            <div style={s.tooltipRow}>
+                              <span style={s.tooltipLabel}>Вже витрачено</span>
+                              <span style={s.tooltipValue}>−₴{Math.round(safeData.monthExpense).toLocaleString()}</span>
+                            </div>
+                            <div style={{ ...s.tooltipRow, borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 8, marginTop: 4 }}>
+                              <span style={s.tooltipLabel}>Залишилось</span>
+                              <span style={{ ...s.tooltipValue, fontWeight: 600 }}>
+                                ₴{Math.round(safeData.baseAmount - safeData.monthExpense).toLocaleString()} на {safeData.daysLeft} {safeData.daysLeft === 1 ? 'день' : safeData.daysLeft < 5 ? 'дні' : 'днів'}
+                              </span>
+                            </div>
+                            <div style={s.tooltipFooter}>
+                              Тому сьогодні ти можеш безпечно витратити <b>₴{Math.round(safeToSpend).toLocaleString()}</b>
                             </div>
                           </div>
-                          <div style={s.safeIcon}>💸</div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div style={s.balanceCard}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
@@ -1166,6 +1213,13 @@ const s = {
   safeCard: { borderRadius: 14, padding: '16px 20px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 1px 3px rgba(16, 185, 129, 0.15)' },
   safeLabel: { fontSize: 12, opacity: 0.85, marginBottom: 6, fontWeight: 500 },
   safeAmount: { fontSize: 30, fontWeight: 600, marginBottom: 4 },
-  safeSubtext: { fontSize: 12, opacity: 0.75 },
-  safeIcon: { fontSize: 28, opacity: 0.9 }
+  safeSubtext: { fontSize: 12, opacity: 0.85 },
+  safeIcon: { fontSize: 28, opacity: 0.9 },
+  safeTooltip: { position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: 'rgba(6, 78, 59, 0.98)', backdropFilter: 'blur(10px)', borderRadius: 12, padding: '14px 16px', color: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.25)', zIndex: 10, fontSize: 13, border: '1px solid rgba(255,255,255,0.1)' },
+  tooltipHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, fontSize: 12, fontWeight: 600, opacity: 0.9 },
+  tooltipClose: { background: 'none', border: 'none', color: '#fff', fontSize: 20, cursor: 'pointer', padding: 0, lineHeight: 1, opacity: 0.6 },
+  tooltipRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', fontSize: 13 },
+  tooltipLabel: { opacity: 0.8 },
+  tooltipValue: { fontWeight: 500 },
+  tooltipFooter: { marginTop: 10, padding: '10px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, lineHeight: 1.5 }
 }
