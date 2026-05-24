@@ -361,6 +361,7 @@ const handleResendCode = async () => {
   const unreadCount = messages.filter(m => !m.read).length
   const incomeChange = prevStats.income > 0 ? Math.round(((stats.income - prevStats.income) / prevStats.income) * 100) : null
   const expenseChange = prevStats.expense > 0 ? Math.round(((stats.expense - prevStats.expense) / prevStats.expense) * 100) : null
+  const savings = stats.income > 0 ? Math.round(((stats.income - stats.expense) / stats.income) * 100) : 0
   const calcSafeToSpend = () => {
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
   const today = now.getDate()
