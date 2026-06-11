@@ -52,6 +52,11 @@ app.use((req, res, next) => {
 
 // --- Rate limiters ---
 
+// Реальний IP клієнта від Cloudflare. CF перезаписує цей заголовок на кожному
+// запиті, тож клієнт не може його підробити (на відміну від X-Forwarded-For / req.ip).
+// Поза CF (локально / прямий хіт на origin) — фолбек на req.ip.
+const clientIpKey = (req) => req.headers['cf-connecting-ip'] || req.ip
+
 // Авторизація: 10 спроб за 15 хвилин
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -59,6 +64,7 @@ const authLimiter = rateLimit({
   message: { error: 'Забагато спроб. Спробуй через 15 хвилин.' },
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: clientIpKey, // за Cloudflare: ключ за реальним IP клієнта
 })
 
 // AI аналіз: 10 запитів за годину (захист від витрат на API) 
@@ -68,6 +74,7 @@ const aiLimiter = rateLimit({
   message: { error: 'Ліміт AI аналізу вичерпано. Спробуй через годину.' },
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: clientIpKey, // за Cloudflare: ключ за реальним IP клієнта
 })
 
 // Адмін: 30 запитів за 15 хвилин
@@ -77,6 +84,7 @@ const adminLimiter = rateLimit({
   message: { error: 'Забагато запитів до адмін панелі.' },
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: clientIpKey, // за Cloudflare: ключ за реальним IP клієнта
 })
 
 // Загальний ліміт на всі інші API
@@ -86,6 +94,7 @@ const generalLimiter = rateLimit({
   message: { error: 'Забагато запитів. Спробуй пізніше.' },
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: clientIpKey, // за Cloudflare: ключ за реальним IP клієнта
 })
 
 // S6: жорсткий ліміт на верифікацію email і повторну відправку коду
@@ -96,6 +105,7 @@ const verifyLimiter = rateLimit({
   message: { error: 'Забагато спроб верифікації. Спробуй за годину.' },
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: clientIpKey, // за Cloudflare: ключ за реальним IP клієнта
 })
 
 app.use('/api/auth/verify-email', verifyLimiter)        // S6
