@@ -214,8 +214,10 @@ const handleResendCode = async () => {
 
     let cats = catsRes.data
 
-    if (cats.length === 0) {
-      await Promise.all(CATEGORIES.map(cat => api.post('/categories', cat)))
+    const existingNames = new Set(cats.map(c => c.name))
+    const missing = CATEGORIES.filter(c => !existingNames.has(c.name))
+    if (missing.length > 0) {
+      await Promise.all(missing.map(cat => api.post('/categories', cat)))
       const newCats = await api.get('/categories')
       cats = newCats.data
     }
