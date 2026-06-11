@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import { useIsMobile } from '../hooks/useResponsive.js'
 import Papa from 'papaparse'
 import toast from 'react-hot-toast'
 import api from '../api/index.js'
@@ -22,6 +23,7 @@ export default function Import({ categories, onSuccess, emailVerified }) {
   const [loading, setLoading] = useState(false)
   const [fileName, setFileName] = useState('')
   const fileRef = useRef()
+  const isMobile = useIsMobile()
 
   const processFile = (file) => {
     if (!file || !file.name.toLowerCase().endsWith('.csv')) {
@@ -199,7 +201,7 @@ export default function Import({ categories, onSuccess, emailVerified }) {
 
       {/* КРОК 1 — Dropzone */}
       {step === 1 && (
-        <div style={s.stepCard}>
+        <div style={{ ...s.stepCard, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
           <div
               onDragOver={e => { e.preventDefault(); setDragging(true) }}
               onDragLeave={() => setDragging(false)}
