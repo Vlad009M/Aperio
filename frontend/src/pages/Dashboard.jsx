@@ -23,15 +23,28 @@ import { useAuth } from '../context/AuthContext.jsx'
 const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень']
 
 const CATEGORIES = [
-  { name: 'Їжа',        icon: '/icons/food.svg',          color: '#FAECE7', type: 'expense' },
-  { name: 'Транспорт',  icon: '/icons/transport.svg',     color: '#E3F2FD', type: 'expense' },
-  { name: 'Розваги',    icon: '/icons/entertainment.svg', color: '#F3E5F5', type: 'expense' },
-  { name: 'Здоров\'я',  icon: '/icons/health.svg',        color: '#FFEBEE', type: 'expense' },
-  { name: 'Одяг',       icon: '/icons/clothing.svg',      color: '#FFF8E1', type: 'expense' },
-  { name: 'Комунальні', icon: '/icons/utilities.svg',     color: '#FFF9C4', type: 'expense' },
-  { name: 'Зарплата',   icon: '/icons/salary.svg',        color: '#E8F5E9', type: 'income'  },
-  { name: 'Фріланс',    icon: '/icons/freelance.svg',     color: '#E0F7FA', type: 'income'  },
-  { name: 'Інше',       icon: '/icons/other.svg',         color: '#EDE7F6', type: 'expense' },
+  { name: 'Їжа',              icon: '/icons/food.svg',          color: '#FAECE7', type: 'expense' },
+  { name: 'Кафе та ресторани',icon: '/icons/food.svg',          color: '#FDE8D8', type: 'expense' },
+  { name: 'Транспорт',        icon: '/icons/transport.svg',     color: '#E3F2FD', type: 'expense' },
+  { name: 'Розваги',          icon: '/icons/entertainment.svg', color: '#F3E5F5', type: 'expense' },
+  { name: 'Здоров\'я',        icon: '/icons/health.svg',        color: '#FFEBEE', type: 'expense' },
+  { name: 'Одяг',             icon: '/icons/clothing.svg',      color: '#FFF8E1', type: 'expense' },
+  { name: 'Комунальні',       icon: '/icons/utilities.svg',     color: '#FFF9C4', type: 'expense' },
+  { name: 'Зв\'язок',         icon: '/icons/utilities.svg',     color: '#E8EAF6', type: 'expense' },
+  { name: 'Житло',            icon: '/icons/other.svg',         color: '#F1F8E9', type: 'expense' },
+  { name: 'Навчання',         icon: '/icons/other.svg',         color: '#E8F5E9', type: 'expense' },
+  { name: 'Краса та догляд',  icon: '/icons/health.svg',        color: '#FCE4EC', type: 'expense' },
+  { name: 'Техніка',          icon: '/icons/other.svg',         color: '#E3F2FD', type: 'expense' },
+  { name: 'Подарунки',        icon: '/icons/other.svg',         color: '#FFF3E0', type: 'expense' },
+  { name: 'Подорожі',         icon: '/icons/transport.svg',     color: '#E0F7FA', type: 'expense' },
+  { name: 'Тварини',          icon: '/icons/other.svg',         color: '#F9FBE7', type: 'expense' },
+  { name: 'Зарплата',         icon: '/icons/salary.svg',        color: '#E8F5E9', type: 'income'  },
+  { name: 'Фріланс',          icon: '/icons/freelance.svg',     color: '#E0F7FA', type: 'income'  },
+  { name: 'Підробіток',       icon: '/icons/freelance.svg',     color: '#F0FFF4', type: 'income'  },
+  { name: 'Кешбек',           icon: '/icons/salary.svg',        color: '#E8F5E9', type: 'income'  },
+  { name: 'Подарунок',        icon: '/icons/other.svg',         color: '#FFF8E1', type: 'income'  },
+  { name: 'Інші доходи',      icon: '/icons/salary.svg',        color: '#F3E5F5', type: 'income'  },
+  { name: 'Інше',             icon: '/icons/other.svg',         color: '#EDE7F6', type: 'expense' },
 ]
 function SparkLine({ transactions, isMobile }) {
   const daysInMonth = new Date(
@@ -576,6 +589,7 @@ const handleResendCode = async () => {
                     <select style={s.select} value={form.type} onChange={e => setForm({ ...form, type: e.target.value, categoryId: '' })}>
                       <option value="expense">Витрата</option>
                       <option value="income">Дохід</option>
+                      <option value="transfer">Переказ</option>
                     </select>
                     <input style={s.input} type="number" placeholder="Сума ₴" min="0.01" step="0.01"
                       value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required />
@@ -745,8 +759,8 @@ const handleResendCode = async () => {
                             <div style={s.txName}>{t.category?.name || 'Інше'}</div>
                             <div style={s.txDate}>{t.description || '—'} · {new Date(t.date).toLocaleDateString('uk', { day: 'numeric', month: 'short' })}</div>
                           </div>
-                          <div style={{ ...s.txAmount, color: t.type === 'income' ? '#3B6D11' : '#993C1D' }}>
-                            {t.type === 'income' ? '+' : '-'}₴{t.amount.toLocaleString()}
+                          <div style={{ ...s.txAmount, color: t.type === 'income' ? '#3B6D11' : t.type === 'transfer' ? '#534AB7' : '#993C1D' }}>
+                            {t.type === 'income' ? '+' : t.type === 'transfer' ? '⇄' : '-'}₴{t.amount.toLocaleString()}
                           </div>
                           <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
                             <button 
@@ -918,8 +932,8 @@ const handleResendCode = async () => {
                       <div style={s.txName}>{t.category?.name || 'Інше'}</div>
                       <div style={s.txDate}>{t.description || '—'} · {new Date(t.date).toLocaleDateString('uk', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                     </div>
-                    <div style={{ ...s.txAmount, color: t.type === 'income' ? '#3B6D11' : '#993C1D' }}>
-                      {t.type === 'income' ? '+' : '-'}₴{t.amount.toLocaleString()}
+                    <div style={{ ...s.txAmount, color: t.type === 'income' ? '#3B6D11' : t.type === 'transfer' ? '#534AB7' : '#993C1D' }}>
+                      {t.type === 'income' ? '+' : t.type === 'transfer' ? '⇄' : '-'}₴{t.amount.toLocaleString()}
                     </div>
                     <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
                       <button 

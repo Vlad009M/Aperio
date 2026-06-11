@@ -65,12 +65,15 @@ export default function Import({ categories, onSuccess, emailVerified }) {
             const [datePart, timePart] = dateStr.split(' ')
             const [day, month, year] = datePart.split('.')
             const date = new Date(`${year}-${month}-${day}T${timePart}`)
+            const desc = row[descCol] || ''
+            const transferKeywords = ['переказ', 'перекид', 'на картку', 'з картки', 'між рахунк', 'від себе', 'собі']
+            const isTransfer = transferKeywords.some(k => desc.toLowerCase().includes(k))
 
             return {
               date: date.toISOString(),
-              description: row[descCol] || '',
+              description: desc,
               amount,
-              type,
+              type: isTransfer ? 'transfer' : type,
             }
           })
           .filter(t => !isNaN(t.amount) && t.amount > 0)

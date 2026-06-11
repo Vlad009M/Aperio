@@ -4,50 +4,50 @@ const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-// Словник автокатегоризації
+const Anthropic = require('@anthropic-ai/sdk')
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+// Швидкий keyword fallback (для офлайн / помилки AI)
 const keywordMap = {
-  // Їжа
   'сільпо': 'Їжа', 'silpo': 'Їжа', 'атб': 'Їжа', 'atb': 'Їжа',
-  'новус': 'Їжа', 'novus': 'Їжа', 'фора': 'Їжа', 'fora': 'Їжа',
-  'мcdonald': 'Їжа', 'mcdonalds': 'Їжа', 'kfc': 'Їжа',
-  'pizza': 'Їжа', 'піца': 'Їжа', 'суші': 'Їжа', 'sushi': 'Їжа',
-  'metro': 'Їжа', 'ашан': 'Їжа', 'auchan': 'Їжа',
-  'варус': 'Їжа', 'varus': 'Їжа', 'rukavychka': 'Їжа',
-
-  // Транспорт
+  'новус': 'Їжа', 'novus': 'Їжа', 'фора': 'Їжа', 'mcdonald': 'Їжа',
+  'kfc': 'Їжа', 'pizza': 'Їжа', 'піца': 'Їжа', 'суші': 'Їжа',
+  'metro cash': 'Їжа', 'ашан': 'Їжа', 'варус': 'Їжа',
   'uber': 'Транспорт', 'bolt': 'Транспорт', 'uklon': 'Транспорт',
-  'уклон': 'Транспорт', 'таксі': 'Транспорт', 'taxi': 'Транспорт',
-  'wog': 'Транспорт', 'okko': 'Транспорт', 'окко': 'Транспорт',
-  'Shell': 'Транспорт', 'автобус': 'Транспорт', 'metro': 'Транспорт',
-  'укрзалізниця': 'Транспорт', 'ukrzaliznytsia': 'Транспорт',
-
-  // Розваги
+  'wog': 'Транспорт', 'okko': 'Транспорт', 'Shell': 'Транспорт',
+  'укрзалізниця': 'Транспорт', 'socar': 'Транспорт', 'паркінг': 'Транспорт',
+  'parking': 'Транспорт', 'азс': 'Транспорт',
   'steam': 'Розваги', 'netflix': 'Розваги', 'spotify': 'Розваги',
-  'youtube': 'Розваги', 'playstation': 'Розваги', 'xbox': 'Розваги',
-  'cinema': 'Розваги', 'кінотеатр': 'Розваги', 'multiplex': 'Розваги',
-  'планета кіно': 'Розваги', 'apple': 'Розваги', 'google play': 'Розваги',
-
-  // Здоров'я
-  'аптека': 'Здоров\'я', 'pharmacy': 'Здоров\'я', 'бажаємо': 'Здоров\'я',
-  'аnc': 'Здоров\'я', 'медицина': 'Здоров\'я', 'лікарня': 'Здоров\'я',
-  'клініка': 'Здоров\'я', 'стоматолог': 'Здоров\'я',
-
-  // Одяг
-  'zara': 'Одяг', 'h&m': 'Одяг', 'hm': 'Одяг', 'reserved': 'Одяг',
-  'lcwaikiki': 'Одяг', 'cropp': 'Одяг', 'house': 'Одяг',
-  'adidas': 'Одяг', 'nike': 'Одяг', 'розетка': 'Одяг',
-
-  // Комунальні
+  'youtube': 'Розваги', 'playstation': 'Розваги', 'multiplex': 'Розваги',
+  'аптека': 'Здоров\'я', 'pharmacy': 'Здоров\'я', 'медицина': 'Здоров\'я',
+  'лікарня': 'Здоров\'я', 'стоматолог': 'Здоров\'я',
+  'zara': 'Одяг', 'h&m': 'Одяг', 'reserved': 'Одяг', 'adidas': 'Одяг', 'nike': 'Одяг',
   'київенерго': 'Комунальні', 'газ': 'Комунальні', 'водоканал': 'Комунальні',
-  'інтернет': 'Комунальні', 'internet': 'Комунальні', 'kyivstar': 'Комунальні',
-  'vodafone': 'Комунальні', 'lifecell': 'Комунальні', 'київстар': 'Комунальні',
-
-  // Доходи
+  'kyivstar': 'Комунальні', 'vodafone': 'Комунальні', 'lifecell': 'Комунальні',
   'зарплата': 'Зарплата', 'salary': 'Зарплата', 'аванс': 'Зарплата',
-  'фріланс': 'Фріланс', 'freelance': 'Фріланс', 'upwork': 'Фріланс',
+  'upwork': 'Фріланс', 'freelance': 'Фріланс',
+  'upwork': 'Фріланс', 'freelance': 'Фріланс', 'фріланс': 'Фріланс',
+'термінал': 'Зарплата', 'від ': 'Зарплата', 'виплата': 'Зарплата',
+'кешбек': 'Кешбек', 'cashback': 'Кешбек', 'бонус': 'Кешбек',
+'rozetka': 'Техніка', 'розетка': 'Техніка', 'comfy': 'Техніка',
+'eldorado': 'Техніка', 'фокстрот': 'Техніка',
+'lifecell': 'Зв\'язок', 'kyivstar': 'Зв\'язок', 'vodafone': 'Зв\'язок',
+'київстар': 'Зв\'язок', 'інтернет': 'Зв\'язок',
+'booking': 'Подорожі', 'airbnb': 'Подорожі', 'hotel': 'Подорожі',
+'готель': 'Подорожі', 'wizz': 'Подорожі', 'ryanair': 'Подорожі',
+'mcdonald': 'Кафе та ресторани', 'kfc': 'Кафе та ресторани',
+'pizza': 'Кафе та ресторани', 'піца': 'Кафе та ресторани',
+'суші': 'Кафе та ресторани', 'sushi': 'Кафе та ресторани',
+'ресторан': 'Кафе та ресторани', 'кафе': 'Кафе та ресторани',
+'lviv croissants': 'Кафе та ресторани', 'starbucks': 'Кафе та ресторани',
+'нова пошта': 'Інше', 'нп': 'Інше', 'easypay': 'Комунальні',
+'оренда': 'Житло', 'аренда': 'Житло',
+'зоо': 'Тварини', 'ветеринар': 'Тварини', 'зоомагазин': 'Тварини',
+'салон': 'Краса та догляд', 'перукарня': 'Краса та догляд',
+'beauty': 'Краса та догляд', 'nail': 'Краса та догляд',
 }
 
-const findCategory = (description, categories) => {
+const keywordFallback = (description, categories) => {
   const lower = description.toLowerCase()
   for (const [keyword, categoryName] of Object.entries(keywordMap)) {
     if (lower.includes(keyword.toLowerCase())) {
@@ -56,6 +56,41 @@ const findCategory = (description, categories) => {
     }
   }
   return categories.find(c => c.name === 'Інше') || categories[0]
+}
+
+// AI категоризація батчем
+const aiCategorize = async (transactions, categories) => {
+  const categoryNames = categories.map(c => c.name).join(', ')
+  
+  const items = transactions.map((tx, i) => 
+    `${i}: "${tx.description}" (${tx.type === 'income' ? 'дохід' : 'витрата'}, ₴${tx.amount})`
+  ).join('\n')
+
+  const prompt = `Визнач категорію для кожної банківської транзакції.
+
+Доступні категорії: ${categoryNames}
+
+Транзакції:
+${items}
+
+Відповідай ТІЛЬКИ валідним JSON масивом, без пояснень:
+[{"index": 0, "category": "Назва категорії"}, ...]
+
+Правила:
+- Використовуй ТІЛЬКИ категорії зі списку вище
+- Якщо переказ між рахунками/картками — категорія "Інше", тип "transfer"
+- Якщо не впевнений — "Інше"`
+
+  const message = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 2048,
+    messages: [{ role: 'user', content: prompt }]
+  })
+
+  const text = message.content[0].text.trim()
+  const json = JSON.parse(text.replace(/```json|```/g, '').trim())
+  
+  return json // [{ index, category }]
 }
 
 // Імпорт транзакцій
@@ -108,7 +143,7 @@ router.post('/', auth, async (req, res) => {
       // Знаходимо категорію
       let categoryId = tx.categoryId
       if (!categoryId) {
-        const autoCategory = findCategory(tx.description || '', categories)
+        const autoCategory = keywordFallback(tx.description || '', categories)
         categoryId = autoCategory?.id
       }
 
@@ -167,22 +202,53 @@ router.post('/preview', auth, async (req, res) => {
       existing.map(t => `${t.date.toISOString().split('T')[0]}_${t.amount}_${t.description}`)
     )
 
-    const previewed = transactions.map(tx => {
-      const signature = `${new Date(tx.date).toISOString().split('T')[0]}_${tx.amount}_${tx.description}`
-      const isDuplicate = existingSignatures.has(signature)
-      const autoCategory = findCategory(tx.description || '', categories)
+    // Спочатку keyword fallback для всіх
+const withKeywords = transactions.map(tx => {
+  const signature = `${new Date(tx.date).toISOString().split('T')[0]}_${tx.amount}_${tx.description}`
+  const isDuplicate = existingSignatures.has(signature)
+  const autoCategory = keywordFallback(tx.description || '', categories)
+  const isOther = autoCategory?.name === 'Інше'
 
-      return {
-        ...tx,
-        categoryId: autoCategory?.id || null,
-        categoryName: autoCategory?.name || 'Інше',
-        categoryIcon: autoCategory?.icon || '📦',
-        autoDetected: !!autoCategory,
-        isDuplicate
+  return {
+    ...tx,
+    categoryId: autoCategory?.id || null,
+    categoryName: autoCategory?.name || 'Інше',
+    categoryIcon: autoCategory?.icon || '📦',
+    autoDetected: !isOther,
+    isDuplicate,
+    _needsAI: isOther && !isDuplicate // позначаємо що треба AI
+  }
+})
+
+// AI тільки для тих що пішли в "Інше"
+const needsAI = withKeywords.filter(tx => tx._needsAI)
+
+if (needsAI.length > 0) {
+  try {
+    const aiResults = await aiCategorize(needsAI, categories)
+    
+    aiResults.forEach(({ index, category }) => {
+      const tx = needsAI[index]
+      if (!tx) return
+      const found = categories.find(c => c.name === category)
+      if (found && found.name !== 'Інше') {
+        tx.categoryId = found.id
+        tx.categoryName = found.name
+        tx.categoryIcon = found.icon || '📦'
+        tx.autoDetected = true
       }
     })
+  } catch (e) {
+    console.error('AI categorization failed, using keywords only:', e.message)
+  }
+}
 
-    res.json({ transactions: previewed, categories })
+const previewed = withKeywords.map(tx => {
+  const { _needsAI, ...rest } = tx
+  return rest
+})
+
+res.json({ transactions: previewed, categories })
   } catch (e) {
     console.error('Preview error:', e)
     res.status(500).json({ error: e.message })
