@@ -318,13 +318,16 @@ const handleResendCode = async () => {
     toast.error('Підтвердіть email перед додаванням транзакцій')
     return
   }
-    if (!form.amount || !form.categoryId) { toast.error('Заповни всі поля'); return }
+    if (!form.amount) { toast.error('Введи суму'); return }
+    if (form.type !== 'transfer' && !form.categoryId) { toast.error('Оберіть категорію'); return }
     
     // Формуємо дані
+    const otherCat = categories.find(c => c.name === 'Інше')
     const txData = {
       ...form,
       description: sanitize(form.description),
-      amount: parseFloat(form.amount)
+      amount: parseFloat(form.amount),
+      categoryId: form.type === 'transfer' ? otherCat?.id || categories[0]?.id : form.categoryId
     }
 
     posthog.capture('transaction_added', {
@@ -599,13 +602,15 @@ const handleResendCode = async () => {
                       onChange={e => setForm({ ...form, date: e.target.value })} />
                   </div>
                   <div style={{ ...s.formRow, ...(isMobile && { flexWrap: 'wrap' }) }}>
-                    <select style={s.select} value={form.categoryId}
-                      onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
-                      <option value="">Оберіть категорію</option>
-                      {filteredCategories.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                    </select>
+                    {form.type !== 'transfer' && (
+                      <select style={s.select} value={form.categoryId}
+                        onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
+                        <option value="">Оберіть категорію</option>
+                        {filteredCategories.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    )}
                     <input style={{ ...s.input, flex: 2 }} type="text" placeholder="Опис (необов'язково)"
                       value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
                   </div>

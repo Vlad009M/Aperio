@@ -80,16 +80,18 @@ export default function EditModal({ transaction, categories, onClose, onSuccess 
             </div>
           </div>
 
-          <div style={s.fieldGroup}>
-            <label style={s.label}>Категорія</label>
-            <select style={s.select} value={form.categoryId}
-              onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
-              <option value="">Оберіть категорію</option>
-              {filteredCategories.map(c => (
-                <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
-              ))}
-            </select>
-          </div>
+          {form.type !== 'transfer' && (
+            <div style={s.fieldGroup}>
+              <label style={s.label}>Категорія</label>
+              <select style={s.select} value={form.categoryId}
+                onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
+                <option value="">Оберіть категорію</option>
+                {filteredCategories.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div style={s.fieldGroup}>
             <label style={s.label}>Опис</label>
