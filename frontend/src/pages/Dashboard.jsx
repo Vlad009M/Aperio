@@ -518,11 +518,11 @@ const handleResendCode = async () => {
       </div>
 
       {/* MAIN */}
-      <div style={{ ...s.main, ...(isMobile && { padding: '12px', paddingBottom: 80, overflowX: 'hidden' }) }}>
+      <div style={{ ...s.main, ...(isMobile && { padding: '12px', paddingBottom: 80, overflowX: 'hidden', boxSizing: 'border-box', width: '100%' }) }}>
 
         {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && (
-          <div>
+          <div style={{ width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
             {!emailVerified && (
               <div style={{ background: 'linear-gradient(135deg, #FEF9F0, #FEF2DE)', border: '0.5px solid #F5C842', borderRadius: 12, padding: '16px 20px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: 200 }}>
@@ -824,7 +824,7 @@ const handleResendCode = async () => {
               </div>
 
               {/* RIGHT COLUMN */}
-              {!isMobile && <div style={s.rightCol}>
+              <div style={{ ...s.rightCol, ...(isMobile && { marginTop: 16 }) }}>
                 <div style={s.rightCard}>
                   <div style={s.sectionTitle}>Витрати по місяцях</div>
                   <div style={s.bars}>
@@ -873,14 +873,14 @@ const handleResendCode = async () => {
                 </div>
 
                 <BudgetSection categories={categories} categoriesMeta={CATEGORIES} filterMonth={filterMonth} filterYear={filterYear} />
-              </div>}
+              </div>
             </div>
           </div>
         )}
 
         {/* TRANSACTIONS TAB */}
         {activeTab === 'transactions' && (
-          <div>
+          <div style={{ width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
             <div style={s.topBar}>
               <div>
                 <div style={s.pageTitle}>Транзакції</div>
@@ -1131,7 +1131,7 @@ const s = {
   avatar: { width: 34, height: 34, borderRadius: '50%', background: '#EEEDFE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 500, color: '#534AB7', flexShrink: 0 },
   userName: { fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' },
   userRole: { fontSize: 11, color: 'var(--color-text-tertiary)' },
-  main: { flex: 1, padding: 28, overflowY: 'auto', minWidth: 0, maxWidth: '100%', overflowX: 'hidden' },
+  main: { flex: 1, padding: 28, overflowY: 'auto', minWidth: 0, width: 0, maxWidth: '100%', overflowX: 'hidden', boxSizing: 'border-box' },
   topBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
   pageTitle: { fontSize: 22, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 4 },
   monthNav: { display: 'flex', alignItems: 'center', gap: 10 },
