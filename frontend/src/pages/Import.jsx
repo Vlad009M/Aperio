@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import { useIsMobile } from '../hooks/useResponsive.js'
 import Papa from 'papaparse'
 import toast from 'react-hot-toast'
 import api from '../api/index.js'
@@ -22,6 +23,7 @@ export default function Import({ categories, onSuccess, emailVerified }) {
   const [loading, setLoading] = useState(false)
   const [fileName, setFileName] = useState('')
   const fileRef = useRef()
+  const isMobile = useIsMobile()
 
   const processFile = (file) => {
     if (!file || !file.name.toLowerCase().endsWith('.csv')) {
@@ -50,7 +52,13 @@ export default function Import({ categories, onSuccess, emailVerified }) {
         const transactions = results.data
           .filter(row => row[amountCol] && row[dateCol])
           .map(row => {
-            const rawAmount = parseFloat(String(row[amountCol]).replace(/\s/g, '').replace(',', '.'))
+            const rawAmount = parseFloat(
+              String(row[amountCol])
+                .replace(/\s/g, '')      
+                .replace(/\u00a0/g, '')  
+                .replace(',', '.')       
+                .replace(/[^\d.-]/g, '') 
+            )
             const amount = Math.abs(rawAmount)
             const type = rawAmount < 0 ? 'expense' : 'income'
             const dateStr = row[dateCol]
@@ -193,7 +201,7 @@ export default function Import({ categories, onSuccess, emailVerified }) {
 
       {/* КРОК 1 — Dropzone */}
       {step === 1 && (
-        <div style={s.stepCard}>
+        <div style={{ ...s.stepCard, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
           <div
               onDragOver={e => { e.preventDefault(); setDragging(true) }}
               onDragLeave={() => setDragging(false)}
@@ -320,7 +328,7 @@ export default function Import({ categories, onSuccess, emailVerified }) {
                     >
                       <option value="">Оберіть категорію</option>
                       {categories.map(c => (
-                        <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                        <option key={c.id} value={c.id}>{c.name}</option>
                       ))}
                     </select>
                   )}
@@ -366,11 +374,11 @@ const s = {
   title: { fontSize: 22, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 4 },
   subtitle: { fontSize: 13, color: 'var(--color-text-tertiary)' },
   resetBtn: { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, cursor: 'pointer', color: 'var(--color-text-secondary)' },
-  progress: { display: 'flex', alignItems: 'center', marginBottom: 28 },
-  progressItem: { display: 'flex', alignItems: 'center', gap: 8 },
+  progress: { display: 'flex', alignItems: 'center', marginBottom: 28, width: '100%', overflow: 'hidden' },
+  progressItem: { display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 },
   progressDot: { width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   progressLabel: { fontSize: 13, fontWeight: 500 },
-  progressLine: { width: 48, height: 1, margin: '0 8px' },
+  progressLine: { flex: 1, minWidth: 16, height: 1, margin: '0 8px' },
   stepCard: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
   dropzone: { background: 'var(--color-background-primary)', border: '2px dashed var(--color-border-tertiary)', borderRadius: 16, padding: 48, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   dropzoneActive: { borderColor: '#7F77DD', background: '#F5F4FE' },
