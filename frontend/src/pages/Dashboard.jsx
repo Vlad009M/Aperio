@@ -458,7 +458,9 @@ const handleResendCode = async () => {
     { id: 'game', icon: 'ti-sword', label: 'Герой' },
   ]
 
-  const filteredCategories = categories.filter(c => c.type === form.type)
+  const filteredCategories = form.type === 'transfer' 
+  ? categories 
+  : categories.filter(c => c.type === form.type)
   const initials = currentUser.name ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'VL'
 
   return (
