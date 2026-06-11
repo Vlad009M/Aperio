@@ -601,7 +601,7 @@ const handleResendCode = async () => {
               </div>
             )}
 
-            <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : '1fr 280px' }}>
+            <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: isMobile ? 12 : 20 }}>
               {/* LEFT */}
               <div>
                 {filterMonth === now.getMonth() && filterYear === now.getFullYear() && (
@@ -730,7 +730,7 @@ const handleResendCode = async () => {
                   <span style={s.seeAll} onClick={() => setActiveTab('transactions')}>Всі →</span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: 16, alignItems: 'start' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: isMobile ? 12 : 16, alignItems: 'start', width: '100%', boxSizing: 'border-box' }}>
                   <div style={s.txCard}>
                     {transactions.slice(0, 6).map(t => {
                       const catDef = CATEGORIES.find(c => c.name === t.category?.name)
@@ -1143,7 +1143,7 @@ const s = {
   formRow: { display: 'flex', gap: 10, marginBottom: 10 },
   select: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
   input: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
-  twoCol: { display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, alignItems: 'start' },
+  twoCol: { display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, alignItems: 'start', width: '100%', boxSizing: 'border-box' },
   balanceCard: { borderRadius: 14, padding: '14px 16px', background: 'linear-gradient(135deg, #7F77DD 0%, #534AB7 100%)', color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden', width: '100%', boxSizing: 'border-box' },
   balanceLabel: { fontSize: 12, opacity: 0.75, marginBottom: 6 },
   balanceAmount: { fontSize: 28, fontWeight: 500, marginBottom: 14 },
@@ -1211,7 +1211,7 @@ const s = {
   footerLink: { fontSize: 12, color: 'var(--color-text-tertiary)', textDecoration: 'none' },
   betaBadge: { display: 'inline-flex', alignItems: 'center', gap: 5, background: '#EEEDFE', color: '#534AB7', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, padding: '3px 8px', borderRadius: 20, border: 'none', cursor: 'pointer' },
   betaDot: { width: 6, height: 6, borderRadius: '50%', background: '#7F77DD', display: 'inline-block', boxShadow: '0 0 0 2px rgba(127,119,221,0.3)' },
-  safeCard: { borderRadius: 14, padding: '14px 16px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 1px 3px rgba(16, 185, 129, 0.15)', width: '100%', boxSizing: 'border-box', overflow: 'hidden' },
+  safeCard: { borderRadius: 14, padding: '14px 16px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 1px 3px rgba(16, 185, 129, 0.15)', width: '100%', boxSizing: 'border-box', position: 'relative' },
   safeLabel: { fontSize: 12, opacity: 0.85, marginBottom: 6, fontWeight: 500 },
   safeAmount: { fontSize: 30, fontWeight: 600, marginBottom: 4 },
   safeSubtext: { fontSize: 12, opacity: 0.85 },
