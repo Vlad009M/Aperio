@@ -1211,7 +1211,7 @@ const s = {
   footerLink: { fontSize: 12, color: 'var(--color-text-tertiary)', textDecoration: 'none' },
   betaBadge: { display: 'inline-flex', alignItems: 'center', gap: 5, background: '#EEEDFE', color: '#534AB7', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, padding: '3px 8px', borderRadius: 20, border: 'none', cursor: 'pointer' },
   betaDot: { width: 6, height: 6, borderRadius: '50%', background: '#7F77DD', display: 'inline-block', boxShadow: '0 0 0 2px rgba(127,119,221,0.3)' },
-  safeCard: { borderRadius: 14, padding: '14px 16px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 1px 3px rgba(16, 185, 129, 0.15)', width: '100%', boxSizing: 'border-box', overflow: 'hidden' },
+  safeCard: { borderRadius: 14, padding: '14px 16px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 1px 3px rgba(16, 185, 129, 0.15)', width: '100%', boxSizing: 'border-box', position: 'relative' },
   safeLabel: { fontSize: 12, opacity: 0.85, marginBottom: 6, fontWeight: 500 },
   safeAmount: { fontSize: 30, fontWeight: 600, marginBottom: 4 },
   safeSubtext: { fontSize: 12, opacity: 0.85 },
