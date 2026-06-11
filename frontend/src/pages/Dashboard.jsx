@@ -518,7 +518,7 @@ const handleResendCode = async () => {
       </div>
 
       {/* MAIN */}
-      <div style={{ ...s.main, ...(isMobile && { padding: '16px', paddingBottom: 80 }) }}>
+      <div style={{ ...s.main, ...(isMobile && { padding: '12px', paddingBottom: 80, overflowX: 'hidden' }) }}>
 
         {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && (
@@ -1131,7 +1131,7 @@ const s = {
   avatar: { width: 34, height: 34, borderRadius: '50%', background: '#EEEDFE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 500, color: '#534AB7', flexShrink: 0 },
   userName: { fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' },
   userRole: { fontSize: 11, color: 'var(--color-text-tertiary)' },
-  main: { flex: 1, padding: 28, overflowY: 'auto', minWidth: 0 },
+  main: { flex: 1, padding: 28, overflowY: 'auto', minWidth: 0, maxWidth: '100%', overflowX: 'hidden' },
   topBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
   pageTitle: { fontSize: 22, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 4 },
   monthNav: { display: 'flex', alignItems: 'center', gap: 10 },
@@ -1144,14 +1144,14 @@ const s = {
   select: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
   input: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
   twoCol: { display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, alignItems: 'start' },
-  balanceCard: { borderRadius: 14, padding: '16px 20px', background: 'linear-gradient(135deg, #7F77DD 0%, #534AB7 100%)', color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden' },
+  balanceCard: { borderRadius: 14, padding: '16px 20px', background: 'linear-gradient(135deg, #7F77DD 0%, #534AB7 100%)', color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden', maxWidth: '100%', boxSizing: 'border-box' },
   balanceLabel: { fontSize: 12, opacity: 0.75, marginBottom: 6 },
   balanceAmount: { fontSize: 32, fontWeight: 500, marginBottom: 18 },
   balanceRow: { display: 'flex', gap: 24 },
   balanceSub: { display: 'flex', flexDirection: 'column', gap: 2 },
   balanceSubLabel: { fontSize: 11, opacity: 0.7 },
   balanceSubVal: { fontSize: 15, fontWeight: 500 },
-  statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 },
+  statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 20, maxWidth: '100%' },
   statCard: { background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 12, padding: '14px 16px' },
   statIcon: { width: 34, height: 34, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   statLabel: { fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 4 },
