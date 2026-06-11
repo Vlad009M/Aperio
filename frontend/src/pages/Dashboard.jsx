@@ -601,7 +601,7 @@ const handleResendCode = async () => {
               </div>
             )}
 
-            <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : '1fr 280px' }}>
+            <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: isMobile ? 12 : 20 }}>
               {/* LEFT */}
               <div>
                 {filterMonth === now.getMonth() && filterYear === now.getFullYear() && (
@@ -730,7 +730,7 @@ const handleResendCode = async () => {
                   <span style={s.seeAll} onClick={() => setActiveTab('transactions')}>Всі →</span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: 16, alignItems: 'start' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: isMobile ? 12 : 16, alignItems: 'start', width: '100%', boxSizing: 'border-box' }}>
                   <div style={s.txCard}>
                     {transactions.slice(0, 6).map(t => {
                       const catDef = CATEGORIES.find(c => c.name === t.category?.name)
@@ -1143,7 +1143,7 @@ const s = {
   formRow: { display: 'flex', gap: 10, marginBottom: 10 },
   select: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
   input: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
-  twoCol: { display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, alignItems: 'start' },
+  twoCol: { display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, alignItems: 'start', width: '100%', boxSizing: 'border-box' },
   balanceCard: { borderRadius: 14, padding: '14px 16px', background: 'linear-gradient(135deg, #7F77DD 0%, #534AB7 100%)', color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden', width: '100%', boxSizing: 'border-box' },
   balanceLabel: { fontSize: 12, opacity: 0.75, marginBottom: 6 },
   balanceAmount: { fontSize: 28, fontWeight: 500, marginBottom: 14 },
