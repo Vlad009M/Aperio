@@ -14,7 +14,9 @@ export default function EditModal({ transaction, categories, onClose, onSuccess 
   })
   const [loading, setLoading] = useState(false)
 
-  const filteredCategories = categories.filter(c => c.type === form.type)
+  const filteredCategories = categories.filter(c => 
+  form.type === 'transfer' ? true : c.type === form.type
+)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -58,10 +60,11 @@ export default function EditModal({ transaction, categories, onClose, onSuccess 
           <div style={s.fieldGroup}>
             <label style={s.label}>Тип</label>
             <select style={s.select} value={form.type}
-              onChange={e => setForm({ ...form, type: e.target.value, categoryId: '' })}>
-              <option value="expense">💸 Витрата</option>
-              <option value="income">💵 Дохід</option>
-            </select>
+            onChange={e => setForm({ ...form, type: e.target.value, categoryId: '' })}>
+            <option value="expense">💸 Витрата</option>
+            <option value="income">💵 Дохід</option>
+            <option value="transfer">🔄 Переказ між рахунками</option>
+          </select>
           </div>
 
           <div style={s.row}>
@@ -77,16 +80,18 @@ export default function EditModal({ transaction, categories, onClose, onSuccess 
             </div>
           </div>
 
-          <div style={s.fieldGroup}>
-            <label style={s.label}>Категорія</label>
-            <select style={s.select} value={form.categoryId}
-              onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
-              <option value="">Оберіть категорію</option>
-              {filteredCategories.map(c => (
-                <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
-              ))}
-            </select>
-          </div>
+          {form.type !== 'transfer' && (
+            <div style={s.fieldGroup}>
+              <label style={s.label}>Категорія</label>
+              <select style={s.select} value={form.categoryId}
+                onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
+                <option value="">Оберіть категорію</option>
+                {filteredCategories.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div style={s.fieldGroup}>
             <label style={s.label}>Опис</label>

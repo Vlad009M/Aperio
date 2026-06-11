@@ -9,7 +9,7 @@ const router = express.Router()
 // Zod схеми валідації
 const transactionSchema = z.object({
   amount: z.number({ coerce: true }).positive('Сума має бути більше 0').max(10_000_000, 'Сума занадто велика'),
-  type: z.enum(['income', 'expense'], { error: 'Тип має бути income або expense' }),
+  type: z.enum(['income', 'expense', 'transfer'], { error: 'Тип має бути income, expense або transfer' }),
   description: z.string().max(500, 'Опис занадто довгий').optional().nullable(),
   categoryId: z.string().uuid('Невірний ID категорії'),
   date: z.string().optional(),
@@ -32,8 +32,8 @@ router.get('/', auth, async (req, res) => {
       }
     }
 
-    if (type) {
-      if (!['income', 'expense'].includes(type)) {
+   if (type) {
+      if (!['income', 'expense', 'transfer'].includes(type)) {
         return res.status(400).json({ error: 'Невірний тип' })
       }
       where.type = type
