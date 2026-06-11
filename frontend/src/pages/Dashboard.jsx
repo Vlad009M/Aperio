@@ -33,7 +33,7 @@ const CATEGORIES = [
   { name: 'Фріланс',    icon: '/icons/freelance.svg',     color: '#E0F7FA', type: 'income'  },
   { name: 'Інше',       icon: '/icons/other.svg',         color: '#EDE7F6', type: 'expense' },
 ]
-function SparkLine({ transactions }) {
+function SparkLine({ transactions, isMobile }) {
   const daysInMonth = new Date(
     new Date().getFullYear(), new Date().getMonth() + 1, 0
   ).getDate()
@@ -55,7 +55,7 @@ function SparkLine({ transactions }) {
 
   if (cumulative.every(v => v === 0)) return null
 
-  const W = 140, H = 56
+  const W = isMobile ? 90 : 140, H = isMobile ? 44 : 56
   const max = Math.max(...cumulative)
   const min = Math.min(...cumulative)
   const range = max - min || 1
@@ -460,10 +460,10 @@ const handleResendCode = async () => {
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <ThemeToggle />
       {(activeTab === 'dashboard' || activeTab === 'transactions') && (
-        <button onClick={() => emailVerified && setShowForm(v => !v)} style={{ ...s.mobileAddBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
-          <i className="ti ti-plus" style={{ fontSize: 18 }} />
-        </button>
-      )}
+          <button onClick={() => emailVerified && setShowForm(v => !v)} style={{ ...s.mobileAddBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
+            <i className="ti ti-plus" style={{ fontSize: 18 }} />
+          </button>
+        )}
       <button onClick={() => setShowProfile(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
         <div style={s.avatar}>
           {currentUser.avatarUrl
@@ -562,11 +562,9 @@ const handleResendCode = async () => {
                   <button onClick={() => { const d = new Date(filterYear, filterMonth + 1); setFilterMonth(d.getMonth()); setFilterYear(d.getFullYear()) }} style={s.monthBtn}>›</button>
                 </div>
               </div>
-              {!isMobile && (
-                <button onClick={() => emailVerified && setShowForm(!showForm)} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
-                  <i className="ti ti-plus" /> {showForm ? 'Закрити' : 'Додати'}
-                </button>
-              )}
+              <button onClick={() => emailVerified && setShowForm(!showForm)} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
+                <i className="ti ti-plus" /> {showForm ? 'Закрити' : 'Додати'}
+              </button>
             </div>
 
             {/* FORM */}
@@ -686,7 +684,7 @@ const handleResendCode = async () => {
                         </div>
                       </div>
                     </div>
-                    {!isMobile && <SparkLine transactions={transactions} />}
+                    <SparkLine transactions={transactions} isMobile={isMobile} />
                   </div>
                 </div>
 
