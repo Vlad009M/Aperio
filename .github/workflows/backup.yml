@@ -8,6 +8,11 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+# Least-privilege для GITHUB_TOKEN (CodeQL #9). Пуш у backup-repo іде через
+# BACKUP_REPO_TOKEN, тож самому GITHUB_TOKEN треба лише читати цей репозиторій.
+permissions:
+  contents: read
+
 jobs:
   backup:
     runs-on: ubuntu-latest

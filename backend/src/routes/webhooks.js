@@ -30,7 +30,10 @@ router.post('/monobank/:secret', async (req, res) => {
 
       // Мінімум 50 грн (5000 копійок) і є коментар
       if (amount >= 5000 && comment) {
-        const emailMatch = comment.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi)
+        // ReDoS-safe (CodeQL #8): обмежуємо довжину вводу + лінійний патерн
+        // (мітки домену — класи без крапки, розділені літеральною \.)
+        const safeComment = String(comment).slice(0, 200)
+        const emailMatch = safeComment.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+/)
 
         if (emailMatch && emailMatch.length > 0) {
           const userEmail = emailMatch[0].toLowerCase()
