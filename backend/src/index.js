@@ -12,6 +12,7 @@ const cors = require('cors')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 const cookieParser = require('cookie-parser')
+const httpLogger = require('./middleware/httpLogger') // <--- ДОДАНО: Імпорт логера
 
 const app = express()
 app.set('trust proxy', 1)
@@ -31,6 +32,10 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }))
 app.use(cookieParser())
+
+// <--- ДОДАНО: Глобальний логер трафіку. 
+// Стоїть тут, щоб фіксувати ВСЕ до того, як спрацює CSRF чи Rate Limit
+app.use(httpLogger) 
 
 // --- ВЕБХУКИ (Підключаємо ДО перевірки CSRF та лімітерів) ---
 app.use('/api/webhooks', require('./routes/webhooks'))
