@@ -24,7 +24,7 @@ module.exports = async (req, res, next) => {
 
     // S3: відкликання сесій — токен зі старою версією більше не дійсний.
     // (?? 0) — щоб старі токени без поля не розлогінились одразу після деплою.
-    if ((decoded.tokenVersion ?? 0) !== user.tokenVersion) {
+    if ((decoded.tokenVersion ?? 0) !== (user.tokenVersion ?? 0)) {
       logSecurityEvent('auth.token.revoked', { ip: getClientIp(req), userId: user.id }) // SIEM
       res.clearCookie('token', COOKIE_OPTIONS) // ДОДАНО: Знищуємо застарілу сесію
       return res.status(401).json({ error: 'Сесію завершено. Увійди знову.' })
