@@ -1,10 +1,10 @@
 const jwt = require('jsonwebtoken')
 const prisma = require('../prisma') // S11: singleton замість власного new PrismaClient()
+const { getTokenFromReq } = require('../utils/token') // натив: Bearer, веб: cookie
 const { logSecurityEvent, getClientIp } = require('../utils/securityLog') // SIEM
-const { COOKIE_OPTIONS } = require('../utils/token') // ДОДАНО: Імпорт налаштувань куки
 
 module.exports = async (req, res, next) => {
-  const token = req.cookies.token
+  const token = getTokenFromReq(req)
   // Тут куку чистити не треба, бо її і так немає
   if (!token) return res.status(401).json({ error: 'Не авторизований' })
 

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const crypto = require('crypto') 
 const prisma = require('../prisma')
 const { sendVerificationEmail } = require('../email')
-const { signToken } = require('../utils/token') // S3
+const { signToken, getTokenFromReq } = require('../utils/token') // S3
 const { logSecurityEvent, getClientIp, hashEmail } = require('../utils/securityLog') // SIEM
 
 const router = express.Router()
@@ -89,7 +89,9 @@ sendVerificationEmail(user.email, user.name, verifyCode).catch(console.error)
     const token = signToken(user) // S3: токен містить tokenVersion
 
     res.cookie('token', token, COOKIE_OPTIONS)
-    res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified, avatarUrl: user.avatarUrl } })
+    const registerPayload = { user: { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified, avatarUrl: user.avatarUrl } }
+    if (req.headers['x-client'] === 'capacitor') registerPayload.token = token
+    res.json(registerPayload)
   } catch (e) {
     res.status(500).json({ error: 'Помилка сервера' })
   }
@@ -147,7 +149,10 @@ if (!verifyData.success) {
 
     res.cookie('token', token, COOKIE_OPTIONS)
     logSecurityEvent('auth.login.ok', { ip: getClientIp(req), userId: user.id, role: user.role })
-    res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified, avatarUrl: user.avatarUrl } })
+    const loginPayload = { user: { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified, avatarUrl: user.avatarUrl } }
+    // Натив не зберігає cookie → токен у тілі лише застосунку (веб його не отримує)
+    if (req.headers['x-client'] === 'capacitor') loginPayload.token = token
+    res.json(loginPayload)
   } catch (e) {
     res.status(500).json({ error: 'Помилка сервера' })
   }
@@ -162,7 +167,7 @@ router.post('/logout', (req, res) => {
 // Перевірка сесії — тепер через auth middleware, перевіряє blocked
 router.get('/me', async (req, res) => {
   try {
-    const token = req.cookies.token
+    const token = getTokenFromReq(req)
     if (!token) return res.status(401).json({ error: 'Не авторизований' })
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
