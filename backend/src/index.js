@@ -17,19 +17,23 @@ const httpLogger = require('./middleware/httpLogger') // <--- ДОДАНО: Ім
 const app = express()
 app.set('trust proxy', 1)
 
+// Єдиний список дозволених origin — використовується і в CORS, і в CSRF-перевірці.
+// Web (прод/стейдж) + застосунок Capacitor (Android https://localhost, iOS capacitor://localhost).
+const ALLOWED_ORIGINS = [
+  process.env.FRONTEND_URL || 'http://localhost:5173',
+  'https://aperio.pp.ua',
+  'https://www.aperio.pp.ua',
+  'https://dev.aperio.pp.ua',
+  'http://localhost',
+  'https://localhost',
+  'capacitor://localhost',
+]
+
 // Helmet — security headers
 app.use(helmet())
 
-// CORS — домен з env, не захардкоджений
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
-    'https://aperio.pp.ua',
-    'https://www.aperio.pp.ua',
-    'http://localhost',
-    'https://localhost',      
-    'capacitor://localhost'
-  ],
+  origin: ALLOWED_ORIGINS,
   credentials: true
 }))
 
@@ -46,20 +50,10 @@ app.use('/api/webhooks', require('./routes/webhooks'))
 // CSRF захист через перевірку Origin (точний збіг, не startsWith)
 app.use((req, res, next) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next()
-  const allowedOrigins = [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
-    'https://aperio.pp.ua',
-    'https://www.aperio.pp.ua',
-    'https://dev.aperio.pp.ua',
-    'http://localhost',       
-    'capacitor://localhost',
-    'https://localhost'
-  ]
-
   const raw = req.headers.origin || req.headers.referer || ''
   let origin = ''
   try { origin = new URL(raw).origin } catch { origin = '' } // S4: дістаємо чистий origin
-  if (allowedOrigins.includes(origin)) return next()          // S4: === замість startsWith
+  if (ALLOWED_ORIGINS.includes(origin)) return next()         // S4: === замість startsWith
   return res.status(403).json({ error: 'CSRF перевірка не пройдена' })
 })
 
