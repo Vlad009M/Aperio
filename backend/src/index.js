@@ -25,7 +25,10 @@ app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:5173',
     'https://aperio.pp.ua',
-    'https://www.aperio.pp.ua'
+    'https://www.aperio.pp.ua',
+    'http://localhost',
+    'https://localhost',      
+    'capacitor://localhost'
   ],
   credentials: true
 }))
