@@ -55,12 +55,7 @@ app.use((req, res, next) => {
     'capacitor://localhost',
     'https://localhost'
   ]
-
-  app.use(cors({
-  origin: ALLOWED_ORIGINS,
-  credentials: true
-}));
-
+  
   const raw = req.headers.origin || req.headers.referer || ''
   let origin = ''
   try { origin = new URL(raw).origin } catch { origin = '' } // S4: дістаємо чистий origin
