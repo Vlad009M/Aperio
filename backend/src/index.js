@@ -55,7 +55,7 @@ app.use((req, res, next) => {
     'capacitor://localhost',
     'https://localhost'
   ]
-  
+
   const raw = req.headers.origin || req.headers.referer || ''
   let origin = ''
   try { origin = new URL(raw).origin } catch { origin = '' } // S4: дістаємо чистий origin
@@ -68,7 +68,10 @@ app.use((req, res, next) => {
 // Реальний IP клієнта від Cloudflare. CF перезаписує цей заголовок на кожному
 // запиті, тож клієнт не може його підробити (на відміну від X-Forwarded-For / req.ip).
 // Поза CF (локально / прямий хіт на origin) — фолбек на req.ip.
-const clientIpKey = (req) => req.headers['cf-connecting-ip'] || req.ip
+const { ipKeyGenerator } = require('express-rate-limit')
+// За Cloudflare беремо реальний IP клієнта (cf-connecting-ip), інакше req.ip.
+// ipKeyGenerator коректно нормалізує IPv6 (інакше IPv6-користувачі могли б обходити ліміт).
+const clientIpKey = (req) => ipKeyGenerator(req.headers['cf-connecting-ip'] || req.ip)
 
 // SIEM: коли спрацював будь-який ліміт — фіксуємо подію ratelimit.hit
 const { logSecurityEvent } = require('./utils/securityLog')
