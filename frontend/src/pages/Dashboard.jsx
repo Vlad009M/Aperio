@@ -438,7 +438,7 @@ const handleResendCode = async () => {
   const initials = currentUser.name ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'VL'
 
   return (
-    <div style={{ ...s.app, flexDirection: isMobile ? 'column' : 'row' }}>
+    <div className="app-shell" style={{ ...s.app, flexDirection: isMobile ? 'column' : 'row' }}>
       {/* Mobile top bar */}
 {isMobile && (
   <div style={s.mobileTopBar}>
@@ -469,9 +469,6 @@ const handleResendCode = async () => {
         <div style={s.logoRow}>
           <img src="/Aperio.png" alt="Aperio" style={{ width: 34, height: 34, borderRadius: 8, objectFit: 'cover' }} />
           <span style={s.logoText}>Aperio</span>
-          <div style={{ marginLeft: 'auto' }}>
-            <ThemeToggle />
-          </div>
         </div>
         <div style={s.navLabel}>Меню</div>
         {navItems.map(item => (
@@ -551,9 +548,12 @@ const handleResendCode = async () => {
                   <button onClick={() => { const d = new Date(filterYear, filterMonth + 1); setFilterMonth(d.getMonth()); setFilterYear(d.getFullYear()) }} style={s.monthBtn}>›</button>
                 </div>
               </div>
-              <button onClick={() => emailVerified && setShowForm(!showForm)} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
-                <i className="ti ti-plus" /> {showForm ? 'Закрити' : 'Додати'}
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                {!isMobile && <ThemeToggle />}
+                <button onClick={() => emailVerified && setShowForm(!showForm)} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
+                  <i className="ti ti-plus" /> {showForm ? 'Закрити' : 'Додати'}
+                </button>
+              </div>
             </div>
 
             {/* FORM */}

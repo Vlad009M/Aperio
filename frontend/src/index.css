@@ -142,7 +142,7 @@ input, select, textarea, button {
 }
 
 /* --- Анімований градієнтний фон для magic-теми --- */
-body[data-theme="magic"] {
+[data-theme="magic"] body {
   background: linear-gradient(135deg, #1a0f33, #2d1b4e, #3d1a5c, #1a0f33);
   background-size: 400% 400%;
   animation: gradient-x 18s ease infinite;
@@ -296,6 +296,11 @@ body[data-theme="magic"] {
   .animate-float,
   .animate-gradient-x,
   .animate-blob,
-  body[data-theme="magic"] { animation: none; }
+  [data-theme="magic"] body { animation: none; }
   .glass-shine:hover::before { animation: none; }
+}
+
+/* Magic-тема: головний контейнер прозорий, щоб просвічував анімований градієнт body */
+[data-theme="magic"] .app-shell {
+  background: transparent !important;
 }
