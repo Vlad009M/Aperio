@@ -35,7 +35,7 @@ export default function Download() {
     { key: 'windows', icon: '🪟', title: 'Windows', desc: 'Десктопний застосунок для Windows 10/11.', ctaReady: 'Завантажити для Windows', ctaSoon: 'Незабаром для Windows' },
     { key: 'macos',   icon: '🖥️', title: 'macOS',   desc: 'Десктопний застосунок для Mac.',          ctaReady: 'Завантажити для macOS',   ctaSoon: 'Незабаром для macOS' },
     { key: 'linux',   icon: '🐧', title: 'Linux',   desc: 'AppImage для більшості дистрибутивів.',   ctaReady: 'Завантажити для Linux',   ctaSoon: 'Незабаром для Linux' },
-    { key: 'web',     icon: '🌐', title: 'Веб-версія', desc: 'Доступ із будь-якого браузера. Можна встановити як PWA.', ctaReady: 'Відкрити у браузері', ctaSoon: null },
+    { key: 'web',     icon: '🌐', title: 'Веб-версія', desc: 'Доступ із будь-го браузера. Можна встановити як PWA.', ctaReady: 'Відкрити у браузері', ctaSoon: null },
   ]
 
   // Платформа користувача — нагору
@@ -98,24 +98,51 @@ export default function Download() {
 }
 
 const s = {
-  page: { background: 'var(--color-background-tertiary)', minHeight: '100vh', padding: '40px 20px' },
-  container: { maxWidth: 980, margin: '0 auto' },
-  hero: { textAlign: 'center', marginBottom: 32, padding: '40px 20px', background: 'var(--color-background-primary)', borderRadius: 16, border: '0.5px solid var(--color-border-tertiary)' },
+  page: { boxSizing: 'border-box', background: 'var(--color-background-tertiary)', minHeight: '100vh', padding: '40px 20px', overflowX: 'hidden' },
+  container: { boxSizing: 'border-box', maxWidth: 980, margin: '0 auto', width: '100%' },
+  hero: { boxSizing: 'border-box', textAlign: 'center', marginBottom: 32, padding: '40px 20px', background: 'var(--color-background-primary)', borderRadius: 16, border: '0.5px solid var(--color-border-tertiary)' },
   logo: { width: 72, height: 72, borderRadius: 16, marginBottom: 16 },
   title: { fontSize: 32, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 8 },
   subtitle: { fontSize: 16, color: 'var(--color-text-secondary)', margin: 0 },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 },
-  card: { position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--color-background-primary)', borderRadius: 16, padding: '28px 20px', border: '0.5px solid var(--color-border-tertiary)' },
+  
+  // Оновлена сітка на Flexbox
+  grid: { 
+    display: 'flex', 
+    flexWrap: 'wrap', 
+    gap: 16, 
+    marginBottom: 24,
+    justifyContent: 'center',
+    width: '100%'
+  },
+  
+  // Оновлена картка з правильним вираховуванням ширини
+  card: { 
+    boxSizing: 'border-box', 
+    flex: '1 1 280px', // Дозволяє картці рости, але базова ширина 280px
+    maxWidth: '100%',  // Запобігає виходу за межі екрана на мобільних
+    position: 'relative', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    alignItems: 'center', 
+    textAlign: 'center', 
+    background: 'var(--color-background-primary)', 
+    borderRadius: 16, 
+    padding: '28px 20px', 
+    border: '0.5px solid var(--color-border-tertiary)' 
+  },
+  
   cardActive: { border: '1.5px solid #7F77DD', boxShadow: '0 4px 24px rgba(127,119,221,0.15)' },
-  badge: { position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #534AB7, #7F77DD)', color: '#fff', fontSize: 11, fontWeight: 600, padding: '3px 12px', borderRadius: 20, whiteSpace: 'nowrap' },
+  badge: { position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #534AB7, #7F77DD)', color: '#fff', fontSize: 11, fontWeight: 600, padding: '3px 12px', borderRadius: 20, whiteSpace: 'nowrap', zIndex: 2 },
   cardIcon: { fontSize: 40, marginBottom: 12 },
   cardTitle: { fontSize: 17, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 8 },
   cardDesc: { fontSize: 13, color: 'var(--color-text-tertiary)', lineHeight: 1.6, marginBottom: 20, flexGrow: 1 },
-  btn: { display: 'inline-block', width: '100%', boxSizing: 'border-box', padding: '11px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none', textAlign: 'center' },
+  
+  btn: { boxSizing: 'border-box', display: 'inline-block', width: '100%', padding: '11px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none', textAlign: 'center' },
   btnPrimary: { background: 'linear-gradient(135deg, #7F77DD, #534AB7)', color: '#fff' },
   btnSecondary: { background: 'var(--color-background-tertiary)', color: 'var(--color-text-primary)', border: '0.5px solid var(--color-border-tertiary)' },
-  btnDisabled: { width: '100%', boxSizing: 'border-box', padding: '11px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, textAlign: 'center', background: 'var(--color-background-tertiary)', color: 'var(--color-text-tertiary)', cursor: 'not-allowed' },
-  note: { background: 'var(--color-background-primary)', borderRadius: 12, padding: '16px 20px', border: '0.5px solid var(--color-border-tertiary)', fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.7, textAlign: 'center', marginBottom: 24 },
+  btnDisabled: { boxSizing: 'border-box', width: '100%', padding: '11px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, textAlign: 'center', background: 'var(--color-background-tertiary)', color: 'var(--color-text-tertiary)', cursor: 'not-allowed' },
+  
+  note: { boxSizing: 'border-box', background: 'var(--color-background-primary)', borderRadius: 12, padding: '16px 20px', border: '0.5px solid var(--color-border-tertiary)', fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.7, textAlign: 'center', marginBottom: 24, width: '100%' },
   backRow: { textAlign: 'center', paddingBottom: 20 },
   backLink: { fontSize: 14, color: 'var(--color-text-tertiary)', textDecoration: 'none' },
 }

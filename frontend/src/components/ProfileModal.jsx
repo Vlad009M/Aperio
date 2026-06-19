@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import toast from 'react-hot-toast'
 import api from '../api/index.js'
+import { Capacitor } from '@capacitor/core'
+import { Preferences } from '@capacitor/preferences'
+import { isBiometryAvailable, isLockEnabled, setLockEnabled, authenticate } from '../lib/biometric.js'
 
 export default function ProfileModal({ onClose, onUpdate }) {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'))
@@ -19,6 +22,40 @@ export default function ProfileModal({ onClose, onUpdate }) {
   const [savingPassword, setSavingPassword] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [biometryAvailable, setBiometryAvailable] = useState(false)
+  const [lockOn, setLockOn] = useState(false)
+  const [togglingLock, setTogglingLock] = useState(false)
+
+    useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      const avail = await isBiometryAvailable()
+      const on = await isLockEnabled()
+      if (!cancelled) { setBiometryAvailable(avail); setLockOn(on) }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const toggleLock = async () => {
+    setTogglingLock(true)
+    try {
+      if (!lockOn) {
+        // Вмикаємо — спершу переконаймось, що біометрія справді працює
+        const ok = await authenticate('Підтвердіть, щоб увімкнути біометричний замок')
+        if (!ok) { toast.error('Не вдалося підтвердити'); setTogglingLock(false); return }
+        await setLockEnabled(true)
+        setLockOn(true)
+        toast.success('Біометричний замок увімкнено')
+      } else {
+        await setLockEnabled(false)
+        setLockOn(false)
+        toast.success('Біометричний замок вимкнено')
+      }
+    } catch {
+      toast.error('Помилка')
+    }
+    setTogglingLock(false)
+  }
 
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose() }
@@ -144,6 +181,10 @@ const handleFileChange = async (e) => {
   try {
     await api.delete('/user/account')
     localStorage.removeItem('user')
+    // У застосунку токен зберігається в Preferences — стираємо його теж
+    if (Capacitor.isNativePlatform()) {
+      await Preferences.remove({ key: 'auth_token' })
+    }
     window.location.href = '/login'
   } catch (e) {
     toast.error(e.response?.data?.error || 'Помилка')
@@ -284,6 +325,36 @@ const handleFileChange = async (e) => {
                 Вийти з усіх пристроїв
               </button>
             </div>
+
+            {biometryAvailable && (
+              <div style={{ marginTop: 16, padding: '14px 16px', background: 'var(--color-background-tertiary)', borderRadius: 10, border: '0.5px solid var(--color-border-tertiary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 4 }}>
+                      Біометричний замок
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', lineHeight: 1.5 }}>
+                      Запитувати відбиток або обличчя при відкритті застосунку
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={toggleLock}
+                    disabled={togglingLock}
+                    style={{
+                      flexShrink: 0, width: 52, height: 30, borderRadius: 15, border: 'none', cursor: 'pointer',
+                      background: lockOn ? 'linear-gradient(135deg, #7F77DD, #534AB7)' : '#ccc',
+                      position: 'relative', transition: 'background 0.2s', opacity: togglingLock ? 0.6 : 1,
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute', top: 3, left: lockOn ? 25 : 3, width: 24, height: 24,
+                      borderRadius: '50%', background: '#fff', transition: 'left 0.2s',
+                    }} />
+                  </button>
+                </div>
+              </div>
+            )}
           </form>
         )}
 
