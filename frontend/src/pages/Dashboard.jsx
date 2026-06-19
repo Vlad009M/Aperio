@@ -1122,12 +1122,12 @@ const handleResendCode = async () => {
 
 const s = {
   app: { display: 'flex', minHeight: '100vh', background: 'var(--color-background-tertiary, #f4f5f7)', width: '100%', maxWidth: '100vw', overflowX: 'hidden' },
-  sidebar: { width: 210, background: 'var(--color-background-primary)', borderRight: '0.5px solid var(--color-border-tertiary)', padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' },
+  sidebar: { width: 210, background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(var(--glass-blur))', backdropFilter: 'blur(var(--glass-blur))', border: '1px solid var(--glass-border)', borderRadius: 24, boxShadow: 'var(--glass-shadow)', padding: '20px 12px', margin: 12, display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 12, height: 'calc(100vh - 24px)', overflowY: 'auto' },
   logoRow: { display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px', marginBottom: 20 },
   logoText: { fontSize: 16, fontWeight: 500, color: 'var(--color-text-primary)' },
   navLabel: { fontSize: 10, color: 'var(--color-text-tertiary)', padding: '12px 12px 4px', textTransform: 'uppercase', letterSpacing: 0.6 },
-  navItem: { display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, fontSize: 13, color: 'var(--color-text-secondary)', background: 'transparent', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' },
-  navActive: { background: '#EEEDFE', color: '#534AB7', fontWeight: 500 },
+  navItem: { display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 12, fontSize: 13, color: 'var(--color-text-secondary)', background: 'transparent', border:'none', cursor: 'pointer', width: '100%', textAlign: 'left', transition: 'background 0.2s ease, color 0.2s ease' },
+  navActive: { background: 'var(--accent-glow)', color: 'var(--color-text-primary)', fontWeight: 500, boxShadow: '0 0 12px var(--accent-glow)' },
   navBadge: { background: '#993C1D', color: '#fff', borderRadius: 20, padding: '1px 7px', fontSize: 10, fontWeight: 600 },
   userRow: { display: 'flex', alignItems: 'center', gap: 10, padding: '12px 8px 4px', marginTop: 'auto', borderTop: '0.5px solid var(--color-border-tertiary)' },
   avatar: { width: 34, height: 34, borderRadius: '50%', background: '#EEEDFE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 500, color: '#534AB7', flexShrink: 0 },
