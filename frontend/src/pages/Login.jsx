@@ -143,6 +143,9 @@ const handleGoogleLogin = () => {
             Немає акаунту?{' '}
             <Link to="/register" style={s.linkA}>Зареєструватись</Link>
           </p>
+          <p style={{ ...s.link, marginTop: 8 }}>
+            <Link to="/download" style={s.linkA}>📱 Завантажити застосунок</Link>
+          </p>
         </div>
       </div>
     </div>

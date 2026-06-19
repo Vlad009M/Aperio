@@ -1006,6 +1006,8 @@ const handleResendCode = async () => {
           <div style={s.footer}>
             <span style={s.footerText}>© 2026 Aperio</span>
             <span style={s.footerDot}>·</span>
+            <a href="/download" style={s.footerLink}>Завантажити застосунок</a>
+            <span style={s.footerDot}>·</span>
             <a href="/about" style={s.footerLink}>Про сервіс</a>
             <span style={s.footerDot}>·</span>
             <a href="/privacy" style={s.footerLink}>Конфіденційність</a>

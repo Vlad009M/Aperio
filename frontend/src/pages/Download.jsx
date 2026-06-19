@@ -2,64 +2,49 @@ import { useState, useEffect } from 'react'
 
 // Автовизначення платформи за userAgent
 function detectPlatform() {
-  if (typeof navigator === 'undefined') return 'other'
+  if (typeof navigator === 'undefined') return 'web'
   const ua = navigator.userAgent || ''
   if (/android/i.test(ua)) return 'android'
   if (/iphone|ipad|ipod/i.test(ua)) return 'ios'
-  if (/windows|macintosh|linux/i.test(ua)) return 'desktop'
-  return 'other'
+  if (/macintosh|mac os x/i.test(ua)) return 'macos'
+  if (/windows/i.test(ua)) return 'windows'
+  if (/linux/i.test(ua)) return 'linux'
+  return 'web'
 }
 
 export default function Download() {
-  const [platform, setPlatform] = useState('other')
+  const [platform, setPlatform] = useState('web')
 
   useEffect(() => {
     setPlatform(detectPlatform())
   }, [])
 
-  // Коли застосунок зʼявиться в сторах — підставити реальні посилання сюди.
-  const ANDROID_URL = null // напр. 'https://play.google.com/store/apps/details?id=ua.pp.aperio.app'
-  const IOS_URL = null     // напр. 'https://apps.apple.com/app/aperio/idXXXXXXXX'
+  // Коли збірки зʼявляться — підставити реальні посилання сюди (null = заглушка «Незабаром»).
+  const LINKS = {
+    android: null, // 'https://play.google.com/store/apps/details?id=ua.pp.aperio.app'
+    ios: null,     // 'https://apps.apple.com/app/aperio/idXXXXXXXX'
+    windows: null, // '/downloads/Aperio-Setup.exe'
+    macos: null,   // '/downloads/Aperio.dmg'
+    linux: null,   // '/downloads/Aperio.AppImage'
+    web: '/login',
+  }
 
   const platforms = [
-    {
-      key: 'android',
-      icon: '🤖',
-      title: 'Android',
-      desc: 'Нативний застосунок для телефонів і планшетів на Android.',
-      url: ANDROID_URL,
-      ctaReady: 'Завантажити з Google Play',
-      ctaSoon: 'Незабаром у Google Play',
-    },
-    {
-      key: 'ios',
-      icon: '🍎',
-      title: 'iOS',
-      desc: 'Застосунок для iPhone та iPad.',
-      url: IOS_URL,
-      ctaReady: 'Завантажити з App Store',
-      ctaSoon: 'Незабаром в App Store',
-    },
-    {
-      key: 'web',
-      icon: '🌐',
-      title: 'Веб-версія',
-      desc: 'Повноцінний доступ із будь-якого браузера. Можна встановити як PWA.',
-      url: '/login',
-      ctaReady: 'Відкрити у браузері',
-      ctaSoon: null,
-    },
+    { key: 'android', icon: '🤖', title: 'Android', desc: 'Для телефонів і планшетів на Android.', ctaReady: 'Завантажити з Google Play', ctaSoon: 'Незабаром у Google Play' },
+    { key: 'ios',     icon: '🍎', title: 'iOS',     desc: 'Для iPhone та iPad.',                    ctaReady: 'Завантажити з App Store',   ctaSoon: 'Незабаром в App Store' },
+    { key: 'windows', icon: '🪟', title: 'Windows', desc: 'Десктопний застосунок для Windows 10/11.', ctaReady: 'Завантажити для Windows', ctaSoon: 'Незабаром для Windows' },
+    { key: 'macos',   icon: '🖥️', title: 'macOS',   desc: 'Десктопний застосунок для Mac.',          ctaReady: 'Завантажити для macOS',   ctaSoon: 'Незабаром для macOS' },
+    { key: 'linux',   icon: '🐧', title: 'Linux',   desc: 'AppImage для більшості дистрибутивів.',   ctaReady: 'Завантажити для Linux',   ctaSoon: 'Незабаром для Linux' },
+    { key: 'web',     icon: '🌐', title: 'Веб-версія', desc: 'Доступ із будь-якого браузера. Можна встановити як PWA.', ctaReady: 'Відкрити у браузері', ctaSoon: null },
   ]
 
-  // Сортуємо так, щоб картка платформи користувача була першою
+  // Платформа користувача — нагору
+  const recommended = platform
   const ordered = [...platforms].sort((a, b) => {
-    const match = platform === 'desktop' || platform === 'other' ? 'web' : platform
-    if (a.key === match) return -1
-    if (b.key === match) return 1
+    if (a.key === recommended) return -1
+    if (b.key === recommended) return 1
     return 0
   })
-
-  const recommended = platform === 'desktop' || platform === 'other' ? 'web' : platform
 
   return (
     <div style={s.page}>
@@ -76,24 +61,16 @@ export default function Download() {
         <div style={s.grid}>
           {ordered.map((p) => {
             const isRecommended = p.key === recommended
-            const available = !!p.url
+            const url = LINKS[p.key]
+            const available = !!url
             return (
-              <div
-                key={p.key}
-                style={{
-                  ...s.card,
-                  ...(isRecommended ? s.cardActive : {}),
-                }}
-              >
+              <div key={p.key} style={{ ...s.card, ...(isRecommended ? s.cardActive : {}) }}>
                 {isRecommended && <div style={s.badge}>Для вашого пристрою</div>}
                 <div style={s.cardIcon}>{p.icon}</div>
                 <div style={s.cardTitle}>{p.title}</div>
                 <div style={s.cardDesc}>{p.desc}</div>
                 {available ? (
-                  <a
-                    href={p.url}
-                    style={{ ...s.btn, ...(isRecommended ? s.btnPrimary : s.btnSecondary) }}
-                  >
+                  <a href={url} style={{ ...s.btn, ...(isRecommended ? s.btnPrimary : s.btnSecondary) }}>
                     {p.ctaReady}
                   </a>
                 ) : (
@@ -106,8 +83,8 @@ export default function Download() {
 
         {/* Підказка */}
         <div style={s.note}>
-          Застосунки для Android та iOS зараз готуються до публікації. Поки що користуйтеся
-          веб-версією — вона має всі ті самі можливості й працює офлайн як PWA.
+          Застосунки для Android, iOS та десктопу зараз готуються до публікації. Поки що
+          користуйтеся веб-версією — вона має всі ті самі можливості й працює офлайн як PWA.
         </div>
 
         {/* Назад */}
@@ -122,7 +99,7 @@ export default function Download() {
 
 const s = {
   page: { background: 'var(--color-background-tertiary)', minHeight: '100vh', padding: '40px 20px' },
-  container: { maxWidth: 760, margin: '0 auto' },
+  container: { maxWidth: 980, margin: '0 auto' },
   hero: { textAlign: 'center', marginBottom: 32, padding: '40px 20px', background: 'var(--color-background-primary)', borderRadius: 16, border: '0.5px solid var(--color-border-tertiary)' },
   logo: { width: 72, height: 72, borderRadius: 16, marginBottom: 16 },
   title: { fontSize: 32, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 8 },
