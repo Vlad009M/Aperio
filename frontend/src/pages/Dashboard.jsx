@@ -550,7 +550,7 @@ const handleResendCode = async () => {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                 {!isMobile && <ThemeToggle />}
-                <button onClick={() => emailVerified && setShowForm(!showForm)} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
+                <button className="glass-shine" onClick={() => emailVerified && setShowForm(!showForm)} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
                   <i className="ti ti-plus" /> {showForm ? 'Закрити' : 'Додати'}
                 </button>
               </div>
@@ -1139,7 +1139,7 @@ const s = {
   monthNav: { display: 'flex', alignItems: 'center', gap: 10 },
   monthBtn: { width: 28, height: 28, borderRadius: '50%', border: '0.5px solid var(--color-border-tertiary)', background: 'var(--color-background-primary)', cursor: 'pointer', fontSize: 16, color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   monthLabel: { fontSize: 13, fontWeight: 500, color: 'var(--color-text-secondary)', minWidth: 120, textAlign: 'center' },
-  addBtn: { display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: '#7F77DD', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontWeight: 500 },
+  addBtn: { position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: 'linear-gradient(135deg, var(--accent-primary), #534AB7)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 13, cursor: 'pointer', fontWeight: 600, boxShadow: '0 4px 16px var(--accent-glow)', transition: 'transform 0.2s ease, box-shadow 0.2s ease' },
   formCard: { background: 'var(--color-background-primary)', border: '0.5px solid #AFA9EC', borderRadius: 12, padding: 20, marginBottom: 20 },
   formTitle: { fontSize: 15, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 14 },
   formRow: { display: 'flex', gap: 10, marginBottom: 10 },
