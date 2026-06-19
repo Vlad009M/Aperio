@@ -304,3 +304,61 @@ input, select, textarea, button {
 [data-theme="magic"] .app-shell {
   background: transparent !important;
 }
+
+
+/* ============================================================
+   AMBIENT BLOBS — рухомі розмиті плями на фоні.
+   Дають glass-ефекту "що розмивати" в усіх темах.
+   ============================================================ */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ambient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  mix-blend-mode: screen;
+  transition: background-color 0.7s ease;
+}
+.ambient-blob.blob-1 {
+  top: 0; left: 25%;
+  width: 384px; height: 384px;
+}
+.ambient-blob.blob-2 {
+  top: 25%; right: 25%;
+  width: 384px; height: 384px;
+  animation-delay: 2s;
+}
+.ambient-blob.blob-3 {
+  top: 33%; left: -80px;
+  width: 320px; height: 320px;
+}
+
+/* DARK — фіолетова + зелена + підсвітка сайдбара */
+[data-theme="dark"] .ambient-blob.blob-1 { background-color: rgba(147, 51, 234, 0.25); }
+[data-theme="dark"] .ambient-blob.blob-2 { background-color: rgba(16, 185, 129, 0.15); }
+[data-theme="dark"] .ambient-blob.blob-3 { background-color: rgba(124, 58, 237, 0.3); }
+
+/* LIGHT — світліші, multiply, менша непрозорість */
+[data-theme="light"] .ambient-blob,
+:root .ambient-blob {
+  mix-blend-mode: multiply;
+  opacity: 0.3;
+}
+[data-theme="light"] .ambient-blob.blob-1,
+:root .ambient-blob.blob-1 { background-color: rgba(165, 180, 252, 0.6); }
+[data-theme="light"] .ambient-blob.blob-2,
+:root .ambient-blob.blob-2 { background-color: rgba(110, 231, 183, 0.5); }
+[data-theme="light"] .ambient-blob.blob-3,
+:root .ambient-blob.blob-3 { background-color: rgba(165, 180, 252, 0.4); }
+
+/* MAGIC — плями сховані (працює градієнт) */
+[data-theme="magic"] .ambient-blob { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-blob { animation: none !important; }
+}

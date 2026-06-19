@@ -439,6 +439,11 @@ const handleResendCode = async () => {
 
   return (
     <div className="app-shell" style={{ ...s.app, flexDirection: isMobile ? 'column' : 'row' }}>
+      <div className="ambient-bg" aria-hidden="true">
+        <div className="ambient-blob blob-1 animate-blob" />
+        <div className="ambient-blob blob-2 animate-blob" />
+        <div className="ambient-blob blob-3 animate-blob" />
+      </div>
       {/* Mobile top bar */}
 {isMobile && (
   <div style={s.mobileTopBar}>
