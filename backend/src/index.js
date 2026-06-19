@@ -17,16 +17,23 @@ const httpLogger = require('./middleware/httpLogger') // <--- ДОДАНО: Ім
 const app = express()
 app.set('trust proxy', 1)
 
+// Єдиний список дозволених origin — використовується і в CORS, і в CSRF-перевірці.
+// Web (прод/стейдж) + застосунок Capacitor (Android https://localhost, iOS capacitor://localhost).
+const ALLOWED_ORIGINS = [
+  process.env.FRONTEND_URL || 'http://localhost:5173',
+  'https://aperio.pp.ua',
+  'https://www.aperio.pp.ua',
+  'https://dev.aperio.pp.ua',
+  'http://localhost',
+  'https://localhost',
+  'capacitor://localhost',
+]
+
 // Helmet — security headers
 app.use(helmet())
 
-// CORS — домен з env, не захардкоджений
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
-    'https://aperio.pp.ua',
-    'https://www.aperio.pp.ua'
-  ],
+  origin: ALLOWED_ORIGINS,
   credentials: true
 }))
 
@@ -43,15 +50,10 @@ app.use('/api/webhooks', require('./routes/webhooks'))
 // CSRF захист через перевірку Origin (точний збіг, не startsWith)
 app.use((req, res, next) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next()
-  const allowedOrigins = [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
-    'https://aperio.pp.ua',
-    'https://www.aperio.pp.ua'
-  ]
   const raw = req.headers.origin || req.headers.referer || ''
   let origin = ''
   try { origin = new URL(raw).origin } catch { origin = '' } // S4: дістаємо чистий origin
-  if (allowedOrigins.includes(origin)) return next()          // S4: === замість startsWith
+  if (ALLOWED_ORIGINS.includes(origin)) return next()         // S4: === замість startsWith
   return res.status(403).json({ error: 'CSRF перевірка не пройдена' })
 })
 
@@ -60,7 +62,10 @@ app.use((req, res, next) => {
 // Реальний IP клієнта від Cloudflare. CF перезаписує цей заголовок на кожному
 // запиті, тож клієнт не може його підробити (на відміну від X-Forwarded-For / req.ip).
 // Поза CF (локально / прямий хіт на origin) — фолбек на req.ip.
-const clientIpKey = (req) => req.headers['cf-connecting-ip'] || req.ip
+const { ipKeyGenerator } = require('express-rate-limit')
+// За Cloudflare беремо реальний IP клієнта (cf-connecting-ip), інакше req.ip.
+// ipKeyGenerator коректно нормалізує IPv6 (інакше IPv6-користувачі могли б обходити ліміт).
+const clientIpKey = (req) => ipKeyGenerator(req.headers['cf-connecting-ip'] || req.ip)
 
 // SIEM: коли спрацював будь-який ліміт — фіксуємо подію ratelimit.hit
 const { logSecurityEvent } = require('./utils/securityLog')

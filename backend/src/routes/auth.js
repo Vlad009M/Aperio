@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const crypto = require('crypto') 
 const prisma = require('../prisma')
 const { sendVerificationEmail } = require('../email')
-const { signToken } = require('../utils/token') // S3
+const { signToken, getTokenFromReq } = require('../utils/token') // S3
 const { logSecurityEvent, getClientIp, hashEmail } = require('../utils/securityLog') // SIEM
 
 const router = express.Router()
@@ -49,23 +49,22 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Ім\'я мінімум 2 символи' })
     }
 
-    if (!captchaToken) {
-  return res.status(400).json({ error: 'Капча обов\'язкова' })
-}
-
-// --- ПЕРЕВІРКА КАПЧІ В GOOGLE ---
-const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  body: new URLSearchParams({
-    secret: process.env.RECAPTCHA_SECRET,
-    response: captchaToken,
-  }),
-})
-const verifyData = await verifyResponse.json()
-
-if (!verifyData.success) {
-  return res.status(400).json({ error: 'Перевірка на робота не пройдена' })
+    if (req.headers['x-client'] !== 'capacitor') {
+  if (!captchaToken) {
+    return res.status(400).json({ error: 'Капча обов\'язкова' })
+  }
+  const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      secret: process.env.RECAPTCHA_SECRET,
+      response: captchaToken,
+    }),
+  })
+  const verifyData = await verifyResponse.json()
+  if (!verifyData.success) {
+    return res.status(400).json({ error: 'Перевірка на робота не пройдена' })
+  }
 }
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } })
@@ -89,7 +88,9 @@ sendVerificationEmail(user.email, user.name, verifyCode).catch(console.error)
     const token = signToken(user) // S3: токен містить tokenVersion
 
     res.cookie('token', token, COOKIE_OPTIONS)
-    res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified, avatarUrl: user.avatarUrl } })
+    const registerPayload = { user: { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified, avatarUrl: user.avatarUrl } }
+    if (req.headers['x-client'] === 'capacitor') registerPayload.token = token
+    res.json(registerPayload)
   } catch (e) {
     res.status(500).json({ error: 'Помилка сервера' })
   }
@@ -104,23 +105,22 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Введи email і пароль' })
     }
 
-if (!captchaToken) {
-  return res.status(400).json({ error: 'Капча обов\'язкова' })
-}
-
-// --- ПЕРЕВІРКА КАПЧІ В GOOGLE ---
-const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  body: new URLSearchParams({
-    secret: process.env.RECAPTCHA_SECRET,
-    response: captchaToken,
-  }),
-})
-const verifyData = await verifyResponse.json()
-
-if (!verifyData.success) {
-  return res.status(400).json({ error: 'Перевірка на робота не пройдена' })
+if (req.headers['x-client'] !== 'capacitor') {
+  if (!captchaToken) {
+    return res.status(400).json({ error: 'Капча обов\'язкова' })
+  }
+  const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      secret: process.env.RECAPTCHA_SECRET,
+      response: captchaToken,
+    }),
+  })
+  const verifyData = await verifyResponse.json()
+  if (!verifyData.success) {
+    return res.status(400).json({ error: 'Перевірка на робота не пройдена' })
+  }
 }
 
     const user = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } })
@@ -147,7 +147,10 @@ if (!verifyData.success) {
 
     res.cookie('token', token, COOKIE_OPTIONS)
     logSecurityEvent('auth.login.ok', { ip: getClientIp(req), userId: user.id, role: user.role })
-    res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified, avatarUrl: user.avatarUrl } })
+    const loginPayload = { user: { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified, avatarUrl: user.avatarUrl } }
+    // Натив не зберігає cookie → токен у тілі лише застосунку (веб його не отримує)
+    if (req.headers['x-client'] === 'capacitor') loginPayload.token = token
+    res.json(loginPayload)
   } catch (e) {
     res.status(500).json({ error: 'Помилка сервера' })
   }
@@ -162,7 +165,7 @@ router.post('/logout', (req, res) => {
 // Перевірка сесії — тепер через auth middleware, перевіряє blocked
 router.get('/me', async (req, res) => {
   try {
-    const token = req.cookies.token
+    const token = getTokenFromReq(req)
     if (!token) return res.status(401).json({ error: 'Не авторизований' })
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET)

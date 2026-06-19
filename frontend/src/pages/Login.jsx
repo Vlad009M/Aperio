@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import ReCAPTCHA from 'react-google-recaptcha'
 import api from '../api/index.js'
+import { Capacitor } from '@capacitor/core'
 import posthog from 'posthog-js'
 import { useIsMobile } from '../hooks/useResponsive.js'
 
@@ -15,10 +16,11 @@ export default function Login() {
   const [captchaToken, setCaptchaToken] = useState(null)
   const isMobile = useIsMobile()
   const [showPassword, setShowPassword] = useState(false)
+  const isNative = Capacitor.isNativePlatform()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!captchaToken) {
+    if (!isNative && !captchaToken) {
       setError('Будь ласка, підтвердіть, що ви не робот')
       return
     }
@@ -104,6 +106,7 @@ const handleGoogleLogin = () => {
               </button>
             </div>
             </div>
+            {!isNative && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
               <ReCAPTCHA
                 sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LfLV_AsAAAAAA3n3mEV7uXNYWm7krW3XCEkgI9m"}
@@ -111,6 +114,7 @@ const handleGoogleLogin = () => {
                 onExpired={() => setCaptchaToken(null)}
               />
             </div>
+            )}
             <button style={{ ...s.button, opacity: loading ? 0.75 : 1 }} type="submit" disabled={loading}>
               {loading ? 'Вхід...' : 'Увійти'}
             </button>

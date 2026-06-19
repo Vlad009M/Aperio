@@ -20,4 +20,13 @@ function signToken(user) {
   )
 }
 
-module.exports = { signToken, COOKIE_OPTIONS }
+// Дістає токен або з httpOnly-cookie (веб), або з заголовка Authorization (застосунок).
+// Веб як працював на cookie, так і працює; натив шле "Authorization: Bearer <token>".
+function getTokenFromReq(req) {
+  if (req.cookies?.token) return req.cookies.token
+  const authHeader = req.headers?.authorization
+  if (authHeader && authHeader.startsWith('Bearer ')) return authHeader.slice(7)
+  return null
+}
+
+module.exports = { signToken, COOKIE_OPTIONS, getTokenFromReq }
