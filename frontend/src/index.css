@@ -51,6 +51,12 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  /* Safe-area: відступи під виріз камери та системну навігацію.
+     У застосунку (Capacitor) дає реальні значення; на вебі env(...) = 0, тож веб не змінюється. */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 * {
