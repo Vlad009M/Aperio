@@ -43,9 +43,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       const currentPath = window.location.pathname
+      // Публічні сторінки — не виганяємо неавторизованих на login.
+      const PUBLIC_PATHS = ['/login', '/register', '/download', '/privacy', '/terms', '/about']
       if (error.config?.url?.includes('/auth/me') &&
-          currentPath !== '/login' &&
-          currentPath !== '/register') {
+          !PUBLIC_PATHS.includes(currentPath)) {
         localStorage.removeItem('user')
         if (isNative) Preferences.remove({ key: 'auth_token' })
         window.location.href = '/login'
