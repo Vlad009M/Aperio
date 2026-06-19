@@ -597,7 +597,7 @@ const handleResendCode = async () => {
               {/* LEFT */}
               <div style={{ minWidth: 0, width: '100%', overflow: 'hidden' }}>
                 {filterMonth === now.getMonth() && filterYear === now.getFullYear() && (
-                  <div style={s.safeCard}>
+                  <div className="glass-panel-hover glass-shine" style={s.safeCard}>
                     {safeToSpend === null ? (
                       <div style={{ textAlign: 'center' }}>
                         <div style={s.safeLabel}>💰 Safe-to-Spend</div>
@@ -664,7 +664,7 @@ const handleResendCode = async () => {
                     )}
                   </div>
                 )}
-                <div style={s.balanceCard}>
+                <div className="glass-panel-hover glass-shine" style={s.balanceCard}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
                       <div style={s.balanceLabel}>Загальний баланс</div>
@@ -1146,7 +1146,7 @@ const s = {
   select: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
   input: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
   twoCol: { display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, alignItems: 'start', width: '100%', boxSizing: 'border-box' },
-  balanceCard: { borderRadius: 14, padding: '14px 16px', background: 'linear-gradient(135deg, #7F77DD 0%, #534AB7 100%)', color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden', width: '100%', boxSizing: 'border-box' },
+  balanceCard: { borderRadius: 24, padding: '20px 24px', background: 'linear-gradient(135deg, #7F77DD 0%, #534AB7 100%)', color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden', width: '100%', boxSizing: 'border-box', boxShadow: '0 10px 36px var(--accent-glow)', transition: 'transform 0.25s ease, box-shadow 0.25s ease' },
   balanceLabel: { fontSize: 12, opacity: 0.75, marginBottom: 6 },
   balanceAmount: { fontSize: 28, fontWeight: 500, marginBottom: 14 },
   balanceRow: { display: 'flex', gap: 24 },
@@ -1213,7 +1213,7 @@ const s = {
   footerLink: { fontSize: 12, color: 'var(--color-text-tertiary)', textDecoration: 'none' },
   betaBadge: { display: 'inline-flex', alignItems: 'center', gap: 5, background: '#EEEDFE', color: '#534AB7', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, padding: '3px 8px', borderRadius: 20, border: 'none', cursor: 'pointer' },
   betaDot: { width: 6, height: 6, borderRadius: '50%', background: '#7F77DD', display: 'inline-block', boxShadow: '0 0 0 2px rgba(127,119,221,0.3)' },
-  safeCard: { borderRadius: 14, padding: '14px 16px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 1px 3px rgba(16, 185, 129, 0.15)', width: '100%', boxSizing: 'border-box', position: 'relative' },
+  safeCard: { borderRadius: 24, padding: '18px 20px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 8px 28px rgba(16, 185, 129, 0.28)', width: '100%', boxSizing: 'border-box', position: 'relative', overflow: 'hidden', transition: 'transform 0.25s ease, box-shadow 0.25s ease' },
   safeLabel: { fontSize: 12, opacity: 0.85, marginBottom: 6, fontWeight: 500 },
   safeAmount: { fontSize: 30, fontWeight: 600, marginBottom: 4 },
   safeSubtext: { fontSize: 12, opacity: 0.85 },
