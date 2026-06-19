@@ -82,3 +82,220 @@ input, select, textarea, button {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border-tertiary); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-tertiary); }
+
+
+/* ============================================================
+   GLASSMORPHISM DESIGN SYSTEM (Phase 1 — Foundation)
+   Адитивно: нічого вище не змінюється.
+   ============================================================ */
+
+/* --- Glass-токени для світлої теми (:root) --- */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(226, 232, 240, 0.9);
+  --glass-blur: 16px;
+  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+  --glass-shadow-hover: 0 16px 48px rgba(15, 23, 42, 0.14);
+  --accent-primary: #6366F1;
+  --accent-glow: rgba(99, 102, 241, 0.35);
+  --radius-panel: 28px;
+  --radius-pill: 44px;
+  --app-bg: #F8FAFC;
+}
+
+/* --- Glass-токени для темної теми --- */
+[data-theme="dark"] {
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 20px;
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --accent-primary: #7F77DD;
+  --accent-glow: rgba(127, 119, 221, 0.4);
+  --app-bg: #0A0A0F;
+}
+
+/* --- MAGIC тема (новий механізм, той самий data-theme) --- */
+[data-theme="magic"] {
+  /* базові кольори тексту/фону — у стилі dark, але з фіолетовим нахилом */
+  --color-background-primary: #1a1430;
+  --color-background-secondary: #221a3d;
+  --color-background-tertiary: #140e26;
+  --color-text-primary: #F0EFFF;
+  --color-text-secondary: #b6acd8;
+  --color-text-tertiary: #7a6fa0;
+  --color-border-tertiary: #3a2f5c;
+
+  --text: #b6acd8;
+  --text-h: #F0EFFF;
+  --bg: #1a1430;
+  --border: #3a2f5c;
+
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-blur: 22px;
+  --glass-shadow: 0 8px 40px rgba(232, 121, 249, 0.12);
+  --glass-shadow-hover: 0 16px 56px rgba(232, 121, 249, 0.22);
+  --accent-primary: #E879F9;
+  --accent-glow: rgba(232, 121, 249, 0.4);
+  --app-bg: #140e26;
+}
+
+/* --- Анімований градієнтний фон для magic-теми --- */
+body[data-theme="magic"] {
+  background: linear-gradient(135deg, #1a0f33, #2d1b4e, #3d1a5c, #1a0f33);
+  background-size: 400% 400%;
+  animation: gradient-x 18s ease infinite;
+}
+
+/* На dark/light лишається твій плоский фон (нічого не змінюємо). */
+
+/* ============================================================
+   GLASS КЛАСИ
+   ============================================================ */
+
+.glass-panel {
+  position: relative;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--glass-shadow);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.glass-panel-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+/* Менш «важка» картка (другорядні блоки) */
+.glass-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.7));
+  backdrop-filter: blur(calc(var(--glass-blur) * 0.7));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+}
+
+/* Sweeping shine — світловий блиск, що проходить по панелі */
+.glass-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.glass-shine:hover::before {
+  animation: shine 1.5s ease-in-out;
+}
+
+/* Текст, що завжди білий (поверх кольорових/градієнтних панелей) */
+.keep-white {
+  color: #ffffff !important;
+}
+
+/* ============================================================
+   NAV (Floating Glass Dock) — базові класи, наповнимо у Фазі 3
+   ============================================================ */
+
+.nav-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  transition: background 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+.nav-box:hover {
+  background: var(--glass-bg);
+}
+.nav-box.active {
+  background: var(--accent-glow);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+.nav-indicator {
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 22px;
+  border-radius: 2px;
+  background: var(--accent-primary);
+}
+.nav-tooltip {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-primary);
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.nav-box:hover .nav-tooltip {
+  opacity: 1;
+}
+
+/* ============================================================
+   ANIMATION TOKEN REGISTRY
+   ============================================================ */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float { animation: float 4s ease-in-out infinite; }
+
+@keyframes gradient-x {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 8s ease infinite;
+}
+
+@keyframes shine {
+  0% { left: -75%; }
+  100% { left: 125%; }
+}
+
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+.animate-blob { animation: blob 16s ease-in-out infinite; }
+
+/* Доступність: вимкнути анімації, якщо користувач просить */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-gradient-x,
+  .animate-blob,
+  body[data-theme="magic"] { animation: none; }
+  .glass-shine:hover::before { animation: none; }
+}
