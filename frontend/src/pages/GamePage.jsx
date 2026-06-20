@@ -174,15 +174,15 @@ export default function GamePage() {
                 {[1,2,3,4,5,6,7,8,9,10].map(lvl => {
                   const LEVELS_DATA = [
                     { level: 1, title: 'Новачок', icon: '🌱', xpRequired: 0 },
-                    { level: 2, title: 'Економ', icon: '💡', xpRequired: 100 },
-                    { level: 3, title: 'Розважливий', icon: '🧠', xpRequired: 250 },
-                    { level: 4, title: 'Планувальник', icon: '📋', xpRequired: 500 },
-                    { level: 5, title: 'Стратег', icon: '♟️', xpRequired: 900 },
-                    { level: 6, title: 'Фінансист', icon: '💼', xpRequired: 1400 },
-                    { level: 7, title: 'Інвестор', icon: '📈', xpRequired: 2000 },
-                    { level: 8, title: 'Мудрець грошей', icon: '🦉', xpRequired: 2800 },
-                    { level: 9, title: 'Майстер бюджету', icon: '🏆', xpRequired: 3800 },
-                    { level: 10, title: 'Фінансовий Гуру', icon: '👑', xpRequired: 5000 },
+                    { level: 2, title: 'Економ', icon: '💡', xpRequired: 200 },
+                    { level: 3, title: 'Розважливий', icon: '🧠', xpRequired: 600 },
+                    { level: 4, title: 'Планувальник', icon: '📋', xpRequired: 1200 },
+                    { level: 5, title: 'Стратег', icon: '♟️', xpRequired: 2000 },
+                    { level: 6, title: 'Фінансист', icon: '💼', xpRequired: 3500 },
+                    { level: 7, title: 'Інвестор', icon: '📈', xpRequired: 5500 },
+                    { level: 8, title: 'Мудрець грошей', icon: '🦉', xpRequired: 8000 },
+                    { level: 9, title: 'Майстер бюджету', icon: '🏆', xpRequired: 12000 },
+                    { level: 10, title: 'Фінансовий Гуру', icon: '👑', xpRequired: 20000 },
                   ]
                   const ld = LEVELS_DATA[lvl - 1]
                   const done = level.level > lvl

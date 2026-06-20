@@ -36,6 +36,27 @@ const ACHIEVEMENTS = [
   { code: 'level_10',       title: 'Фінансовий Гуру',     desc: 'Досягни максимального рівня',              icon: '👑', xp: 500 },
   { code: 'challenge_done', title: 'Приймаю виклик!',     desc: 'Виконай перший тижневий челендж',          icon: '🎪', xp: 100 },
   { code: 'income_month',   title: 'Дохідний місяць',     desc: 'Доходи перевищили витрати',                icon: '📈', xp: 100 },
+  { code: 'income_month',   title: 'Дохідний місяць',     desc: 'Доходи перевищили витрати',                icon: '📈', xp: 100 },
+  { code: 'tx_25',          title: 'Набираю обертів',     desc: 'Додай 25 транзакцій',                      icon: '📊', xp: 75   },
+  { code: 'tx_250',         title: 'Завзятий',            desc: 'Додай 250 транзакцій',                     icon: '📚', xp: 400  },
+  { code: 'tx_500',         title: 'Невпинний',           desc: 'Додай 500 транзакцій',                     icon: '🏆', xp: 700  },
+  { code: 'tx_1000',        title: 'Тисячник',            desc: 'Додай 1000 транзакцій',                    icon: '💎', xp: 1500 },
+  { code: 'income_first',   title: 'Перший дохід',        desc: 'Додай першу транзакцію доходу',            icon: '💵', xp: 50   },
+  { code: 'transfer_first', title: 'Переказ',             desc: 'Зроби перший переказ між рахунками',       icon: '🔄', xp: 50   },
+  { code: 'expense_tracked',title: 'Під контролем',       desc: 'Додай 5 витрат',                           icon: '🧾', xp: 75   },
+  { code: 'cat_5',          title: 'Різнобічний',         desc: 'Використай 5 різних категорій',            icon: '🎨', xp: 75   },
+  { code: 'cat_10',         title: 'Колекціонер',         desc: 'Використай 10 різних категорій',           icon: '🗂️', xp: 150  },
+  { code: 'cat_all',        title: 'Майстер категорій',   desc: 'Використай усі категорії',                 icon: '🌈', xp: 1000 },
+  { code: 'streak_14',      title: 'Два тижні вогню',     desc: '14 днів поспіль з транзакціями',           icon: '🔥', xp: 250  },
+  { code: 'streak_60',      title: 'Незламний',           desc: '60 днів поспіль з транзакціями',           icon: '🔥', xp: 1000 },
+  { code: 'streak_100',     title: 'Сотня!',              desc: '100 днів поспіль з транзакціями',          icon: '🔥', xp: 2000 },
+  { code: 'saved_30',       title: 'Ощадливий',           desc: 'Заощадив понад 30% доходу за місяць',      icon: '🐖', xp: 150  },
+  { code: 'saved_40',       title: 'Дбайливий',           desc: 'Заощадив понад 40% доходу за місяць',      icon: '🏦', xp: 200  },
+  { code: 'big_expense',    title: 'Велика покупка',      desc: 'Одна транзакція понад 5000',               icon: '💸', xp: 100  },
+  { code: 'big_income',     title: 'Гарний місяць',       desc: 'Один дохід понад 20000',                   icon: '🤑', xp: 200  },
+  { code: 'level_3',        title: 'Розважливий',         desc: 'Досягни 3 рівня',                          icon: '🧠', xp: 100  },
+  { code: 'level_7',        title: 'Інвестор',            desc: 'Досягни 7 рівня',                          icon: '📈', xp: 300  },
+  { code: 'no_fun_month',   title: 'Аскет місяця',        desc: 'Місяць без витрат на розваги',             icon: '🧘', xp: 250  },
 ]
 
 // ── Архетипи ─────────────────────────────────────────────
@@ -193,8 +214,39 @@ async function recalcGame(userId) {
 
   // Рівень
   const levelInfo = getLevelInfo(xp)
-  if (levelInfo.level >= 5)  addXP(200, 'level_5')
-  if (levelInfo.level >= 10) addXP(500, 'level_10')
+
+  // Нові: кількість транзакцій
+  if (txCount >= 25)   addXP(75,   'tx_25')
+  if (txCount >= 250)  addXP(400,  'tx_250')
+  if (txCount >= 500)  addXP(700,  'tx_500')
+  if (txCount >= 1000) addXP(1500, 'tx_1000')
+
+  // Нові: типи транзакцій
+  if (transactions.some(t => t.type === 'income'))   addXP(50, 'income_first')
+  if (transactions.some(t => t.type === 'transfer')) addXP(50, 'transfer_first')
+  if (transactions.filter(t => t.type === 'expense').length >= 5) addXP(75, 'expense_tracked')
+
+  // Нові: різноманіття категорій
+  const usedCats = new Set(transactions.map(t => t.categoryId).filter(Boolean))
+  if (usedCats.size >= 5)  addXP(75,   'cat_5')
+  if (usedCats.size >= 10) addXP(150,  'cat_10')
+  if (usedCats.size >= categories.length && categories.length > 0) addXP(1000, 'cat_all')
+
+  // Нові: streak
+  if (streak >= 14)  addXP(250,  'streak_14')
+  if (streak >= 60)  addXP(1000, 'streak_60')
+  if (streak >= 100) addXP(2000, 'streak_100')
+
+  // Нові: заощадження
+  if (savingsRate >= 0.3) addXP(150, 'saved_30')
+  if (savingsRate >= 0.4) addXP(200, 'saved_40')
+
+  // Нові: великі суми
+  if (transactions.some(t => t.type === 'expense' && t.amount > 5000))  addXP(100, 'big_expense')
+  if (transactions.some(t => t.type === 'income'  && t.amount > 20000)) addXP(200, 'big_income')
+
+  // Нові: місяць без розваг
+  if (funCat && thisMonth.some(t => new Date(t.date)) && thisMonth.filter(t => t.categoryId === funCat.id).length === 0 && thisMonth.length > 0) addXP(250, 'no_fun_month')
 
   // Архетип
   const archetype = getArchetype(transactions)
@@ -232,6 +284,13 @@ async function recalcGame(userId) {
       }
     }
   }
+
+  // Рівневі ачівки — перевіряємо в кінці, коли весь XP уже нараховано
+  const lvlNow = getLevelInfo(xp).level
+  if (lvlNow >= 3)  addXP(100, 'level_3')
+  if (lvlNow >= 5)  addXP(200, 'level_5')
+  if (lvlNow >= 7)  addXP(300, 'level_7')
+  if (lvlNow >= 10) addXP(500, 'level_10')
 
   const finalLevel = getLevelInfo(xp).level
 
@@ -279,6 +338,9 @@ async function recalcGame(userId) {
 // GET /api/game — отримати повний профіль
 router.get('/', auth, async (req, res) => {
   try {
+    // Перераховуємо профіль (XP, рівень, ачівки) перед показом — щоб дані були актуальні
+    await recalcGame(req.userId).catch(() => {})
+
     const [transactions, categories] = await Promise.all([
       prisma.transaction.findMany({ where: { userId: req.userId }, include: { category: true }, orderBy: { date: 'asc' } }),
       prisma.category.findMany({ where: { userId: req.userId } }),
