@@ -602,7 +602,7 @@ const handleResendCode = async () => {
             <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: isMobile ? 12 : 20 }}>
               {/* LEFT */}
               <div style={{ minWidth: 0, width: '100%', overflow: 'hidden' }}>
-                <div className="glass-panel-hover glass-shine" style={s.balanceCard}>
+                <div className="glass-panel-hover glass-shine color-glass" style={s.balanceCard}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
                       <div style={s.balanceLabel}>Загальний баланс</div>
@@ -626,7 +626,7 @@ const handleResendCode = async () => {
                   </div>
                 </div>
                 {filterMonth === now.getMonth() && filterYear === now.getFullYear() && (
-                  <div className="glass-panel-hover glass-shine" style={s.safeCard}>
+                  <div className="glass-panel-hover glass-shine color-glass" style={s.safeCard}>
                     {safeToSpend === null ? (
                       <div style={{ textAlign: 'center' }}>
                         <div style={s.safeLabel}>💰 Safe-to-Spend</div>

@@ -117,35 +117,35 @@ input, select, textarea, button {
 
 /* --- MAGIC тема (новий механізм, той самий data-theme) --- */
 [data-theme="magic"] {
-  /* базові кольори тексту/фону — у стилі dark, але з фіолетовим нахилом */
-  --color-background-primary: #1a1430;
-  --color-background-secondary: #221a3d;
-  --color-background-tertiary: #140e26;
-  --color-text-primary: #F0EFFF;
-  --color-text-secondary: #b6acd8;
-  --color-text-tertiary: #7a6fa0;
-  --color-border-tertiary: #3a2f5c;
+  /* глибокий космос — темніше й приглушеніше */
+  --color-background-primary: #120d24;
+  --color-background-secondary: #17112e;
+  --color-background-tertiary: #0d0820;
+  --color-text-primary: #E8E6F5;
+  --color-text-secondary: #9d94bd;
+  --color-text-tertiary: #645a82;
+  --color-border-tertiary: #2a2348;
 
-  --text: #b6acd8;
-  --text-h: #F0EFFF;
-  --bg: #1a1430;
-  --border: #3a2f5c;
+  --text: #9d94bd;
+  --text-h: #E8E6F5;
+  --bg: #120d24;
+  --border: #2a2348;
 
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.025);
+  --glass-border: rgba(255, 255, 255, 0.1);
   --glass-blur: 22px;
-  --glass-shadow: 0 8px 40px rgba(232, 121, 249, 0.12);
-  --glass-shadow-hover: 0 16px 56px rgba(232, 121, 249, 0.22);
-  --accent-primary: #E879F9;
-  --accent-glow: rgba(232, 121, 249, 0.4);
-  --app-bg: #140e26;
+  --glass-shadow: 0 8px 40px rgba(150, 110, 200, 0.1);
+  --glass-shadow-hover: 0 16px 56px rgba(150, 110, 200, 0.18);
+  --accent-primary: #B57EDC;
+  --accent-glow: rgba(181, 126, 220, 0.32);
+  --app-bg: #0d0820;
 }
 
 /* --- Анімований градієнтний фон для magic-теми --- */
 [data-theme="magic"] body {
-  background: linear-gradient(135deg, #1a0f33, #2d1b4e, #3d1a5c, #1a0f33);
+  background: linear-gradient(135deg, #0d0820, #160f2e, #1a1133, #0d0820);
   background-size: 400% 400%;
-  animation: gradient-x 18s ease infinite;
+  animation: gradient-x 30s ease infinite;
 }
 
 /* На dark/light лишається твій плоский фон (нічого не змінюємо). */
@@ -385,4 +385,32 @@ input, select, textarea, button {
   --ic-2: #C084FC;
   --ic-3: #F0ABFC;
   --ic-accent: #6EE7B7;
+}
+
+/* ============================================================
+   COLOR-GLASS — скляна глибина для кольорових карток
+   (Balance, Safe) без втрати насиченого кольору
+   ============================================================ */
+.color-glass {
+  position: relative;
+}
+.color-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 40%, transparent 70%);
+  pointer-events: none;
+}
+.color-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.35), inset 0 -20px 40px rgba(0,0,0,0.12);
+  pointer-events: none;
+}
+.color-glass > * {
+  position: relative;
+  z-index: 1;
 }
