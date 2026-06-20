@@ -631,7 +631,7 @@ const handleResendCode = async () => {
                               : 'На основі твоїх бюджетів'}
                           </div>
                         </div>
-                        <div style={s.safeIcon}>💸</div>
+                        <div style={s.safeIcon}><img src="/icons/wallet-white.svg" width={28} height={28} alt="" /></div>
 
                         {showSafeTooltip && safeData && (
                           <div style={s.safeTooltip} onClick={e => e.stopPropagation()}>

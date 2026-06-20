@@ -1,21 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
-  <rect width="40" height="40" rx="8" fill="#2a0a0a"/>
-  <!-- Skull base -->
-  <ellipse cx="20" cy="20" rx="11" ry="12" fill="#3a1010"/>
-  <ellipse cx="20" cy="19" rx="9" ry="10" fill="#8B2020"/>
-  <ellipse cx="20" cy="18" rx="7" ry="8" fill="#C0392B"/>
-  <!-- Eye sockets -->
-  <ellipse cx="16" cy="17" rx="3" ry="3" fill="#1a0505"/>
-  <ellipse cx="24" cy="17" rx="3" ry="3" fill="#1a0505"/>
-  <!-- Glow eyes -->
-  <ellipse cx="16" cy="17" rx="2" ry="2" fill="#FF4444" opacity="0.8"/>
-  <ellipse cx="24" cy="17" rx="2" ry="2" fill="#FF4444" opacity="0.8"/>
-  <!-- Nose -->
-  <path d="M19,21 L20,23 L21,21 Z" fill="#1a0505"/>
-  <!-- Teeth -->
-  <rect x="15" y="24" width="3" height="3" rx="1" fill="#F5F5F5"/>
-  <rect x="19" y="24" width="3" height="3" rx="1" fill="#F5F5F5"/>
-  <rect x="23" y="24" width="3" height="3" rx="1" fill="#F5F5F5"/>
-  <!-- Crack -->
-  <path d="M20,10 Q21,14 20,16" stroke="#FF6666" stroke-width="1" fill="none" opacity="0.6"/>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#FA5252" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4 7h16"/>
+  <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+  <path d="M6 7l1 12a2 2 0 0 0 2 1.9h6a2 2 0 0 0 2-1.9L18 7"/>
+  <path d="M10 11v6M14 11v6"/>
 </svg>
