@@ -14,7 +14,7 @@ export default function GamePage() {
 
   useEffect(() => {
     if (!user) return          
-    if (hasFetched.current) return  і
+    if (hasFetched.current) return  
     hasFetched.current = true
     loadGame()
   }, [user])
