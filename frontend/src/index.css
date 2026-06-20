@@ -414,3 +414,32 @@ input, select, textarea, button {
   position: relative;
   z-index: 1;
 }
+
+/* ============================================================
+   ЖИВИЙ ВОГНИК (streak) — мерехтіння + коливання
+   ============================================================ */
+/* М'яке живе полум'я — плавне дихання + переливання кольору */
+@keyframes flame-breathe {
+  0%   { transform: scale(1) translateY(0) skewX(0deg); }
+  25%  { transform: scale(1.04, 1.07) translateY(-0.5px) skewX(1.5deg); }
+  50%  { transform: scale(0.98, 1.03) translateY(0) skewX(-1deg); }
+  75%  { transform: scale(1.03, 1.05) translateY(-0.3px) skewX(0.8deg); }
+  100% { transform: scale(1) translateY(0) skewX(0deg); }
+}
+@keyframes flame-color {
+  0%, 100% { color: #FF922B; filter: drop-shadow(0 0 4px rgba(255, 146, 43, 0.55)); }
+  35%      { color: #FFB347; filter: drop-shadow(0 0 6px rgba(255, 180, 71, 0.7)); }
+  65%      { color: #FF6B1A; filter: drop-shadow(0 0 7px rgba(255, 107, 26, 0.75)); }
+}
+.flame {
+  display: inline-flex;
+  transform-origin: center bottom;
+  animation: flame-breathe 2.6s ease-in-out infinite, flame-color 3.4s ease-in-out infinite;
+  will-change: transform, filter;
+}
+.flame:nth-child(2) { animation-delay: 0.6s, 0.9s; }
+.flame:nth-child(3) { animation-delay: 1.2s, 1.7s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flame { animation: none; color: #FF922B; }
+}
