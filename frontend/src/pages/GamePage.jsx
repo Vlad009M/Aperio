@@ -69,7 +69,7 @@ export default function GamePage() {
         <div style={{ ...s.grid, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
 
           {/* Картка героя */}
-          <div style={s.heroCard}>
+          <div className="glass-shine color-glass" style={s.heroCard}>
             <div style={s.heroTop}>
               <div style={s.heroAvatar}>{level.icon}</div>
               <div>
@@ -183,14 +183,14 @@ export default function GamePage() {
                   const done = level.level > lvl
                   const current = level.level === lvl
                   return (
-                    <div key={lvl} style={{ ...s.levelRow, opacity: done || current ? 1 : 0.4, background: current ? '#EEEDFE' : 'transparent' }}>
+                    <div key={lvl} style={{ ...s.levelRow, opacity: done || current ? 1 : 0.4, background: current ? 'var(--accent-glow)' : 'transparent', boxShadow: current ? '0 0 12px var(--accent-glow)' : 'none' }}>
                       <span style={{ fontSize: 16 }}>{ld.icon}</span>
-                      <span style={{ flex: 1, fontSize: 12, fontWeight: current ? 600 : 400, color: current ? '#534AB7' : 'var(--color-text-secondary)' }}>
+                      <span style={{ flex: 1, fontSize: 12, fontWeight: current ? 600 : 400, color: current ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}>
                         {lvl}. {ld.title}
                       </span>
                       <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>{ld.xpRequired} XP</span>
                       {done && <span style={{ color: '#43e97b', fontSize: 14 }}>✓</span>}
-                      {current && <span style={{ color: '#534AB7', fontSize: 11, fontWeight: 600 }}>← ти тут</span>}
+                      {current && <span style={{ color: 'var(--accent-primary)', fontSize: 11, fontWeight: 600 }}>← ти тут</span>}
                     </div>
                   )
                 })}
@@ -309,9 +309,9 @@ const s = {
   pageTitle: { fontSize: 22, fontWeight: 500, color: 'var(--color-text-primary)' },
   tabs: { display: 'flex', gap: 4, background: 'var(--color-background-tertiary, #f4f5f7)', borderRadius: 10, padding: 4, marginBottom: 24, width: 'fit-content' },
   tab: { padding: '8px 16px', background: 'none', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer', color: 'var(--color-text-secondary)', fontWeight: 400, whiteSpace: 'nowrap' },
-  tabActive: { background: 'var(--color-background-primary, #fff)', color: '#534AB7', fontWeight: 500, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' },
+  tabActive: { background: 'var(--accent-glow)', color: 'var(--color-text-primary)', fontWeight: 500, boxShadow: '0 0 12px var(--accent-glow)' },
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' },
-  heroCard: { background: 'linear-gradient(135deg, #534AB7 0%, #7F77DD 100%)', borderRadius: 16, padding: 24, color: '#fff' },
+  heroCard: { position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #534AB7 0%, #7F77DD 100%)', borderRadius: 24, padding: 24, color: '#fff', boxShadow: '0 10px 36px var(--accent-glow)', transition: 'transform 0.25s ease, box-shadow 0.25s ease' },
   heroTop: { display: 'flex', alignItems: 'center', gap: 16 },
   heroAvatar: { width: 64, height: 64, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, flexShrink: 0 },
   heroLevel: { fontSize: 12, opacity: 0.75, marginBottom: 4 },
@@ -320,25 +320,25 @@ const s = {
   xpRow: { display: 'flex', justifyContent: 'space-between', fontSize: 12, opacity: 0.8, marginBottom: 6 },
   xpLabel: { },
   xpBar: { height: 8, background: 'rgba(255,255,255,0.2)', borderRadius: 4, overflow: 'hidden' },
-  xpFill: { height: '100%', background: '#fff', borderRadius: 4, transition: 'width 0.5s ease' },
+  xpFill: { height: '100%', background: 'linear-gradient(90deg, #C4B5FD, #fff)', borderRadius: 4, transition: 'width 0.5s ease', boxShadow: '0 0 8px rgba(255,255,255,0.6)' },
   xpHint: { fontSize: 11, opacity: 0.65, marginTop: 4, textAlign: 'right' },
   streakRow: { display: 'flex', alignItems: 'center', gap: 12, marginTop: 20, background: 'rgba(255,255,255,0.15)', borderRadius: 10, padding: '12px 14px' },
   streakIcon: { fontSize: 28, flexShrink: 0 },
   streakCount: { fontSize: 15, fontWeight: 600 },
   streakDesc: { fontSize: 12, opacity: 0.75, marginTop: 2 },
-  card: { background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary, #e0e0e0)', borderRadius: 12, padding: 16 },
+  card: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', backdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', border: '1px solid var(--glass-border)', borderRadius: 18, padding: 16, boxShadow: 'var(--glass-shadow)' },
   cardLabel: { fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
   archetypeIcon: { width: 48, height: 48, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 },
   levelRow: { display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', borderRadius: 6 },
   sectionTitle: { fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 14 },
   achGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 },
   achCard: { borderRadius: 12, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 6 },
-  achUnlocked: { background: 'var(--color-background-primary)', border: '0.5px solid #AFA9EC' },
-  achLocked: { background: 'var(--color-background-secondary)', border: '0.5px solid var(--color-border-tertiary)' },
+  achUnlocked: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', backdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', border: '1px solid var(--accent-glow)', boxShadow: 'var(--glass-shadow)' },
+  achLocked: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(calc(var(--glass-blur) * 0.5))', backdropFilter: 'blur(calc(var(--glass-blur) * 0.5))', border: '1px solid var(--glass-border)', opacity: 0.7 },
   achIcon: { fontSize: 32, marginBottom: 4 },
   achTitle: { fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)' },
   achDesc: { fontSize: 11, color: 'var(--color-text-tertiary)', lineHeight: 1.4 },
-  achXP: { fontSize: 12, fontWeight: 600, color: '#534AB7', background: '#EEEDFE', padding: '2px 10px', borderRadius: 20 },
+  achXP: { fontSize: 12, fontWeight: 600, color: 'var(--color-text-primary)', background: 'var(--accent-glow)', padding: '2px 10px', borderRadius: 20 },
   achDate: { fontSize: 10, color: 'var(--color-text-tertiary)' },
   challengeBox: { border: '0.5px solid', borderRadius: 10, padding: '16px' },
 }
