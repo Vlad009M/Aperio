@@ -32,7 +32,7 @@ export default function GamePage() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300, flexDirection: 'column', gap: 12 }}>
-      <div style={{ fontSize: 40 }}>⚔️</div>
+      <div style={{ color: 'var(--accent-primary)' }}><GameIcon name="sword" size={40} /></div>
       <div style={{ color: 'var(--color-text-tertiary)', fontSize: 14 }}>Завантаження профілю героя...</div>
     </div>
   )
@@ -45,7 +45,7 @@ export default function GamePage() {
     <div>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <div style={s.pageTitle}>⚔️ Фінансовий Герой</div>
+        <div style={{ ...s.pageTitle, display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ color: 'var(--accent-primary)', display: 'flex' }}><GameIcon name="sword" size={22} /></span> Фінансовий Герой</div>
         <div style={{ fontSize: 13, color: 'var(--color-text-tertiary)', marginTop: 4 }}>
           Твої фінансові звички перетворюються на пригоду
         </div>
@@ -54,12 +54,13 @@ export default function GamePage() {
       {/* Tabs */}
       <div style={{ ...s.tabs, ...(isMobile && { width: '100%' }) }}>
         {[
-          { id: 'hero',       label: '🦸 Герой' },
-          { id: 'achievements', label: `🏆 Ачівки (${achievements.unlocked.length})` },
-          { id: 'challenge',  label: '⚡ Челендж' },
+          { id: 'hero',       label: 'Герой', icon: 'hero' },
+          { id: 'achievements', label: `Ачівки (${achievements.unlocked.length})`, icon: 'trophy' },
+          { id: 'challenge',  label: 'Челендж', icon: 'bolt' },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            style={{ ...s.tab, ...(tab === t.id ? s.tabActive : {}) }}>
+            style={{ ...s.tab, ...(tab === t.id ? s.tabActive : {}), display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ display: 'flex' }}><GameIcon name={t.icon} size={16} /></span>
             {t.label}
           </button>
         ))}
@@ -103,7 +104,7 @@ export default function GamePage() {
             {/* Streak */}
             <div style={s.streakRow}>
               <div style={s.streakIcon}>
-                {streak >= 7 ? '🔥🔥🔥' : streak >= 3 ? '🔥🔥' : '🔥'}
+                <span style={{ color: '#FF922B', display: 'inline-flex', gap: 2 }}>{Array.from({ length: streak >= 7 ? 3 : streak >= 3 ? 2 : 1 }).map((_, i) => <span key={i} className="flame"><GameIcon name="fire" size={24} /></span>)}</span>
               </div>
               <div>
                 <div style={s.streakCount}>{streak} {streak === 1 ? 'день' : streak < 5 ? 'дні' : 'днів'} поспіль</div>
@@ -111,8 +112,8 @@ export default function GamePage() {
                   {streak === 0 ? 'Додай транзакцію щоб почати серію' :
                    streak < 3 ? 'Гарний початок! Продовжуй' :
                    streak < 7 ? 'Відмінна серія! До тижня залишилось ' + (7 - streak) + ' д.' :
-                   streak < 30 ? '🔥 Неймовірно! До місяця: ' + (30 - streak) + ' д.' :
-                   '🏆 Легендарна серія!'}
+                   streak < 30 ? 'Неймовірно! До місяця: ' + (30 - streak) + ' д.' :
+                  'Легендарна серія!'}
                 </div>
               </div>
             </div>
@@ -139,7 +140,7 @@ export default function GamePage() {
               <div style={s.card}>
                 <div style={s.cardLabel}>Твій фінансовий архетип</div>
                 <div style={{ fontSize: 13, color: 'var(--color-text-tertiary)', marginTop: 8, lineHeight: 1.5 }}>
-                  🔍 Додай ще транзакцій щоб система визначила твій архетип
+                  <span style={{ color: 'var(--accent-primary)', display: 'inline-flex', verticalAlign: 'middle', marginRight: 6 }}><GameIcon name="search" size={16} /></span>Додай ще транзакцій щоб система визначила твій архетип
                 </div>
               </div>
             )}
@@ -151,11 +152,14 @@ export default function GamePage() {
                 <div style={{ fontSize: 32, fontWeight: 700, color: savingsRate >= 20 ? '#43e97b' : savingsRate > 0 ? '#fee140' : '#fa709a' }}>
                   {savingsRate}%
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-                  {savingsRate >= 50 ? '🏆 Феноменально! +200 XP бонус' :
-                   savingsRate >= 20 ? '⭐ Чудово! +100 XP бонус' :
-                   savingsRate > 0 ? '💪 Є куди рости. Ціль — 20%' :
-                   '😬 Витрати перевищують доходи'}
+                <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', lineHeight: 1.5, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ display: 'flex', flexShrink: 0, color: savingsRate >= 50 ? '#FFD43B' : savingsRate >= 20 ? '#FCC419' : savingsRate > 0 ? '#40C057' : '#FA5252' }}>
+                    <GameIcon name={savingsRate >= 50 ? 'trophy' : savingsRate >= 20 ? 'trophy' : savingsRate > 0 ? 'muscle' : 'worry'} size={16} />
+                  </span>
+                  {savingsRate >= 50 ? 'Феноменально! +200 XP бонус' :
+                   savingsRate >= 20 ? 'Чудово! +100 XP бонус' :
+                   savingsRate > 0 ? 'Є куди рости. Ціль — 20%' :
+                   'Витрати перевищують доходи'}
                 </div>
               </div>
               <div style={s.xpBar}>
@@ -190,7 +194,7 @@ export default function GamePage() {
                         {lvl}. {ld.title}
                       </span>
                       <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>{ld.xpRequired} XP</span>
-                      {done && <span style={{ color: '#43e97b', fontSize: 14 }}>✓</span>}
+                      {done && <span style={{ color: '#43e97b', display: 'flex' }}><GameIcon name="check" size={16} /></span>}
                       {current && <span style={{ color: 'var(--accent-primary)', fontSize: 11, fontWeight: 600 }}>← ти тут</span>}
                     </div>
                   )
@@ -206,7 +210,7 @@ export default function GamePage() {
         <div>
           {achievements.unlocked.length > 0 && (
             <>
-              <div style={s.sectionTitle}>🏆 Отримані ({achievements.unlocked.length})</div>
+              <div style={{ ...s.sectionTitle, display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ color: '#FFD43B', display: 'flex' }}><GameIcon name="trophy" size={16} /></span>Отримані ({achievements.unlocked.length})</div>
               <div style={s.achGrid}>
                 {achievements.unlocked.map(a => (
                   <div key={a.code} style={{ ...s.achCard, ...s.achUnlocked }}>
@@ -223,7 +227,7 @@ export default function GamePage() {
 
           {achievements.locked.length > 0 && (
             <>
-              <div style={{ ...s.sectionTitle, marginTop: 24 }}>🔒 Заблоковані ({achievements.locked.length})</div>
+             <div style={{ ...s.sectionTitle, marginTop: 24, display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ color: 'var(--color-text-tertiary)', display: 'flex' }}><GameIcon name="lock" size={16} /></span>Заблоковані ({achievements.locked.length})</div>
               <div style={s.achGrid}>
                 {achievements.locked.map(a => (
                   <div key={a.code} style={{ ...s.achCard, ...s.achLocked }}>
@@ -244,7 +248,7 @@ export default function GamePage() {
         <div style={{ maxWidth: 520 }}>
           <div style={s.card}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div style={{ fontSize: 28 }}>⚡</div>
+              <div style={{ color: '#FCC419', display: 'flex' }}><GameIcon name="bolt" size={28} /></div>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text-primary)' }}>Тижневий челендж</div>
                 <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>Оновлюється щопонеділка</div>
@@ -255,7 +259,7 @@ export default function GamePage() {
               <>
                 <div style={{ ...s.challengeBox, borderColor: challenge.completed ? '#43e97b' : '#AFA9EC', background: challenge.completed ? '#f0fff4' : '#F5F4FE' }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: challenge.completed ? '#3B6D11' : '#534AB7', marginBottom: 6 }}>
-                    {challenge.completed ? '✅ Виконано!' : '🎯 Активний челендж'}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><GameIcon name={challenge.completed ? 'check' : 'target'} size={16} />{challenge.completed ? 'Виконано!' : 'Активний челендж'}</span>
                   </div>
                   <div style={{ fontSize: 14, color: 'var(--color-text-primary)', lineHeight: 1.5 }}>
                     {challenge.type === 'spend_less_food' && `Витрать на їжу менше ніж ${Math.round(challenge.targetAmount)}₴ цього тижня`}
@@ -286,12 +290,12 @@ export default function GamePage() {
                   )}
 
                   <div style={{ marginTop: 12, fontSize: 13, fontWeight: 500, color: '#534AB7' }}>
-                    Нагорода: +{challenge.xpReward} XP 🎁
+                    Нагорода: +{challenge.xpReward} XP <span style={{ color: '#F783AC', display: 'inline-flex', verticalAlign: 'middle' }}><GameIcon name="gift" size={16} /></span>
                   </div>
                 </div>
 
                 <div style={{ marginTop: 16, padding: '12px 16px', background: 'var(--color-background-secondary)', borderRadius: 8, fontSize: 12, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-                  💡 Виконуй челенджі щотижня щоб отримувати бонусний XP і швидше підвищувати рівень
+                  <span style={{ color: '#FFD43B', display: 'inline-flex', verticalAlign: 'middle', marginRight: 6 }}><GameIcon name="bulb" size={16} /></span>Виконуй челенджі щотижня щоб отримувати бонусний XP і швидше підвищувати рівень
                 </div>
               </>
             ) : (
