@@ -22,6 +22,7 @@ const api = axios.create({
 api.interceptors.request.use(async (config) => {
   if (isNative) {
     config.headers['X-Client'] = 'capacitor'
+      if (import.meta.env.VITE_APP_CLIENT_SECRET) config.headers['X-Client-Secret'] = import.meta.env.VITE_APP_CLIENT_SECRET
     const { value } = await Preferences.get({ key: 'auth_token' })
     if (value) config.headers['Authorization'] = `Bearer ${value}`
   }

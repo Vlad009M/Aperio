@@ -9,6 +9,17 @@ const { logSecurityEvent, getClientIp, hashEmail } = require('../utils/securityL
 
 const router = express.Router()
 
+// Перевірка, що запит справді від нативного застосунку:
+// заголовок x-client + правильний секрет (вшитий у білд застосунку).
+// Не криптостійко (секрет у білді), але відсікає тривіальну підробку x-client.
+// На релізі замінюється на Play Integrity / App Attest.
+function isNativeClient(req) {
+  if (req.headers['x-client'] !== 'capacitor') return false
+  const expected = process.env.APP_CLIENT_SECRET
+  if (!expected) return true // якщо секрет не налаштований — поводимось як раніше (сумісність)
+  return req.headers['x-client-secret'] === expected
+}
+
 const isProd = process.env.NODE_ENV === 'production'
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
 
@@ -49,7 +60,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Ім\'я мінімум 2 символи' })
     }
 
-    if (req.headers['x-client'] !== 'capacitor') {
+    if (!isNativeClient(req)) {
   if (!captchaToken) {
     return res.status(400).json({ error: 'Капча обов\'язкова' })
   }
@@ -89,7 +100,7 @@ sendVerificationEmail(user.email, user.name, verifyCode).catch(console.error)
 
     res.cookie('token', token, COOKIE_OPTIONS)
     const registerPayload = { user: { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified, avatarUrl: user.avatarUrl } }
-    if (req.headers['x-client'] === 'capacitor') registerPayload.token = token
+    if (isNativeClient(req)) registerPayload.token = token
     res.json(registerPayload)
   } catch (e) {
     res.status(500).json({ error: 'Помилка сервера' })
@@ -105,7 +116,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Введи email і пароль' })
     }
 
-if (req.headers['x-client'] !== 'capacitor') {
+if (!isNativeClient(req)) {
   if (!captchaToken) {
     return res.status(400).json({ error: 'Капча обов\'язкова' })
   }
@@ -149,7 +160,7 @@ if (req.headers['x-client'] !== 'capacitor') {
     logSecurityEvent('auth.login.ok', { ip: getClientIp(req), userId: user.id, role: user.role })
     const loginPayload = { user: { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified, avatarUrl: user.avatarUrl } }
     // Натив не зберігає cookie → токен у тілі лише застосунку (веб його не отримує)
-    if (req.headers['x-client'] === 'capacitor') loginPayload.token = token
+    if (isNativeClient(req)) loginPayload.token = token
     res.json(loginPayload)
   } catch (e) {
     res.status(500).json({ error: 'Помилка сервера' })
