@@ -362,3 +362,27 @@ input, select, textarea, button {
 @media (prefers-reduced-motion: reduce) {
   .ambient-blob { animation: none !important; }
 }
+
+
+/* ============================================================
+   ICON PALETTE — кольори градієнтних SVG-іконок навігації
+   (за еталоном, адаптовано під 3 теми)
+   ============================================================ */
+:root {
+  --ic-1: #6366F1;
+  --ic-2: #8B5CF6;
+  --ic-3: #A78BFA;
+  --ic-accent: #34D399;
+}
+[data-theme="dark"] {
+  --ic-1: #A78BFA;
+  --ic-2: #C4B5FD;
+  --ic-3: #E9D5FF;
+  --ic-accent: #6EE7B7;
+}
+[data-theme="magic"] {
+  --ic-1: #E879F9;
+  --ic-2: #C084FC;
+  --ic-3: #F0ABFC;
+  --ic-accent: #6EE7B7;
+}

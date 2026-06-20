@@ -15,6 +15,7 @@ import GamePage from './GamePage.jsx'
 import GameWidget from '../components/GameWidget.jsx'
 import BudgetSection from '../components/BudgetSection.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
+import NavIcon from '../components/NavIcon.jsx'
 import { useIsMobile } from '../hooks/useResponsive.js'
 import posthog from 'posthog-js'
 import FeedbackModal from '../components/FeedbackModal.jsx'
@@ -480,7 +481,7 @@ const handleResendCode = async () => {
             <button key={item.id}
               onClick={() => item.id === '_feedback' ? setShowFeedback(true) : setActiveTab(item.id)}
             style={{ ...s.navItem, ...(activeTab === item.id ? s.navActive : {}) }}>
-            <i className={`ti ${item.icon}`} style={{ fontSize: 18 }} />
+            <NavIcon name={item.id === '_feedback' ? 'feedback' : item.id} size={22} />
             <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>
             {item.badge > 0 && (
               <span style={s.navBadge}>{item.badge}</span>
@@ -1070,7 +1071,7 @@ const handleResendCode = async () => {
             else { setActiveTab(item.id); setShowMobileMenu(false) }
           }}
           style={{ ...s.moreDrawerItem, ...(activeTab === item.id ? s.moreDrawerActive : {}) }}>
-          <i className={`ti ${item.icon}`} style={{ fontSize: 18 }} />
+          <NavIcon name={item.id === '_feedback' ? 'feedback' : item.id} size={22} />
           <span style={{ flex: 1 }}>{item.label}</span>
           {item.badge > 0 && <span style={s.navBadge}>{item.badge}</span>}
         </button>
