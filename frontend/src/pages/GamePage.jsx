@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import api from '../api/index.js'
 import { useIsMobile } from '../hooks/useResponsive.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import GameIcon from '../components/GameIcon.jsx'
 
 export default function GamePage() {
   const [data, setData] = useState(null)
@@ -71,12 +72,12 @@ export default function GamePage() {
           {/* Картка героя */}
           <div className="glass-shine color-glass" style={s.heroCard}>
             <div style={s.heroTop}>
-              <div style={s.heroAvatar}>{level.icon}</div>
+              <div style={s.heroAvatar}><GameIcon name={`level${level.level}`} size={36} /></div>
               <div>
                 <div style={s.heroLevel}>Рівень {level.level}</div>
                 <div style={s.heroTitle}>{level.title}</div>
                 {level.next && (
-                  <div style={s.heroNext}>Наступний: {level.next.title} {level.next.icon}</div>
+                  <div style={{ ...s.heroNext, display: 'flex', alignItems: 'center', gap: 4 }}>Наступний: {level.next.title} <GameIcon name={`level${level.level + 1}`} size={14} /></div>
                 )}
               </div>
             </div>
@@ -184,7 +185,7 @@ export default function GamePage() {
                   const current = level.level === lvl
                   return (
                     <div key={lvl} style={{ ...s.levelRow, opacity: done || current ? 1 : 0.4, background: current ? 'var(--accent-glow)' : 'transparent', boxShadow: current ? '0 0 12px var(--accent-glow)' : 'none' }}>
-                      <span style={{ fontSize: 16 }}>{ld.icon}</span>
+                      <span style={{ fontSize: 16, display: 'flex' }}><GameIcon name={`level${lvl}`} size={18} /></span>
                       <span style={{ flex: 1, fontSize: 12, fontWeight: current ? 600 : 400, color: current ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}>
                         {lvl}. {ld.title}
                       </span>
