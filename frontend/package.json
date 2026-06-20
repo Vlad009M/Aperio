@@ -13,10 +13,12 @@
     "form-data": "^4.0.4"
   },
   "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^10.0.0",
     "@capacitor/android": "^8.4.0",
     "@capacitor/cli": "^8.4.0",
     "@capacitor/core": "^8.4.0",
     "@capacitor/preferences": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.1",
     "@sentry/react": "^10.58.0",
     "@supabase/supabase-js": "^2.108.2",
     "@tanstack/react-query": "^5.101.0",
@@ -35,7 +37,9 @@
     "recharts": "^2.15.4"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^10.0.1",
+    "@tauri-apps/cli": "^2.11.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",

@@ -7,6 +7,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: false, // не реєструвати Service Worker під час bun run dev
+      },
       includeAssets: ['Aperio.png', 'favicon.svg'],
       manifest: {
         name: 'Aperio — Фінансовий трекер',

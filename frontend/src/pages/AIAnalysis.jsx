@@ -3,6 +3,7 @@ import api from '../api/index.js'
 import { useIsMobile } from '../hooks/useResponsive.js'
 import posthog from 'posthog-js'
 import toast from 'react-hot-toast'
+import UiIcon from '../components/UiIcon.jsx'
 
 const MONO_URL = 'https://send.monobank.ua/jar/93HaeWmhhg'
 
@@ -79,7 +80,7 @@ export default function AIAnalysis({ emailVerified }) {
     <div>
       <div style={{ ...s.header, ...(isMobile && { flexDirection: 'column', gap: 12 }) }}>
         <div>
-          <h1 style={s.title}>🤖 AI Аналіз</h1>
+          <h1 style={{ ...s.title, display: 'flex', alignItems: 'center', gap: 10 }}><UiIcon name="ai" size={28} /> AI Аналіз</h1>
           <p style={s.subtitle}>Claude аналізує твої витрати і дає персональні поради</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -99,19 +100,29 @@ export default function AIAnalysis({ emailVerified }) {
 
       {!analysis && !loading && !error && (
         <div style={s.emptyCard}>
-          <div style={s.emptyIcon}>🤖</div>
+          <div style={s.emptyIcon}><UiIcon name="ai" size={56} /></div>
           <h2 style={s.emptyTitle}>Готовий до аналізу!</h2>
           <p style={s.emptyText}>Натисни кнопку вище і Claude проаналізує твої витрати за поточний місяць, знайде де ти переплачуєш і запропонує бюджет на наступний місяць.</p>
           <div style={{ ...s.features, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
-            {['📊 Загальний висновок про фінанси', '⚠️ Категорії з надмірними витратами', '💡 Конкретні поради з цифрами', '🎯 Рекомендований бюджет'].map((f, i) => (
-              <div key={i} style={s.feature}>{f}</div>
+            {[
+              { icon: 'chart',  color: '#818CF8', text: 'Загальний висновок про фінанси' },
+              { icon: 'alert',  color: '#FBBF24', text: 'Категорії з надмірними витратами' },
+              { icon: 'bulb',   color: '#34D399', text: 'Конкретні поради з цифрами' },
+              { icon: 'target', color: '#FB7185', text: 'Рекомендований бюджет' },
+            ].map((f, i) => (
+              <div key={i} style={s.feature}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = f.color }}
+                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.borderColor = 'var(--glass-border)' }}>
+                <span style={{ color: f.color, flexShrink: 0, display: 'flex' }}><UiIcon name={f.icon} size={22} /></span>
+                {f.text}
+              </div>
             ))}
           </div>
 
           {/* Плашка про ліміти та донат */}
           <div style={s.donateBanner}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', textAlign: 'left' }}>
-              <span style={{ fontSize: 24 }}>☕</span>
+              <span style={{ color: '#C084FC', flexShrink: 0, display: 'flex' }}><UiIcon name="coffee" size={24} /></span>
               <div>
                 <div style={{ fontWeight: 600, color: '#1a1a2e', marginBottom: 4 }}>Як працюють ліміти?</div>
                 <div style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>
@@ -170,24 +181,24 @@ export default function AIAnalysis({ emailVerified }) {
 
 const s = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
-  title: { fontSize: 28, fontWeight: 700, color: '#1a1a2e', marginBottom: 4 },
-  subtitle: { fontSize: 14, color: '#999' },
-  btn: { padding: '12px 24px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 600, whiteSpace: 'nowrap' },
+  title: { fontSize: 28, fontWeight: 700, marginBottom: 4, background: 'linear-gradient(135deg, #818CF8, #C084FC)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', display: 'inline-flex', alignItems: 'center', gap: 10 },
+  subtitle: { fontSize: 14, color: 'var(--color-text-secondary)' },
+  btn: { padding: '12px 24px', background: 'linear-gradient(135deg, #6366F1, #9333EA)', color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer', fontSize: 15, fontWeight: 600, whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(124, 58, 237, 0.45)', transition: 'transform 0.2s ease, box-shadow 0.2s ease' },
   limitBadge: { background: '#f8f9ff', border: '1px solid #e0e7ff', padding: '10px 16px', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#667eea', whiteSpace: 'nowrap' },
-  emptyCard: { background: '#fff', borderRadius: 16, padding: 48, textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
-  emptyIcon: { fontSize: 64, marginBottom: 16 },
-  emptyTitle: { fontSize: 22, fontWeight: 700, color: '#1a1a2e', marginBottom: 8 },
-  emptyText: { fontSize: 15, color: '#666', maxWidth: 480, margin: '0 auto 24px', lineHeight: 1.6 },
-  features: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, maxWidth: 400, margin: '0 auto', marginBottom: 32 },
-  feature: { background: '#f8f9ff', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#555', textAlign: 'left' },
-  donateBanner: { background: '#F5F4FE', borderRadius: 12, padding: 20, maxWidth: 480, margin: '0 auto', border: '1px solid #E6E4FA' },
+  emptyCard: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(var(--glass-blur))', backdropFilter: 'blur(var(--glass-blur))', border: '1px solid var(--glass-border)', borderRadius: 24, padding: 48, textAlign: 'center', boxShadow: 'var(--glass-shadow)' },
+  emptyIcon: { display: 'flex', justifyContent: 'center', marginBottom: 16, filter: 'drop-shadow(0 0 20px rgba(167,139,250,0.5))' },
+  emptyTitle: { fontSize: 22, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 8 },
+  emptyText: { fontSize: 15, color: 'var(--color-text-secondary)', maxWidth: 480, margin: '0 auto 24px', lineHeight: 1.6 },
+  features: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, maxWidth: 520, margin: '0 auto 32px' },
+  feature: { display: 'flex', alignItems: 'center', gap: 10, background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', backdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', border: '1px solid var(--glass-border)', borderRadius: 16, padding: '14px 16px', fontSize: 13, color: 'var(--color-text-primary)', textAlign: 'left', transition: 'transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease' },
+  donateBanner: { background: 'linear-gradient(135deg, rgba(124,58,237,0.14), rgba(99,102,241,0.10))', borderRadius: 16, padding: 20, maxWidth: 520, margin: '0 auto', border: '1px solid rgba(124,58,237,0.25)' },
   donateBtn: { display: 'block', width: '100%', padding: '12px', background: '#7F77DD', color: '#fff', textDecoration: 'none', borderRadius: 8, fontWeight: 600, fontSize: 14, marginTop: 16, transition: 'background 0.2s' },
-  loadingCard: { background: '#fff', borderRadius: 16, padding: 48, textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  loadingCard: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(var(--glass-blur))', backdropFilter: 'blur(var(--glass-blur))', border: '1px solid var(--glass-border)', borderRadius: 24, padding: 48, textAlign: 'center', boxShadow: 'var(--glass-shadow)' },
   spinner: { fontSize: 48, marginBottom: 16 },
-  loadingText: { fontSize: 18, fontWeight: 600, color: '#1a1a2e', marginBottom: 8 },
-  loadingSubtext: { fontSize: 14, color: '#999' },
+  loadingText: { fontSize: 18, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 8 },
+  loadingSubtext: { fontSize: 14, color: 'var(--color-text-tertiary)' },
   errorCard: { background: '#fff5f5', borderRadius: 12, padding: 20, color: '#e53e3e', border: '1px solid #fed7d7' },
-  analysisCard: { background: '#fff', borderRadius: 16, padding: 32, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  analysisCard: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(var(--glass-blur))', backdropFilter: 'blur(var(--glass-blur))', border: '1px solid var(--glass-border)', borderRadius: 24, padding: 32, boxShadow: 'var(--glass-shadow)' },
   analysisHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid #f0f0f0' },
   analysisTag: { background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 },
   analysisDate: { fontSize: 13, color: '#999' },

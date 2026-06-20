@@ -15,7 +15,8 @@ import GamePage from './GamePage.jsx'
 import GameWidget from '../components/GameWidget.jsx'
 import BudgetSection from '../components/BudgetSection.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
-import { useIsMobile } from '../hooks/useResponsive.js'
+import NavIcon from '../components/NavIcon.jsx'
+import { useIsMobile, useIsTablet } from '../hooks/useResponsive.js'
 import posthog from 'posthog-js'
 import FeedbackModal from '../components/FeedbackModal.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -25,26 +26,26 @@ const MONTHS = ['Січень','Лютий','Березень','Квітень',
 
 const CATEGORIES = [
   { name: 'Їжа',              icon: '/icons/food.svg',          color: '#FAECE7', type: 'expense' },
-  { name: 'Кафе та ресторани',icon: '/icons/food.svg',          color: '#FDE8D8', type: 'expense' },
+  { name: 'Кафе та ресторани',icon: '/icons/cafe.svg',          color: '#FDE8D8', type: 'expense' },
   { name: 'Транспорт',        icon: '/icons/transport.svg',     color: '#E3F2FD', type: 'expense' },
   { name: 'Розваги',          icon: '/icons/entertainment.svg', color: '#F3E5F5', type: 'expense' },
   { name: 'Здоров\'я',        icon: '/icons/health.svg',        color: '#FFEBEE', type: 'expense' },
   { name: 'Одяг',             icon: '/icons/clothing.svg',      color: '#FFF8E1', type: 'expense' },
   { name: 'Комунальні',       icon: '/icons/utilities.svg',     color: '#FFF9C4', type: 'expense' },
-  { name: 'Зв\'язок',         icon: '/icons/utilities.svg',     color: '#E8EAF6', type: 'expense' },
-  { name: 'Житло',            icon: '/icons/other.svg',         color: '#F1F8E9', type: 'expense' },
-  { name: 'Навчання',         icon: '/icons/other.svg',         color: '#E8F5E9', type: 'expense' },
-  { name: 'Краса та догляд',  icon: '/icons/health.svg',        color: '#FCE4EC', type: 'expense' },
-  { name: 'Техніка',          icon: '/icons/other.svg',         color: '#E3F2FD', type: 'expense' },
-  { name: 'Подарунки',        icon: '/icons/other.svg',         color: '#FFF3E0', type: 'expense' },
-  { name: 'Подорожі',         icon: '/icons/transport.svg',     color: '#E0F7FA', type: 'expense' },
-  { name: 'Тварини',          icon: '/icons/other.svg',         color: '#F9FBE7', type: 'expense' },
+  { name: 'Зв\'язок',         icon: '/icons/connection.svg',    color: '#E8EAF6', type: 'expense' },
+  { name: 'Житло',            icon: '/icons/home.svg',          color: '#F1F8E9', type: 'expense' },
+  { name: 'Навчання',         icon: '/icons/education.svg',     color: '#E8F5E9', type: 'expense' },
+  { name: 'Краса та догляд',  icon: '/icons/beauty.svg',        color: '#FCE4EC', type: 'expense' },
+  { name: 'Техніка',          icon: '/icons/tech.svg',          color: '#E3F2FD', type: 'expense' },
+  { name: 'Подарунки',        icon: '/icons/gift-out.svg',      color: '#FFF3E0', type: 'expense' },
+  { name: 'Подорожі',         icon: '/icons/travel.svg',        color: '#E0F7FA', type: 'expense' },
+  { name: 'Тварини',          icon: '/icons/pets.svg',          color: '#F9FBE7', type: 'expense' },
   { name: 'Зарплата',         icon: '/icons/salary.svg',        color: '#E8F5E9', type: 'income'  },
   { name: 'Фріланс',          icon: '/icons/freelance.svg',     color: '#E0F7FA', type: 'income'  },
-  { name: 'Підробіток',       icon: '/icons/freelance.svg',     color: '#F0FFF4', type: 'income'  },
-  { name: 'Кешбек',           icon: '/icons/salary.svg',        color: '#E8F5E9', type: 'income'  },
-  { name: 'Подарунок',        icon: '/icons/other.svg',         color: '#FFF8E1', type: 'income'  },
-  { name: 'Інші доходи',      icon: '/icons/salary.svg',        color: '#F3E5F5', type: 'income'  },
+  { name: 'Підробіток',       icon: '/icons/sidehustle.svg',    color: '#F0FFF4', type: 'income'  },
+  { name: 'Кешбек',           icon: '/icons/cashback.svg',      color: '#E8F5E9', type: 'income'  },
+  { name: 'Подарунок',        icon: '/icons/gift-in.svg',       color: '#FFF8E1', type: 'income'  },
+  { name: 'Інші доходи',      icon: '/icons/income-other.svg',  color: '#F3E5F5', type: 'income'  },
   { name: 'Інше',             icon: '/icons/other.svg',         color: '#EDE7F6', type: 'expense' },
 ]
 function SparkLine({ transactions, isMobile }) {
@@ -143,6 +144,7 @@ export default function Dashboard() {
   const [currentUser, setCurrentUser] = useState(user)
   const [gameKey, setGameKey] = useState(0)
   const isMobile = useIsMobile()
+  const isTablet = useIsTablet()
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [emailVerified, setEmailVerified] = useState(user.emailVerified === true)
   const [verifyCode, setVerifyCode] = useState('')
@@ -438,7 +440,12 @@ const handleResendCode = async () => {
   const initials = currentUser.name ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'VL'
 
   return (
-    <div style={{ ...s.app, flexDirection: isMobile ? 'column' : 'row' }}>
+    <div className="app-shell" style={{ ...s.app, flexDirection: isMobile ? 'column' : 'row' }}>
+      <div className="ambient-bg" aria-hidden="true">
+        <div className="ambient-blob blob-1 animate-blob" />
+        <div className="ambient-blob blob-2 animate-blob" />
+        <div className="ambient-blob blob-3 animate-blob" />
+      </div>
       {/* Mobile top bar */}
 {isMobile && (
   <div style={s.mobileTopBar}>
@@ -469,16 +476,13 @@ const handleResendCode = async () => {
         <div style={s.logoRow}>
           <img src="/Aperio.png" alt="Aperio" style={{ width: 34, height: 34, borderRadius: 8, objectFit: 'cover' }} />
           <span style={s.logoText}>Aperio</span>
-          <div style={{ marginLeft: 'auto' }}>
-            <ThemeToggle />
-          </div>
         </div>
         <div style={s.navLabel}>Меню</div>
         {navItems.map(item => (
             <button key={item.id}
               onClick={() => item.id === '_feedback' ? setShowFeedback(true) : setActiveTab(item.id)}
             style={{ ...s.navItem, ...(activeTab === item.id ? s.navActive : {}) }}>
-            <i className={`ti ${item.icon}`} style={{ fontSize: 18 }} />
+            <NavIcon name={item.id === '_feedback' ? 'feedback' : item.id} size={22} />
             <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>
             {item.badge > 0 && (
               <span style={s.navBadge}>{item.badge}</span>
@@ -551,9 +555,12 @@ const handleResendCode = async () => {
                   <button onClick={() => { const d = new Date(filterYear, filterMonth + 1); setFilterMonth(d.getMonth()); setFilterYear(d.getFullYear()) }} style={s.monthBtn}>›</button>
                 </div>
               </div>
-              <button onClick={() => emailVerified && setShowForm(!showForm)} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
-                <i className="ti ti-plus" /> {showForm ? 'Закрити' : 'Додати'}
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                {!isMobile && <ThemeToggle />}
+                <button className="glass-shine" onClick={() => emailVerified && setShowForm(!showForm)} style={{ ...s.addBtn, opacity: emailVerified ? 1 : 0.5 }} disabled={!emailVerified}>
+                  <i className="ti ti-plus" /> {showForm ? 'Закрити' : 'Додати'}
+                </button>
+              </div>
             </div>
 
             {/* FORM */}
@@ -593,11 +600,34 @@ const handleResendCode = async () => {
               </div>
             )}
 
-            <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: isMobile ? 12 : 20 }}>
+            <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: isMobile ? 12 : 20 }}>
               {/* LEFT */}
               <div style={{ minWidth: 0, width: '100%', overflow: 'hidden' }}>
+                <div className="glass-panel-hover glass-shine color-glass" style={s.balanceCard}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={s.balanceLabel}>Загальний баланс</div>
+                      <div style={s.balanceAmount}>₴{stats.balance.toLocaleString()}</div>
+                      <div style={s.balanceRow}>
+                        <div style={s.balanceSub}>
+                          <span style={s.balanceSubLabel}>Доходи</span>
+                          <span style={s.balanceSubVal}>₴{stats.income.toLocaleString()}</span>
+                        </div>
+                        <div style={s.balanceSub}>
+                          <span style={s.balanceSubLabel}>Витрати</span>
+                          <span style={s.balanceSubVal}>₴{stats.expense.toLocaleString()}</span>
+                        </div>
+                        <div style={s.balanceSub}>
+                          <span style={s.balanceSubLabel}>Місяць</span>
+                          <span style={s.balanceSubVal}>{MONTHS[filterMonth].slice(0, 3)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <SparkLine transactions={transactions} isMobile={isMobile} />
+                  </div>
+                </div>
                 {filterMonth === now.getMonth() && filterYear === now.getFullYear() && (
-                  <div style={s.safeCard}>
+                  <div className="glass-panel-hover glass-shine color-glass" style={{ ...s.safeCard, position: 'relative', zIndex: showSafeTooltip ? 50 : 'auto' }}>
                     {safeToSpend === null ? (
                       <div style={{ textAlign: 'center' }}>
                         <div style={s.safeLabel}>💰 Safe-to-Spend</div>
@@ -625,7 +655,7 @@ const handleResendCode = async () => {
                               : 'На основі твоїх бюджетів'}
                           </div>
                         </div>
-                        <div style={s.safeIcon}>💸</div>
+                        <div style={s.safeIcon}><img src="/icons/wallet-white.svg" width={28} height={28} alt="" /></div>
 
                         {showSafeTooltip && safeData && (
                           <div style={s.safeTooltip} onClick={e => e.stopPropagation()}>
@@ -664,29 +694,7 @@ const handleResendCode = async () => {
                     )}
                   </div>
                 )}
-                <div style={s.balanceCard}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                      <div style={s.balanceLabel}>Загальний баланс</div>
-                      <div style={s.balanceAmount}>₴{stats.balance.toLocaleString()}</div>
-                      <div style={s.balanceRow}>
-                        <div style={s.balanceSub}>
-                          <span style={s.balanceSubLabel}>Доходи</span>
-                          <span style={s.balanceSubVal}>₴{stats.income.toLocaleString()}</span>
-                        </div>
-                        <div style={s.balanceSub}>
-                          <span style={s.balanceSubLabel}>Витрати</span>
-                          <span style={s.balanceSubVal}>₴{stats.expense.toLocaleString()}</span>
-                        </div>
-                        <div style={s.balanceSub}>
-                          <span style={s.balanceSubLabel}>Місяць</span>
-                          <span style={s.balanceSubVal}>{MONTHS[filterMonth].slice(0, 3)}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <SparkLine transactions={transactions} isMobile={isMobile} />
-                  </div>
-                </div>
+               
 
                 <div style={{ ...s.statsGrid, ...(isMobile && { gap: 6 }) }}>
                   <div style={s.statCard}>
@@ -730,7 +738,7 @@ const handleResendCode = async () => {
                   <span style={s.seeAll} onClick={() => setActiveTab('transactions')}>Всі →</span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: isMobile ? 12 : 16, alignItems: 'start', width: '100%', boxSizing: 'border-box' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: isMobile ? 12 : 16, alignItems: 'start', width: '100%', boxSizing: 'border-box' }}>
                   <div style={{ ...s.txCard, minWidth: 0 }}>
                     {transactions.slice(0, 6).map(t => {
                       const catDef = CATEGORIES.find(c => c.name === t.category?.name)
@@ -786,9 +794,9 @@ const handleResendCode = async () => {
                         </div>
                       </div>
                       <div style={s.challengeDesc}>
-                        {challengeData.type === 'spend_less_food' && `Витрать на їжу менше ніж ₴${Math.round(challengeData.targetAmount)}`}
-                        {challengeData.type === 'spend_less_fun' && `Витрать на розваги менше ніж ₴${Math.round(challengeData.targetAmount)}`}
-                        {challengeData.type === 'add_transactions' && `Додавай транзакцію кожен день (ціль: ${Math.round(challengeData.targetAmount)})`}
+                        {challengeData.desc || (challengeData.type === 'add_transactions'
+                          ? `Додавай транзакцію кожен день (ціль: ${Math.round(challengeData.targetAmount)})`
+                          : `Витрать менше ніж ₴${Math.round(challengeData.targetAmount)} цього тижня`)}
                       </div>
                       <div style={{ margin: '12px 0 6px', display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>
                         <span>Прогрес</span>
@@ -797,13 +805,13 @@ const handleResendCode = async () => {
                       <div style={s.challengeBar}>
                         <div style={{
                           ...s.challengeBarFill,
-                          width: `${Math.min(challengeData.type === 'add_transactions'
+                          width: `${Math.max(0, Math.min(challengeData.type === 'add_transactions'
                             ? (challengeData.currentAmount / challengeData.targetAmount) * 100
-                            : (1 - challengeData.currentAmount / challengeData.targetAmount) * 100, 100)}%`
+                            : (1 - challengeData.currentAmount / challengeData.targetAmount) * 100, 100))}%`
                         }} />
                       </div>
                       <div style={{ marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>
-                        🎁 Нагорода: +{challengeData.xpReward} XP
+                        Нагорода: +{challengeData.xpReward} XP
                       </div>
                       {challengeData.completed && (
                         <div style={{ marginTop: 8, fontSize: 13, color: '#43e97b', fontWeight: 600 }}>✅ Виконано!</div>
@@ -1006,6 +1014,8 @@ const handleResendCode = async () => {
           <div style={s.footer}>
             <span style={s.footerText}>© 2026 Aperio</span>
             <span style={s.footerDot}>·</span>
+            <a href="/download" style={s.footerLink}>Завантажити застосунок</a>
+            <span style={s.footerDot}>·</span>
             <a href="/about" style={s.footerLink}>Про сервіс</a>
             <span style={s.footerDot}>·</span>
             <a href="/privacy" style={s.footerLink}>Конфіденційність</a>
@@ -1036,7 +1046,9 @@ const handleResendCode = async () => {
           ...s.bottomNavItem,
           ...(activeTab === item.id || (item.id === '_more' && showMobileMenu) ? s.bottomNavActive : {}),
         }}>
-        <i className={`ti ${item.icon}`} style={{ fontSize: 22 }} />
+        {item.id === '_more'
+          ? <i className="ti ti-dots" style={{ fontSize: 22 }} />
+          : <NavIcon name={item.id} size={22} />}
         <span style={{ fontSize: 11, marginTop: 2, fontWeight: activeTab === item.id ? 500 : 400 }}>{item.label}</span>
         {item.id === '_more' && unreadCount > 0 && (
           <span style={{ position: 'absolute', top: 6, right: 10, background: '#993C1D', color: '#fff', borderRadius: 20, padding: '1px 5px', fontSize: 8, fontWeight: 600 }}>{unreadCount}</span>
@@ -1063,7 +1075,7 @@ const handleResendCode = async () => {
             else { setActiveTab(item.id); setShowMobileMenu(false) }
           }}
           style={{ ...s.moreDrawerItem, ...(activeTab === item.id ? s.moreDrawerActive : {}) }}>
-          <i className={`ti ${item.icon}`} style={{ fontSize: 18 }} />
+          <NavIcon name={item.id === '_feedback' ? 'feedback' : item.id} size={22} />
           <span style={{ flex: 1 }}>{item.label}</span>
           {item.badge > 0 && <span style={s.navBadge}>{item.badge}</span>}
         </button>
@@ -1120,12 +1132,12 @@ const handleResendCode = async () => {
 
 const s = {
   app: { display: 'flex', minHeight: '100vh', background: 'var(--color-background-tertiary, #f4f5f7)', width: '100%', maxWidth: '100vw', overflowX: 'hidden' },
-  sidebar: { width: 210, background: 'var(--color-background-primary)', borderRight: '0.5px solid var(--color-border-tertiary)', padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' },
+  sidebar: { width: 210, background: 'var(--color-background-secondary)', WebkitBackdropFilter: 'blur(var(--glass-blur))', backdropFilter: 'blur(var(--glass-blur))', border: '1px solid var(--glass-border)', borderRadius: 24, boxShadow: 'var(--glass-shadow)', padding: '20px 12px', margin: 12, display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 12, height: 'calc(100vh - 24px)', overflowY: 'auto', flexShrink: 0, zIndex: 20 },
   logoRow: { display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px', marginBottom: 20 },
   logoText: { fontSize: 16, fontWeight: 500, color: 'var(--color-text-primary)' },
   navLabel: { fontSize: 10, color: 'var(--color-text-tertiary)', padding: '12px 12px 4px', textTransform: 'uppercase', letterSpacing: 0.6 },
-  navItem: { display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, fontSize: 13, color: 'var(--color-text-secondary)', background: 'transparent', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' },
-  navActive: { background: '#EEEDFE', color: '#534AB7', fontWeight: 500 },
+  navItem: { display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 12, fontSize: 13, color: 'var(--color-text-secondary)', background: 'transparent', border:'none', cursor: 'pointer', width: '100%', textAlign: 'left', transition: 'background 0.2s ease, color 0.2s ease' },
+  navActive: { background: 'var(--accent-glow)', color: 'var(--color-text-primary)', fontWeight: 500, boxShadow: '0 0 12px var(--accent-glow)' },
   navBadge: { background: '#993C1D', color: '#fff', borderRadius: 20, padding: '1px 7px', fontSize: 10, fontWeight: 600 },
   userRow: { display: 'flex', alignItems: 'center', gap: 10, padding: '12px 8px 4px', marginTop: 'auto', borderTop: '0.5px solid var(--color-border-tertiary)' },
   avatar: { width: 34, height: 34, borderRadius: '50%', background: '#EEEDFE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 500, color: '#534AB7', flexShrink: 0 },
@@ -1137,14 +1149,14 @@ const s = {
   monthNav: { display: 'flex', alignItems: 'center', gap: 10 },
   monthBtn: { width: 28, height: 28, borderRadius: '50%', border: '0.5px solid var(--color-border-tertiary)', background: 'var(--color-background-primary)', cursor: 'pointer', fontSize: 16, color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   monthLabel: { fontSize: 13, fontWeight: 500, color: 'var(--color-text-secondary)', minWidth: 120, textAlign: 'center' },
-  addBtn: { display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: '#7F77DD', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontWeight: 500 },
+  addBtn: { position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: 'linear-gradient(135deg, var(--accent-primary), #534AB7)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 13, cursor: 'pointer', fontWeight: 600, boxShadow: '0 4px 16px var(--accent-glow)', transition: 'transform 0.2s ease, box-shadow 0.2s ease' },
   formCard: { background: 'var(--color-background-primary)', border: '0.5px solid #AFA9EC', borderRadius: 12, padding: 20, marginBottom: 20 },
   formTitle: { fontSize: 15, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 14 },
   formRow: { display: 'flex', gap: 10, marginBottom: 10 },
   select: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
   input: { flex: 1, padding: '9px 12px', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--color-background-secondary)', color: 'var(--color-text-primary)' },
   twoCol: { display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, alignItems: 'start', width: '100%', boxSizing: 'border-box' },
-  balanceCard: { borderRadius: 14, padding: '14px 16px', background: 'linear-gradient(135deg, #7F77DD 0%, #534AB7 100%)', color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden', width: '100%', boxSizing: 'border-box' },
+  balanceCard: { borderRadius: 24, padding: '20px 24px', background: 'linear-gradient(135deg, #7F77DD 0%, #534AB7 100%)', color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden', width: '100%', boxSizing: 'border-box', boxShadow: '0 10px 36px var(--accent-glow)', transition: 'transform 0.25s ease, box-shadow 0.25s ease' },
   balanceLabel: { fontSize: 12, opacity: 0.75, marginBottom: 6 },
   balanceAmount: { fontSize: 28, fontWeight: 500, marginBottom: 14 },
   balanceRow: { display: 'flex', gap: 24 },
@@ -1152,7 +1164,7 @@ const s = {
   balanceSubLabel: { fontSize: 11, opacity: 0.7 },
   balanceSubVal: { fontSize: 15, fontWeight: 500 },
   statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 20, maxWidth: '100%' },
-  statCard: { background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 12, padding: '12px 10px', minWidth: 0, overflow: 'hidden' },
+  statCard: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', backdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', border: '1px solid var(--glass-border)', borderRadius: 18, padding: '14px 12px', minWidth: 0, overflow: 'hidden', boxShadow: 'var(--glass-shadow)', transition: 'transform 0.25s ease, box-shadow 0.25s ease' },
   statIcon: { width: 34, height: 34, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   statLabel: { fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 4 },
   statVal: { fontSize: 16, fontWeight: 500, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
@@ -1160,7 +1172,7 @@ const s = {
   sectionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   sectionTitle: { fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)' },
   seeAll: { fontSize: 12, color: '#7F77DD', cursor: 'pointer' },
-  txCard: { background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 12 },
+  txCard: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', backdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', border: '1px solid var(--glass-border)', borderRadius: 18, boxShadow: 'var(--glass-shadow)' },
   txRow: { display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderBottom: '0.5px solid var(--color-border-tertiary)' },
   txIcon: { width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   txInfo: { flex: 1, minWidth: 0 },
@@ -1169,16 +1181,16 @@ const s = {
   txAmount: { fontSize: 13, fontWeight: 500, flexShrink: 0, minWidth: 60, textAlign: 'right' },
   actionBtn: { background: 'none', border: 'none', cursor: 'pointer', padding: '2px', borderRadius: 6, display: 'flex', alignItems: 'center' },
   rightCol: { display: 'flex', flexDirection: 'column', gap: 14 },
-  rightCard: { background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 12, padding: 16 },
+  rightCard: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', backdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', border: '1px solid var(--glass-border)', borderRadius: 18, padding: 16, boxShadow: 'var(--glass-shadow)' },
   bars: { display: 'flex', alignItems: 'flex-end', gap: 6, height: 70, marginTop: 14 },
   barCol: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, height: '100%', justifyContent: 'flex-end' },
   bar: { width: '100%', borderRadius: '3px 3px 0 0', minHeight: 4, transition: 'height 0.3s' },
   barLabel: { fontSize: 10, color: 'var(--color-text-tertiary)' },
-  aiCard: { background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 12, padding: 16 },
+  aiCard: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', backdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', border: '1px solid var(--glass-border)', borderRadius: 18, padding: 16, boxShadow: 'var(--glass-shadow)' },
   aiBadge: { display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEEDFE', color: '#534AB7', fontSize: 11, padding: '4px 10px', borderRadius: 20, marginBottom: 10 },
   aiText: { fontSize: 12, color: 'var(--color-text-secondary)', lineHeight: 1.6, marginBottom: 12 },
   aiBtn: { fontSize: 12, color: '#7F77DD', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 },
-  msgsCard: { background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)', borderRadius: 12, overflow: 'hidden' },
+  msgsCard: { background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', backdropFilter: 'blur(calc(var(--glass-blur) * 0.7))', border: '1px solid var(--glass-border)', borderRadius: 18, overflow: 'hidden', boxShadow: 'var(--glass-shadow)' },
   msgRow: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: '16px 20px', borderBottom: '0.5px solid var(--color-border-tertiary)', cursor: 'pointer', transition: 'background 0.15s' },
   msgLeft: { display: 'flex', gap: 12, flex: 1 },
   msgAvatar: { width: 38, height: 38, borderRadius: '50%', background: '#EEEDFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
@@ -1211,7 +1223,7 @@ const s = {
   footerLink: { fontSize: 12, color: 'var(--color-text-tertiary)', textDecoration: 'none' },
   betaBadge: { display: 'inline-flex', alignItems: 'center', gap: 5, background: '#EEEDFE', color: '#534AB7', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, padding: '3px 8px', borderRadius: 20, border: 'none', cursor: 'pointer' },
   betaDot: { width: 6, height: 6, borderRadius: '50%', background: '#7F77DD', display: 'inline-block', boxShadow: '0 0 0 2px rgba(127,119,221,0.3)' },
-  safeCard: { borderRadius: 14, padding: '14px 16px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 1px 3px rgba(16, 185, 129, 0.15)', width: '100%', boxSizing: 'border-box', position: 'relative' },
+  safeCard: { borderRadius: 24, padding: '18px 20px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 8px 28px rgba(16, 185, 129, 0.28)', width: '100%', boxSizing: 'border-box', position: 'relative', transition: 'transform 0.25s ease, box-shadow 0.25s ease' },
   safeLabel: { fontSize: 12, opacity: 0.85, marginBottom: 6, fontWeight: 500 },
   safeAmount: { fontSize: 30, fontWeight: 600, marginBottom: 4 },
   safeSubtext: { fontSize: 12, opacity: 0.85 },

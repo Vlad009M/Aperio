@@ -5,9 +5,12 @@ import { Toaster } from 'react-hot-toast'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import posthog from 'posthog-js'
 import App from './App.jsx'
+import BiometricGate from './components/BiometricGate.jsx'
 import './index.css'
 import { AuthProvider } from './context/AuthContext.jsx'
 import * as Sentry from '@sentry/react'
+import { Capacitor } from '@capacitor/core'
+import { SplashScreen } from '@capacitor/splash-screen'
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -51,13 +54,20 @@ createRoot(document.getElementById('root')).render(
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <PostHogPageView />
-          <App />
+          <BiometricGate>
+            <App />
+          </BiometricGate>
           <Toaster position="top-right" />
         </BrowserRouter>
       </QueryClientProvider>
     </AuthProvider>
   </StrictMode>
 )
+
+// Ховаємо нативний splash-екран, коли застосунок готовий (лише в застосунку)
+if (Capacitor.isNativePlatform()) {
+  SplashScreen.hide()
+}
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

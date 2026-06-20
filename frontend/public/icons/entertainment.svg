@@ -1,14 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="16" fill="#1a0a2e"/>
-  <path d="M22,42 Q18,35 26,32 L74,32 Q82,35 78,42 L72,68 Q68,76 60,76 L40,76 Q32,76 28,68 Z" fill="#4A235A"/>
-  <path d="M24,43 Q20,37 27,34 L73,34 Q80,37 76,43 L70,67 Q66,74 60,74 L40,74 Q34,74 30,67 Z" fill="#6C3483" opacity="0.8"/>
-  <rect x="30" y="47" width="14" height="5" rx="2" fill="#9B59B6"/>
-  <rect x="34" y="43" width="6" height="13" rx="2" fill="#9B59B6"/>
-  <circle cx="64" cy="46" r="4" fill="#E74C3C"/>
-  <circle cx="72" cy="50" r="4" fill="#F39C12"/>
-  <circle cx="64" cy="54" r="4" fill="#27AE60"/>
-  <circle cx="56" cy="50" r="4" fill="#2980B9"/>
-  <circle cx="50" cy="50" r="5" fill="#7D3C98"/>
-  <circle cx="50" cy="50" r="3" fill="#AF7AC5"/>
-  <ellipse cx="50" cy="54" rx="28" ry="22" fill="#9B59B6" opacity="0.07"/>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <defs><linearGradient id="ent" x1="3" y1="8" x2="21" y2="17" gradientUnits="userSpaceOnUse"><stop stop-color="#DA77F2"/><stop offset="1" stop-color="#9C36B5"/></linearGradient></defs>
+  <path d="M7.5 8h9a4.5 4.5 0 0 1 4.4 5.5l-.5 2.2A2.5 2.5 0 0 1 16 16.8l-1-1.3a2 2 0 0 0-1.6-.8h-2.8a2 2 0 0 0-1.6.8l-1 1.3a2.5 2.5 0 0 1-4.4-1.1l-.5-2.2A4.5 4.5 0 0 1 7.5 8Z" fill="url(#ent)"/>
+  <rect x="6" y="11" width="1.6" height="4" rx="0.8" fill="#fff"/>
+  <rect x="4.2" y="12.4" width="4" height="1.6" rx="0.8" fill="#fff"/>
+  <circle cx="16" cy="11.5" r="1.1" fill="#fff"/>
+  <circle cx="17.8" cy="13.3" r="1.1" fill="#fff"/>
 </svg>

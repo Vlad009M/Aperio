@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import toast from 'react-hot-toast'
 import api from '../api/index.js'
+import UiIcon from './UiIcon.jsx'
 
 const TYPES = [
-  { value: 'bug',   emoji: '🐛', label: 'Знайшов баг',  sub: 'Щось зламалося' },
-  { value: 'idea',  emoji: '💡', label: 'Є ідея',        sub: 'Пропозиція фічі' },
-  { value: 'other', emoji: '❓', label: 'Інше',          sub: 'Загальний відгук' },
+  { value: 'bug',   icon: 'bug',      label: 'Знайшов баг',  sub: 'Щось зламалося' },
+  { value: 'idea',  icon: 'idea',     label: 'Є ідея',        sub: 'Пропозиція фічі' },
+  { value: 'other', icon: 'question', label: 'Інше',          sub: 'Загальний відгук' },
 ]
 
 export default function FeedbackModal({ onClose }) {
@@ -72,7 +73,7 @@ export default function FeedbackModal({ onClose }) {
                     ...(type === t.value ? s.typeBtnActive : {})
                   }}
                 >
-                  <span style={s.typeEmoji}>{t.emoji}</span>
+                  <span style={s.typeEmoji}><UiIcon name={t.icon} size={26} /></span>
                   <span style={s.typeLabel}>{t.label}</span>
                   <span style={s.typeSub}>{t.sub}</span>
                 </button>

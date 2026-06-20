@@ -51,6 +51,12 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  /* Safe-area: відступи під виріз камери та системну навігацію.
+     У застосунку (Capacitor) дає реальні значення; на вебі env(...) = 0, тож веб не змінюється. */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 * {
@@ -76,3 +82,364 @@ input, select, textarea, button {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border-tertiary); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-tertiary); }
+
+
+/* ============================================================
+   GLASSMORPHISM DESIGN SYSTEM (Phase 1 — Foundation)
+   Адитивно: нічого вище не змінюється.
+   ============================================================ */
+
+/* --- Glass-токени для світлої теми (:root) --- */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(226, 232, 240, 0.9);
+  --glass-blur: 16px;
+  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+  --glass-shadow-hover: 0 16px 48px rgba(15, 23, 42, 0.14);
+  --accent-primary: #6366F1;
+  --accent-glow: rgba(99, 102, 241, 0.35);
+  --radius-panel: 28px;
+  --radius-pill: 44px;
+  --app-bg: #F8FAFC;
+}
+
+/* --- Glass-токени для темної теми --- */
+[data-theme="dark"] {
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 20px;
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --accent-primary: #7F77DD;
+  --accent-glow: rgba(127, 119, 221, 0.4);
+  --app-bg: #0A0A0F;
+}
+
+/* --- MAGIC тема (новий механізм, той самий data-theme) --- */
+[data-theme="magic"] {
+  /* глибокий космос — темніше й приглушеніше */
+  --color-background-primary: #120d24;
+  --color-background-secondary: #17112e;
+  --color-background-tertiary: #0d0820;
+  --color-text-primary: #E8E6F5;
+  --color-text-secondary: #9d94bd;
+  --color-text-tertiary: #645a82;
+  --color-border-tertiary: #2a2348;
+
+  --text: #9d94bd;
+  --text-h: #E8E6F5;
+  --bg: #120d24;
+  --border: #2a2348;
+
+  --glass-bg: rgba(255, 255, 255, 0.025);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 22px;
+  --glass-shadow: 0 8px 40px rgba(150, 110, 200, 0.1);
+  --glass-shadow-hover: 0 16px 56px rgba(150, 110, 200, 0.18);
+  --accent-primary: #B57EDC;
+  --accent-glow: rgba(181, 126, 220, 0.32);
+  --app-bg: #0d0820;
+}
+
+/* --- Анімований градієнтний фон для magic-теми --- */
+[data-theme="magic"] body {
+  background: linear-gradient(135deg, #0d0820, #160f2e, #1a1133, #0d0820);
+  background-size: 400% 400%;
+  animation: gradient-x 30s ease infinite;
+}
+
+/* На dark/light лишається твій плоский фон (нічого не змінюємо). */
+
+/* ============================================================
+   GLASS КЛАСИ
+   ============================================================ */
+
+.glass-panel {
+  position: relative;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--glass-shadow);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.glass-panel-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+/* Менш «важка» картка (другорядні блоки) */
+.glass-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.7));
+  backdrop-filter: blur(calc(var(--glass-blur) * 0.7));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+}
+
+/* Sweeping shine — світловий блиск, що проходить по панелі */
+.glass-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.glass-shine:hover::before {
+  animation: shine 1.5s ease-in-out;
+}
+
+/* Текст, що завжди білий (поверх кольорових/градієнтних панелей) */
+.keep-white {
+  color: #ffffff !important;
+}
+
+/* ============================================================
+   NAV (Floating Glass Dock) — базові класи, наповнимо у Фазі 3
+   ============================================================ */
+
+.nav-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  transition: background 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+.nav-box:hover {
+  background: var(--glass-bg);
+}
+.nav-box.active {
+  background: var(--accent-glow);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+.nav-indicator {
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 22px;
+  border-radius: 2px;
+  background: var(--accent-primary);
+}
+.nav-tooltip {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-primary);
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.nav-box:hover .nav-tooltip {
+  opacity: 1;
+}
+
+/* ============================================================
+   ANIMATION TOKEN REGISTRY
+   ============================================================ */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float { animation: float 4s ease-in-out infinite; }
+
+@keyframes gradient-x {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 8s ease infinite;
+}
+
+@keyframes shine {
+  0% { left: -75%; }
+  100% { left: 125%; }
+}
+
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+.animate-blob { animation: blob 16s ease-in-out infinite; }
+
+/* Доступність: вимкнути анімації, якщо користувач просить */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-gradient-x,
+  .animate-blob,
+  [data-theme="magic"] body { animation: none; }
+  .glass-shine:hover::before { animation: none; }
+}
+
+/* Magic-тема: головний контейнер прозорий, щоб просвічував анімований градієнт body */
+[data-theme="magic"] .app-shell {
+  background: transparent !important;
+}
+
+
+/* ============================================================
+   AMBIENT BLOBS — рухомі розмиті плями на фоні.
+   Дають glass-ефекту "що розмивати" в усіх темах.
+   ============================================================ */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ambient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  mix-blend-mode: screen;
+  transition: background-color 0.7s ease;
+}
+.ambient-blob.blob-1 {
+  top: 0; left: 25%;
+  width: 384px; height: 384px;
+}
+.ambient-blob.blob-2 {
+  top: 25%; right: 25%;
+  width: 384px; height: 384px;
+  animation-delay: 2s;
+}
+.ambient-blob.blob-3 {
+  top: 33%; left: -80px;
+  width: 320px; height: 320px;
+}
+
+/* DARK — фіолетова + зелена + підсвітка сайдбара */
+[data-theme="dark"] .ambient-blob.blob-1 { background-color: rgba(147, 51, 234, 0.25); }
+[data-theme="dark"] .ambient-blob.blob-2 { background-color: rgba(16, 185, 129, 0.15); }
+[data-theme="dark"] .ambient-blob.blob-3 { background-color: rgba(124, 58, 237, 0.3); }
+
+/* LIGHT — світліші, multiply, менша непрозорість */
+[data-theme="light"] .ambient-blob,
+:root .ambient-blob {
+  mix-blend-mode: multiply;
+  opacity: 0.3;
+}
+[data-theme="light"] .ambient-blob.blob-1,
+:root .ambient-blob.blob-1 { background-color: rgba(165, 180, 252, 0.6); }
+[data-theme="light"] .ambient-blob.blob-2,
+:root .ambient-blob.blob-2 { background-color: rgba(110, 231, 183, 0.5); }
+[data-theme="light"] .ambient-blob.blob-3,
+:root .ambient-blob.blob-3 { background-color: rgba(165, 180, 252, 0.4); }
+
+/* MAGIC — плями сховані (працює градієнт) */
+[data-theme="magic"] .ambient-blob { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-blob { animation: none !important; }
+}
+
+
+/* ============================================================
+   ICON PALETTE — кольори градієнтних SVG-іконок навігації
+   (за еталоном, адаптовано під 3 теми)
+   ============================================================ */
+:root {
+  --ic-1: #6366F1;
+  --ic-2: #8B5CF6;
+  --ic-3: #A78BFA;
+  --ic-accent: #34D399;
+}
+[data-theme="dark"] {
+  --ic-1: #A78BFA;
+  --ic-2: #C4B5FD;
+  --ic-3: #E9D5FF;
+  --ic-accent: #6EE7B7;
+}
+[data-theme="magic"] {
+  --ic-1: #E879F9;
+  --ic-2: #C084FC;
+  --ic-3: #F0ABFC;
+  --ic-accent: #6EE7B7;
+}
+
+/* ============================================================
+   COLOR-GLASS — скляна глибина для кольорових карток
+   (Balance, Safe) без втрати насиченого кольору
+   ============================================================ */
+.color-glass {
+  position: relative;
+}
+.color-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 40%, transparent 70%);
+  pointer-events: none;
+}
+.color-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.35), inset 0 -20px 40px rgba(0,0,0,0.12);
+  pointer-events: none;
+}
+.color-glass > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   ЖИВИЙ ВОГНИК (streak) — мерехтіння + коливання
+   ============================================================ */
+/* М'яке живе полум'я — плавне дихання + переливання кольору */
+@keyframes flame-breathe {
+  0%   { transform: scale(1) translateY(0) skewX(0deg); }
+  25%  { transform: scale(1.04, 1.07) translateY(-0.5px) skewX(1.5deg); }
+  50%  { transform: scale(0.98, 1.03) translateY(0) skewX(-1deg); }
+  75%  { transform: scale(1.03, 1.05) translateY(-0.3px) skewX(0.8deg); }
+  100% { transform: scale(1) translateY(0) skewX(0deg); }
+}
+@keyframes flame-color {
+  0%, 100% { color: #FF922B; filter: drop-shadow(0 0 4px rgba(255, 146, 43, 0.55)); }
+  35%      { color: #FFB347; filter: drop-shadow(0 0 6px rgba(255, 180, 71, 0.7)); }
+  65%      { color: #FF6B1A; filter: drop-shadow(0 0 7px rgba(255, 107, 26, 0.75)); }
+}
+.flame {
+  display: inline-flex;
+  transform-origin: center bottom;
+  animation: flame-breathe 2.6s ease-in-out infinite, flame-color 3.4s ease-in-out infinite;
+  will-change: transform, filter;
+}
+.flame:nth-child(2) { animation-delay: 0.6s, 0.9s; }
+.flame:nth-child(3) { animation-delay: 1.2s, 1.7s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flame { animation: none; color: #FF922B; }
+}
