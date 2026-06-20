@@ -626,7 +626,7 @@ const handleResendCode = async () => {
                   </div>
                 </div>
                 {filterMonth === now.getMonth() && filterYear === now.getFullYear() && (
-                  <div className="glass-panel-hover glass-shine color-glass" style={s.safeCard}>
+                  <div className="glass-panel-hover glass-shine color-glass" style={{ ...s.safeCard, position: 'relative', zIndex: showSafeTooltip ? 50 : 'auto' }}>
                     {safeToSpend === null ? (
                       <div style={{ textAlign: 'center' }}>
                         <div style={s.safeLabel}>💰 Safe-to-Spend</div>
@@ -1222,7 +1222,7 @@ const s = {
   footerLink: { fontSize: 12, color: 'var(--color-text-tertiary)', textDecoration: 'none' },
   betaBadge: { display: 'inline-flex', alignItems: 'center', gap: 5, background: '#EEEDFE', color: '#534AB7', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, padding: '3px 8px', borderRadius: 20, border: 'none', cursor: 'pointer' },
   betaDot: { width: 6, height: 6, borderRadius: '50%', background: '#7F77DD', display: 'inline-block', boxShadow: '0 0 0 2px rgba(127,119,221,0.3)' },
-  safeCard: { borderRadius: 24, padding: '18px 20px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 8px 28px rgba(16, 185, 129, 0.28)', width: '100%', boxSizing: 'border-box', position: 'relative', overflow: 'hidden', transition: 'transform 0.25s ease, box-shadow 0.25s ease' },
+  safeCard: { borderRadius: 24, padding: '18px 20px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', marginBottom: 16, boxShadow: '0 8px 28px rgba(16, 185, 129, 0.28)', width: '100%', boxSizing: 'border-box', position: 'relative', transition: 'transform 0.25s ease, box-shadow 0.25s ease' },
   safeLabel: { fontSize: 12, opacity: 0.85, marginBottom: 6, fontWeight: 500 },
   safeAmount: { fontSize: 30, fontWeight: 600, marginBottom: 4 },
   safeSubtext: { fontSize: 12, opacity: 0.85 },
