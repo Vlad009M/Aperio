@@ -40,7 +40,7 @@ export default function GamePage() {
 
   if (!data) return null
 
-  const { xp, level, streak, archetype, savingsRate, achievements, challenge } = data
+  const { xp, level, streak, archetype, savingsRate, achievements } = data
 
   return (
     <div>
@@ -57,7 +57,6 @@ export default function GamePage() {
         {[
           { id: 'hero',       label: 'Герой', icon: 'hero' },
           { id: 'achievements', label: `Ачівки (${achievements.unlocked.length})`, icon: 'trophy' },
-          { id: 'challenge',  label: 'Челендж', icon: 'bolt' },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{ ...s.tab, ...(tab === t.id ? s.tabActive : {}), display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -243,70 +242,6 @@ export default function GamePage() {
           )}
         </div>
       )}
-
-      {/* ── CHALLENGE TAB ── */}
-      {tab === 'challenge' && (
-        <div style={{ maxWidth: 520 }}>
-          <div style={s.card}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div style={{ color: '#FCC419', display: 'flex' }}><GameIcon name="bolt" size={28} /></div>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text-primary)' }}>Тижневий челендж</div>
-                <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>Оновлюється щопонеділка</div>
-              </div>
-            </div>
-
-            {challenge ? (
-              <>
-                <div style={{ ...s.challengeBox, borderColor: challenge.completed ? '#43e97b' : '#AFA9EC', background: challenge.completed ? '#f0fff4' : '#F5F4FE' }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: challenge.completed ? '#3B6D11' : '#534AB7', marginBottom: 6 }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><GameIcon name={challenge.completed ? 'check' : 'target'} size={16} />{challenge.completed ? 'Виконано!' : 'Активний челендж'}</span>
-                  </div>
-                  <div style={{ fontSize: 14, color: 'var(--color-text-primary)', lineHeight: 1.5 }}>
-                    {challenge.type === 'spend_less_food' && `Витрать на їжу менше ніж ${Math.round(challenge.targetAmount)}₴ цього тижня`}
-                    {challenge.type === 'spend_less_fun' && `Витрать на розваги менше ніж ${Math.round(challenge.targetAmount)}₴ цього тижня`}
-                    {challenge.type === 'add_transactions' && `Додавай хоча б одну транзакцію кожен день (ціль: ${Math.round(challenge.targetAmount)} записів)`}
-                  </div>
-
-                  {!challenge.completed && (
-                    <div style={{ marginTop: 14 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 6 }}>
-                        <span>Прогрес</span>
-                        <span>
-                          {challenge.type === 'add_transactions'
-                            ? `${Math.round(challenge.currentAmount)} / ${Math.round(challenge.targetAmount)} записів`
-                            : `${Math.round(challenge.currentAmount)}₴ / ${Math.round(challenge.targetAmount)}₴`}
-                        </span>
-                      </div>
-                      <div style={s.xpBar}>
-                        <div style={{
-                          ...s.xpFill,
-                          width: challenge.type === 'add_transactions'
-                            ? `${Math.min((challenge.currentAmount / challenge.targetAmount) * 100, 100)}%`
-                            : `${Math.min((1 - challenge.currentAmount / challenge.targetAmount) * 100, 100)}%`,
-                          background: '#534AB7'
-                        }} />
-                      </div>
-                    </div>
-                  )}
-
-                  <div style={{ marginTop: 12, fontSize: 13, fontWeight: 500, color: '#534AB7' }}>
-                    Нагорода: +{challenge.xpReward} XP <span style={{ color: '#F783AC', display: 'inline-flex', verticalAlign: 'middle' }}><GameIcon name="gift" size={16} /></span>
-                  </div>
-                </div>
-
-                <div style={{ marginTop: 16, padding: '12px 16px', background: 'var(--color-background-secondary)', borderRadius: 8, fontSize: 12, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-                  <span style={{ color: '#FFD43B', display: 'inline-flex', verticalAlign: 'middle', marginRight: 6 }}><GameIcon name="bulb" size={16} /></span>Виконуй челенджі щотижня щоб отримувати бонусний XP і швидше підвищувати рівень
-                </div>
-              </>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--color-text-tertiary)', fontSize: 13 }}>
-                Додай транзакції щоб отримати перший челендж
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
@@ -346,5 +281,4 @@ const s = {
   achDesc: { fontSize: 11, color: 'var(--color-text-tertiary)', lineHeight: 1.4 },
   achXP: { fontSize: 12, fontWeight: 600, color: 'var(--color-text-primary)', background: 'var(--accent-glow)', padding: '2px 10px', borderRadius: 20 },
   achDate: { fontSize: 10, color: 'var(--color-text-tertiary)' },
-  challengeBox: { border: '0.5px solid', borderRadius: 10, padding: '16px' },
 }
