@@ -794,9 +794,9 @@ const handleResendCode = async () => {
                         </div>
                       </div>
                       <div style={s.challengeDesc}>
-                        {challengeData.type === 'spend_less_food' && `Витрать на їжу менше ніж ₴${Math.round(challengeData.targetAmount)}`}
-                        {challengeData.type === 'spend_less_fun' && `Витрать на розваги менше ніж ₴${Math.round(challengeData.targetAmount)}`}
-                        {challengeData.type === 'add_transactions' && `Додавай транзакцію кожен день (ціль: ${Math.round(challengeData.targetAmount)})`}
+                        {challengeData.desc || (challengeData.type === 'add_transactions'
+                          ? `Додавай транзакцію кожен день (ціль: ${Math.round(challengeData.targetAmount)})`
+                          : `Витрать менше ніж ₴${Math.round(challengeData.targetAmount)} цього тижня`)}
                       </div>
                       <div style={{ margin: '12px 0 6px', display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>
                         <span>Прогрес</span>
@@ -805,13 +805,13 @@ const handleResendCode = async () => {
                       <div style={s.challengeBar}>
                         <div style={{
                           ...s.challengeBarFill,
-                          width: `${Math.min(challengeData.type === 'add_transactions'
+                          width: `${Math.max(0, Math.min(challengeData.type === 'add_transactions'
                             ? (challengeData.currentAmount / challengeData.targetAmount) * 100
-                            : (1 - challengeData.currentAmount / challengeData.targetAmount) * 100, 100)}%`
+                            : (1 - challengeData.currentAmount / challengeData.targetAmount) * 100, 100))}%`
                         }} />
                       </div>
                       <div style={{ marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>
-                        🎁 Нагорода: +{challengeData.xpReward} XP
+                        Нагорода: +{challengeData.xpReward} XP
                       </div>
                       {challengeData.completed && (
                         <div style={{ marginTop: 8, fontSize: 13, color: '#43e97b', fontWeight: 600 }}>✅ Виконано!</div>

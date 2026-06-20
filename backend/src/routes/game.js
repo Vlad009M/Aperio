@@ -114,26 +114,44 @@ function getWeekStart() {
 
 function generateChallenge(transactions, categories) {
   const now = new Date()
-  const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1
-  const lastYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear()
+  const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7)
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
 
-  const foodCat = categories.find(c => c.name === 'Їжа')
-  const funCat = categories.find(c => c.name === 'Розваги')
-
-  const lastMonthFood = foodCat
-    ? transactions.filter(t => t.categoryId === foodCat.id && new Date(t.date).getMonth() === lastMonth && new Date(t.date).getFullYear() === lastYear).reduce((s, t) => s + t.amount, 0)
-    : 0
-
-  const lastMonthFun = funCat
-    ? transactions.filter(t => t.categoryId === funCat.id && new Date(t.date).getMonth() === lastMonth && new Date(t.date).getFullYear() === lastYear).reduce((s, t) => s + t.amount, 0)
-    : 0
-
-  if (lastMonthFood > 0) {
-    return { type: 'spend_less_food', targetAmount: lastMonthFood * 0.8, xpReward: 150, title: 'Економ на їжі', desc: `Витрать на їжу менше ніж ${Math.round(lastMonthFood * 0.8)}₴ цього тижня` }
+  // Витрати по категоріях за поточний місяць
+  const catSpend = {}
+  for (const t of transactions) {
+    if (t.type !== 'expense') continue
+    if (new Date(t.date) < monthStart) continue
+    if (!t.categoryId) continue
+    catSpend[t.categoryId] = (catSpend[t.categoryId] || 0) + t.amount
   }
-  if (lastMonthFun > 0) {
-    return { type: 'spend_less_fun', targetAmount: lastMonthFun * 0.7, xpReward: 120, title: 'Без розваг', desc: `Витрать на розваги менше ніж ${Math.round(lastMonthFun * 0.7)}₴ цього тижня` }
+
+  // Правило 1: найвитратніша категорія місяця → скоротити її на тиждень
+  const topCatId = Object.entries(catSpend).sort((a, b) => b[1] - a[1])[0]?.[0]
+  if (topCatId && catSpend[topCatId] > 0) {
+    const cat = categories.find(c => c.id === topCatId)
+    if (cat) {
+      // тижнева ціль = ~80% від середньотижневих витрат по цій категорії
+      const weeklyTarget = Math.round((catSpend[topCatId] / 4) * 0.8)
+      if (weeklyTarget > 0) {
+        return {
+          type: `spend_less:${cat.name}`,
+          targetAmount: weeklyTarget,
+          xpReward: 150,
+          title: `Менше на «${cat.name}»`,
+          desc: `Витрать на «${cat.name}» менше ніж ${weeklyTarget}₴ цього тижня`,
+        }
+      }
+    }
   }
+
+  // Правило 2: низька активність — мало транзакцій за минулий тиждень
+  const lastWeekTx = transactions.filter(t => new Date(t.date) >= weekAgo).length
+  if (lastWeekTx < 3) {
+    return { type: 'add_transactions', targetAmount: 5, xpReward: 100, title: 'Повернись до обліку', desc: 'Додай щонайменше 5 транзакцій цього тижня' }
+  }
+
+  // Правило 3 (дефолт): щоденна звичка
   return { type: 'add_transactions', targetAmount: 7, xpReward: 100, title: 'Щоденний щоденник', desc: 'Додавай хоча б одну транзакцію кожен день цього тижня' }
 }
 
@@ -271,7 +289,10 @@ async function recalcGame(userId) {
         challenge.completed = true
       }
     } else {
-      const catName = existingChallenge.type === 'spend_less_food' ? 'Їжа' : 'Розваги'
+       let catName
+      if (existingChallenge.type.startsWith('spend_less:')) catName = existingChallenge.type.split(':')[1]
+      else if (existingChallenge.type === 'spend_less_food') catName = 'Їжа'
+      else catName = 'Розваги'
       const cat = categories.find(c => c.name === catName)
       const spent = cat ? transactions.filter(t => t.categoryId === cat.id && new Date(t.date) >= weekStart).reduce((s, t) => s + t.amount, 0) : 0
       challenge = { ...existingChallenge, currentAmount: spent }
