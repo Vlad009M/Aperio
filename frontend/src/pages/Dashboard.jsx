@@ -1044,7 +1044,9 @@ const handleResendCode = async () => {
           ...s.bottomNavItem,
           ...(activeTab === item.id || (item.id === '_more' && showMobileMenu) ? s.bottomNavActive : {}),
         }}>
-        <i className={`ti ${item.icon}`} style={{ fontSize: 22 }} />
+        {item.id === '_more'
+          ? <i className="ti ti-dots" style={{ fontSize: 22 }} />
+          : <NavIcon name={item.id} size={22} />}
         <span style={{ fontSize: 11, marginTop: 2, fontWeight: activeTab === item.id ? 500 : 400 }}>{item.label}</span>
         {item.id === '_more' && unreadCount > 0 && (
           <span style={{ position: 'absolute', top: 6, right: 10, background: '#993C1D', color: '#fff', borderRadius: 20, padding: '1px 5px', fontSize: 8, fontWeight: 600 }}>{unreadCount}</span>
