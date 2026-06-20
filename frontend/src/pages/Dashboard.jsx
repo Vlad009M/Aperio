@@ -602,6 +602,29 @@ const handleResendCode = async () => {
             <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: isMobile ? 12 : 20 }}>
               {/* LEFT */}
               <div style={{ minWidth: 0, width: '100%', overflow: 'hidden' }}>
+                <div className="glass-panel-hover glass-shine" style={s.balanceCard}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={s.balanceLabel}>Загальний баланс</div>
+                      <div style={s.balanceAmount}>₴{stats.balance.toLocaleString()}</div>
+                      <div style={s.balanceRow}>
+                        <div style={s.balanceSub}>
+                          <span style={s.balanceSubLabel}>Доходи</span>
+                          <span style={s.balanceSubVal}>₴{stats.income.toLocaleString()}</span>
+                        </div>
+                        <div style={s.balanceSub}>
+                          <span style={s.balanceSubLabel}>Витрати</span>
+                          <span style={s.balanceSubVal}>₴{stats.expense.toLocaleString()}</span>
+                        </div>
+                        <div style={s.balanceSub}>
+                          <span style={s.balanceSubLabel}>Місяць</span>
+                          <span style={s.balanceSubVal}>{MONTHS[filterMonth].slice(0, 3)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <SparkLine transactions={transactions} isMobile={isMobile} />
+                  </div>
+                </div>
                 {filterMonth === now.getMonth() && filterYear === now.getFullYear() && (
                   <div className="glass-panel-hover glass-shine" style={s.safeCard}>
                     {safeToSpend === null ? (
@@ -670,29 +693,7 @@ const handleResendCode = async () => {
                     )}
                   </div>
                 )}
-                <div className="glass-panel-hover glass-shine" style={s.balanceCard}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                      <div style={s.balanceLabel}>Загальний баланс</div>
-                      <div style={s.balanceAmount}>₴{stats.balance.toLocaleString()}</div>
-                      <div style={s.balanceRow}>
-                        <div style={s.balanceSub}>
-                          <span style={s.balanceSubLabel}>Доходи</span>
-                          <span style={s.balanceSubVal}>₴{stats.income.toLocaleString()}</span>
-                        </div>
-                        <div style={s.balanceSub}>
-                          <span style={s.balanceSubLabel}>Витрати</span>
-                          <span style={s.balanceSubVal}>₴{stats.expense.toLocaleString()}</span>
-                        </div>
-                        <div style={s.balanceSub}>
-                          <span style={s.balanceSubLabel}>Місяць</span>
-                          <span style={s.balanceSubVal}>{MONTHS[filterMonth].slice(0, 3)}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <SparkLine transactions={transactions} isMobile={isMobile} />
-                  </div>
-                </div>
+               
 
                 <div style={{ ...s.statsGrid, ...(isMobile && { gap: 6 }) }}>
                   <div style={s.statCard}>
