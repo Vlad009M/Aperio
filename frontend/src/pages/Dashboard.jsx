@@ -16,7 +16,7 @@ import GameWidget from '../components/GameWidget.jsx'
 import BudgetSection from '../components/BudgetSection.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import NavIcon from '../components/NavIcon.jsx'
-import { useIsMobile } from '../hooks/useResponsive.js'
+import { useIsMobile, useIsTablet } from '../hooks/useResponsive.js'
 import posthog from 'posthog-js'
 import FeedbackModal from '../components/FeedbackModal.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -144,6 +144,7 @@ export default function Dashboard() {
   const [currentUser, setCurrentUser] = useState(user)
   const [gameKey, setGameKey] = useState(0)
   const isMobile = useIsMobile()
+  const isTablet = useIsTablet()
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [emailVerified, setEmailVerified] = useState(user.emailVerified === true)
   const [verifyCode, setVerifyCode] = useState('')
@@ -599,7 +600,7 @@ const handleResendCode = async () => {
               </div>
             )}
 
-            <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: isMobile ? 12 : 20 }}>
+            <div style={{ ...s.twoCol, gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: isMobile ? 12 : 20 }}>
               {/* LEFT */}
               <div style={{ minWidth: 0, width: '100%', overflow: 'hidden' }}>
                 <div className="glass-panel-hover glass-shine color-glass" style={s.balanceCard}>
@@ -737,7 +738,7 @@ const handleResendCode = async () => {
                   <span style={s.seeAll} onClick={() => setActiveTab('transactions')}>Всі →</span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: isMobile ? 12 : 16, alignItems: 'start', width: '100%', boxSizing: 'border-box' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: isMobile ? 12 : 16, alignItems: 'start', width: '100%', boxSizing: 'border-box' }}>
                   <div style={{ ...s.txCard, minWidth: 0 }}>
                     {transactions.slice(0, 6).map(t => {
                       const catDef = CATEGORIES.find(c => c.name === t.category?.name)
@@ -1131,7 +1132,7 @@ const handleResendCode = async () => {
 
 const s = {
   app: { display: 'flex', minHeight: '100vh', background: 'var(--color-background-tertiary, #f4f5f7)', width: '100%', maxWidth: '100vw', overflowX: 'hidden' },
-  sidebar: { width: 210, background: 'var(--glass-bg)', WebkitBackdropFilter: 'blur(var(--glass-blur))', backdropFilter: 'blur(var(--glass-blur))', border: '1px solid var(--glass-border)', borderRadius: 24, boxShadow: 'var(--glass-shadow)', padding: '20px 12px', margin: 12, display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 12, height: 'calc(100vh - 24px)', overflowY: 'auto' },
+  sidebar: { width: 210, background: 'var(--color-background-secondary)', WebkitBackdropFilter: 'blur(var(--glass-blur))', backdropFilter: 'blur(var(--glass-blur))', border: '1px solid var(--glass-border)', borderRadius: 24, boxShadow: 'var(--glass-shadow)', padding: '20px 12px', margin: 12, display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 12, height: 'calc(100vh - 24px)', overflowY: 'auto', flexShrink: 0, zIndex: 20 },
   logoRow: { display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px', marginBottom: 20 },
   logoText: { fontSize: 16, fontWeight: 500, color: 'var(--color-text-primary)' },
   navLabel: { fontSize: 10, color: 'var(--color-text-tertiary)', padding: '12px 12px 4px', textTransform: 'uppercase', letterSpacing: 0.6 },
