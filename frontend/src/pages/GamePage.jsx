@@ -4,6 +4,7 @@ import api from '../api/index.js'
 import { useIsMobile } from '../hooks/useResponsive.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import GameIcon from '../components/GameIcon.jsx'
+import AchIcon from '../components/AchIcon.jsx'
 
 export default function GamePage() {
   const [data, setData] = useState(null)
@@ -214,7 +215,7 @@ export default function GamePage() {
               <div style={s.achGrid}>
                 {achievements.unlocked.map(a => (
                   <div key={a.code} style={{ ...s.achCard, ...s.achUnlocked }}>
-                    <div style={s.achIcon}>{a.icon}</div>
+                    <div style={s.achIcon}><AchIcon code={a.code} size={36} /></div>
                     <div style={s.achTitle}>{a.title}</div>
                     <div style={s.achDesc}>{a.desc}</div>
                     <div style={s.achXP}>+{a.xp} XP</div>
@@ -231,7 +232,7 @@ export default function GamePage() {
               <div style={s.achGrid}>
                 {achievements.locked.map(a => (
                   <div key={a.code} style={{ ...s.achCard, ...s.achLocked }}>
-                    <div style={{ ...s.achIcon, filter: 'grayscale(1)', opacity: 0.5 }}>{a.icon}</div>
+                    <div style={{ ...s.achIcon, filter: 'grayscale(1)', opacity: 0.5 }}><AchIcon code={a.code} size={36} /></div>
                     <div style={{ ...s.achTitle, color: 'var(--color-text-tertiary)' }}>{a.title}</div>
                     <div style={s.achDesc}>{a.desc}</div>
                     <div style={{ ...s.achXP, opacity: 0.5 }}>+{a.xp} XP</div>
