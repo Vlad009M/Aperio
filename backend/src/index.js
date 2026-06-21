@@ -27,6 +27,9 @@ const ALLOWED_ORIGINS = [
   'http://localhost',
   'https://localhost',
   'capacitor://localhost',
+  'tauri://localhost',
+  'https://tauri.localhost',
+  'http://tauri.localhost',
 ]
 
 // Helmet — security headers
