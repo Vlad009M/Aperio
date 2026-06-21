@@ -24,10 +24,10 @@ async function removeToken() {
   if (isTauri) localStorage.removeItem('auth_token')
 }
 
-// Адреса бекенду:
-// - застосунок (Capacitor) → завжди прямий бойовий/staging API
+// - застосунок (Capacitor/Tauri) → прямий API. Адреса з VITE_NATIVE_API_URL,
+//   дефолт — БОЙОВИЙ prod (безпечно: якщо env не задано, публічний білд іде на prod).
 // - веб → бере VITE_API_URL (як було), фолбек на localhost для локалки
-const NATIVE_API_URL = 'https://aperio-staging.onrender.com/api'
+const NATIVE_API_URL = import.meta.env.VITE_NATIVE_API_URL || 'https://api.aperio.pp.ua/api'
 const baseURL = isNative
   ? NATIVE_API_URL
   : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api')

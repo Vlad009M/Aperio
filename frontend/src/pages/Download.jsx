@@ -23,7 +23,7 @@ export default function Download() {
   const LINKS = {
     android: null, // 'https://play.google.com/store/apps/details?id=ua.pp.aperio.app'
     ios: null,     // 'https://apps.apple.com/app/aperio/idXXXXXXXX'
-    windows: null, // '/downloads/Aperio-Setup.exe'
+    windows: 'https://github.com/Vlad009M/Aperio/releases/download/v0.1.0/Aperio_0.1.0_x64-setup.exe',
     macos: null,   // '/downloads/Aperio.dmg'
     linux: null,   // '/downloads/Aperio.AppImage'
     web: '/login',
@@ -70,7 +70,13 @@ export default function Download() {
                 <div style={s.cardTitle}>{p.title}</div>
                 <div style={s.cardDesc}>{p.desc}</div>
                 {available ? (
-                  <a href={url} style={{ ...s.btn, ...(isRecommended ? s.btnPrimary : s.btnSecondary) }}>
+                  <a
+                    href={url}
+                    {...(/\.(exe|msi|dmg|AppImage|deb)$/i.test(url) ? { download: '' } : {})}
+                    target={url.startsWith('http') ? '_blank' : undefined}
+                    rel={url.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    style={{ ...s.btn, ...(isRecommended ? s.btnPrimary : s.btnSecondary) }}
+                  >
                     {p.ctaReady}
                   </a>
                 ) : (
@@ -81,10 +87,16 @@ export default function Download() {
           })}
         </div>
 
-        {/* Підказка */}
+        {/* Підказка щодо встановлення на Windows */}
         <div style={s.note}>
-          Застосунки для Android, iOS та десктопу зараз готуються до публікації. Поки що
-          користуйтеся веб-версією — вона має всі ті самі можливості й працює офлайн як PWA.
+          <strong>Встановлення на Windows:</strong> завантажте файл і запустіть його. Оскільки
+          застосунок ще не має цифрового підпису, Windows може показати вікно «Систему Windows
+          захищено». Це нормально — натисніть <strong>«Детальніше»</strong>, а потім{' '}
+          <strong>«Усе одно виконати»</strong>, щоб продовжити встановлення.
+        </div>
+        <div style={{ ...s.note, marginTop: 8 }}>
+          Застосунки для Android, iOS, macOS та Linux зараз готуються. Поки що користуйтеся
+          веб-версією або десктопним застосунком для Windows.
         </div>
 
         {/* Назад */}
