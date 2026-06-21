@@ -69,8 +69,17 @@ if (Capacitor.isNativePlatform()) {
   SplashScreen.hide()
 }
 
+// Service Worker — тільки для веб-PWA. У нативних застосунках (Capacitor/Tauri)
+// SW шкідливий: кешує стару версію і перехоплює API-запити. Тож вимикаємо й чистимо.
+const isNativeApp = window.Capacitor?.isNativePlatform?.() || !!window.__TAURI_INTERNALS__
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-  })
+  if (isNativeApp) {
+    // Прибираємо вже зареєстрований SW (інакше старий кеш заважає)
+    navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()))
+    if (window.caches?.keys) caches.keys().then(ks => ks.forEach(k => caches.delete(k)))
+  } else {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+    })
+  }
 }

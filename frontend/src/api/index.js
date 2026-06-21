@@ -2,7 +2,27 @@ import axios from 'axios'
 import { Capacitor } from '@capacitor/core'
 import { Preferences } from '@capacitor/preferences'
 
-const isNative = Capacitor.isNativePlatform()
+const isCapacitor = Capacitor.isNativePlatform()
+// Tauri (desktop) інжектить __TAURI_INTERNALS__ у window — так розпізнаємо desktop-застосунок
+const isTauri = typeof window !== 'undefined' && !!window.__TAURI_INTERNALS__
+// Будь-який нативний застосунок (телефон або desktop) — на відміну від веб-браузера
+export const isNative = isCapacitor || isTauri
+
+// Зберігання токена різне: Capacitor → Preferences (нативне сховище),
+// Tauri/desktop → localStorage (ізольований per-app у webview)
+async function getToken() {
+  if (isCapacitor) { const { value } = await Preferences.get({ key: 'auth_token' }); return value }
+  if (isTauri) return localStorage.getItem('auth_token')
+  return null
+}
+async function setToken(value) {
+  if (isCapacitor) return Preferences.set({ key: 'auth_token', value })
+  if (isTauri) localStorage.setItem('auth_token', value)
+}
+async function removeToken() {
+  if (isCapacitor) return Preferences.remove({ key: 'auth_token' })
+  if (isTauri) localStorage.removeItem('auth_token')
+}
 
 // Адреса бекенду:
 // - застосунок (Capacitor) → завжди прямий бойовий/staging API
@@ -20,10 +40,10 @@ const api = axios.create({
 // На КОЖЕН запит у застосунку додаємо Bearer-токен і позначку клієнта.
 // На вебі цей блок не робить нічого (isNative === false).
 api.interceptors.request.use(async (config) => {
-  if (isNative) {
+ if (isNative) {
     config.headers['X-Client'] = 'capacitor'
-      if (import.meta.env.VITE_APP_CLIENT_SECRET) config.headers['X-Client-Secret'] = import.meta.env.VITE_APP_CLIENT_SECRET
-    const { value } = await Preferences.get({ key: 'auth_token' })
+    if (import.meta.env.VITE_APP_CLIENT_SECRET) config.headers['X-Client-Secret'] = import.meta.env.VITE_APP_CLIENT_SECRET
+    const value = await getToken()
     if (value) config.headers['Authorization'] = `Bearer ${value}`
   }
   return config
@@ -32,12 +52,12 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   async (response) => {
     // Застосунок: якщо бекенд повернув токен (логін/реєстрація) — зберігаємо його.
-    if (isNative && response.data?.token) {
-      await Preferences.set({ key: 'auth_token', value: response.data.token })
+   if (isNative && response.data?.token) {
+      await setToken(response.data.token)
     }
     // Застосунок: на логауті — стираємо токен.
     if (isNative && response.config?.url?.includes('/auth/logout')) {
-      await Preferences.remove({ key: 'auth_token' })
+      await removeToken()
     }
     return response
   },
@@ -49,7 +69,7 @@ api.interceptors.response.use(
       if (error.config?.url?.includes('/auth/me') &&
           !PUBLIC_PATHS.includes(currentPath)) {
         localStorage.removeItem('user')
-        if (isNative) Preferences.remove({ key: 'auth_token' })
+        if (isNative) removeToken()
         window.location.href = '/login'
       }
     }

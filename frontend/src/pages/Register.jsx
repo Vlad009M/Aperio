@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import ReCAPTCHA from 'react-google-recaptcha'
-import api from '../api/index.js'
+import api, { isNative as apiIsNative } from '../api/index.js'
 import { Capacitor } from '@capacitor/core'
 import posthog from 'posthog-js'
 import { useIsMobile } from '../hooks/useResponsive.js'
@@ -16,7 +16,7 @@ export default function Register() {
   const [captchaToken, setCaptchaToken] = useState(null)
   const isMobile = useIsMobile()
   const [showPassword, setShowPassword] = useState(false)
-  const isNative = Capacitor.isNativePlatform()
+  const isNative = apiIsNative
 
   const getPasswordStrength = (pwd) => {
   const checks = {
